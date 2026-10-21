@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Speed Garage Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<style>
+:root{--bg:#f4f4f5;--c:#fff;--t:#18181b;--m:#71717a;--b:#e4e4e7;--r:#dc2626;--ok:#16a34a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111;--c:#1c1c1f;--t:#f4f4f5;--m:#a1a1aa;--b:#33333a}}
+:root[data-theme="dark"]{--bg:#111;--c:#1c1c1f;--t:#f4f4f5;--m:#a1a1aa;--b:#33333a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t);font:15px system-ui,-apple-system,sans-serif}
+header{background:#000;color:#fff;padding:10px 16px;font-weight:700;border-bottom:3px solid var(--r);display:flex;align-items:center;gap:10px}
+header span{flex:1}
+header small{font-weight:400;font-size:12px;opacity:.85}
+nav{display:flex;flex-direction:column;gap:4px;padding:8px;width:220px;flex:none;background:var(--c);border-right:1px solid var(--b);min-height:calc(100vh - 60px)}
+nav button{text-align:left;border:0;background:none;color:var(--m);padding:10px 12px;border-radius:8px;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+nav button.on{background:var(--r);color:#fff}
+nav button:hover:not(.on){background:var(--b)}
+.wrap{display:flex;align-items:stretch;min-height:calc(100vh - 60px)}
+main{flex:1;min-width:0;padding:16px;max-width:1000px}
+.mb{display:none;background:none;border:0;color:#fff;font-size:22px;padding:0;cursor:pointer}
+@media (max-width:700px){nav{position:fixed;left:0;top:0;bottom:0;z-index:20;width:230px;transform:translateX(-100%);transition:transform .2s;overflow-y:auto}nav.open{transform:none;box-shadow:4px 0 16px rgba(0,0,0,.4)}.mb{display:inline-block}}
+.card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.k{font-size:24px;font-weight:700}
+.m{color:var(--m);font-size:13px}
+input,select,textarea{width:100%;padding:10px;margin:4px 0;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);font:inherit}
+button.p{background:var(--r);color:#fff;border:0;border-radius:8px;padding:11px 16px;font:inherit;font-weight:600;margin-top:8px;cursor:pointer}
+button.p:hover{opacity:.9}
+button.s{background:none;border:1px solid var(--b);color:var(--t);border-radius:6px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer;margin:2px}
+button.s:hover{background:var(--b)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--b)}
+.tag{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--b)}
+.tag.pdg{background:#7c3aed;color:#fff}
+.tag.sec{background:#0891b2;color:#fff}
+.tag.mkt{background:#ea580c;color:#fff}
+.ref{font-family:monospace;font-size:12px;background:var(--b);padding:2px 7px;border-radius:5px}
+#lock{position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto}
+.loading{text-align:center;padding:40px;color:var(--m)}
+</style>
+</head>
+<body>
+
+<div id="lock"></div>
+<header id="hd" style="display:none"></header>
+<div class="wrap" id="wrap" style="display:none">
+  <nav id="nav"></nav>
+  <main id="app"></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://qmgjokjuvnscuqvivklc.supabase.co";
+const SUPABASE_KEY = "sb_publishable_6dWTuzuT9i_DTM1qo3Yz_Q_N78vPXqL";
+
+const $ = id => document.getElementById(id);
+const e = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const f = n => (+n || 0).toLocaleString("fr-FR", {maximumFractionDigits:0}) + " GNF";
+
+let supa = null, session = null, profil = null;
+let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[]};
+let tab = "Tableau de bord", idleT = null, q = "";
+
+const ROLES = {
+  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
+    can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
+  SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Se déconnecter"],
+    can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
+  MARKETING: {label:"Marketing", cls:"mkt", pages:["Tableau de bord","Clients","Véhicules","Se déconnecter"],
+    can:{editClients:false,editDevis:false,editFactures:false,editStock:false,deleteAny:false,viewAudit:false,exportData:true}}
+};
+
+function showLock(html){ $("lock").style.display="block"; $("hd").style.display="none"; $("wrap").style.display="none"; $("lock").innerHTML=html; }
+
+function showLogin(msg) {
+  showLock(`<div style="max-width:400px;margin:8vh auto;padding:24px">
+    <div style="text-align:center"><div style="font-size:48px">🔧</div>
+    <h2 style="margin:8px 0">SPEED GARAGE PRO</h2>
+    <div style="border-top:2px solid var(--r);margin:10px 0 18px"></div></div>
+    <div class="card">
+      <label class="m">Email</label>
+      <input id="lu" type="email" value="pdg@speedgarage.local">
+      <label class="m">Mot de passe</label>
+      <input id="lp" type="password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="p" style="width:100%" onclick="doLogin()">SE CONNECTER</button>
+      <p id="lm" class="m" style="color:var(--r);margin-top:10px">${msg||""}</p>
+    </div>
+    <p class="m" style="text-align:center">NIF 931828172 · RCCM GN.TCC.2026.B.13913</p>
+  </div>`);
+}
+
+async function doLogin() {
+  const email = $("lu").value.trim().toLowerCase(), pw = $("lp").value, m = $("lm");
+  m.textContent = "Connexion…";
+  try {
+    const { data: d, error } = await supa.auth.signInWithPassword({email, password:pw});
+    if (error) { m.textContent = "Échec : " + error.message; return; }
+    session = d.session; await loadProfil();
+  } catch(x) { m.textContent = "Erreur réseau."; }
+}
+
+async function loadProfil() {
+  const { data: p, error } = await supa.from("profiles").select("*").eq("id", session.user.id).single();
+  if (error || !p) { showLogin("Profil introuvable."); return; }
+  profil = p; enterApp();
+}
+
+function enterApp() {
+  $("lock").style.display="none"; $("hd").style.display="flex"; $("wrap").style.display="flex";
+  jlog("Connexion", profil.username, ""); loadAllData(); resetIdle();
+}
+
+function logout() { if (!confirm("Se déconnecter ?")) return; supa.auth.signOut().then(()=>location.reload()); }
+function resetIdle() { clearTimeout(idleT); idleT = setTimeout(()=>{ supa.auth.signOut().then(()=>location.reload()); }, 7200000); }
+["click","keydown","touchstart"].forEach(ev => addEventListener(ev, () => { if(profil) resetIdle(); }));
+function go(t){ tab=t; q=""; $("nav").classList.remove("open"); render(); }
+
+async function loadAllData() {
+  const R = ROLES[profil.role];
+  const tasks = [
+    supa.from("clients").select("*").order("created_at",{ascending:false}).then(r=>data.clients=r.data||[]),
+    supa.from("techniciens").select("*").order("nom").then(r=>data.techs=r.data||[]),
+    supa.from("devis").select("*").order("created_at",{ascending:false}).then(r=>data.devis=r.data||[]),
+    supa.from("factures").select("*").order("created_at",{ascending:false}).then(r=>data.factures=r.data||[]),
+    supa.from("rdv").select("*").order("date_rdv", {ascending:true}).then(r=>data.rdv=r.data||[]),
+    supa.from("vehicules").select("*").then(r=>data.vehicules=r.data||[]),
+    supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
+  ];
+  if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
+  if (R.can.viewAudit) tasks.push(supa.from("journal").select("*").then(r=>data.journal=r.data||[]));
+  await Promise.all(tasks); render();
+}
+
+async function jlog(action, reference, details) {
+  if (!profil || !session) { console.log("jlog ignoré (pas de session)"); return; }
+  try {
+    const { error } = await supa.from("journal").insert({
+      utilisateur_id: session.user.id,
+      utilisateur_nom: profil.username,
+      role: profil.role,
+      action: action,
+      reference: reference,
+      details: details || ""
+    });
+    if (error) {
+      console.error("ERREUR JOURNAL :", error);
+      alert("Erreur journal : " + error.message);
+    }
+  } catch(x) {
+    console.error("ERREUR CATCH JOURNAL :", x);
+    alert("Erreur catch journal : " + x.message);
+  }
+}
+
+function render() {
+  if (!profil) return;
+  const R = ROLES[profil.role];
+  if (!R.pages.includes(tab)) tab = "Tableau de bord";
+  $("hd").innerHTML = `<button class="mb" onclick="$('nav').classList.toggle('open')">☰</button><span>SPEED GARAGE PRO</span><small>${e(profil.name||profil.username)} · <span class="tag ${R.cls}">${R.label}</span></small>`;
+  $("nav").innerHTML = R.pages.map(t => `<button class="${t===tab?"on":""}" onclick="go('${t.replace(/'/g,"\\'")}')">${t}</button>`).join("");
+  const A = $("app");
+  if (tab==="Tableau de bord") renderDashboard(A);
+  else if (tab==="Planning") renderPlanning(A);
+  else if (tab==="Rappels d'entretien") renderRappels(A);
+  else if (tab==="Clients") renderClients(A);
+  else if (tab==="Véhicules") renderVehicules(A);
+  else if (tab==="Devis") renderDevis(A);
+  else if (tab==="Factures") renderFactures(A);
+  else if (tab==="Stock") renderStock(A);
+  else if (tab==="Techniciens") renderTechs(A);
+  else if (tab==="Journal d'audit") renderAudit(A);
+  else if (tab==="Statistiques") renderStats(A);
+  else if (tab==="Paramètres") renderParams(A);
+  else if (tab==="Se déconnecter") renderLogout(A);
+}
+
+function renderDashboard(A) {
+  const ca = data.factures.filter(o=>o.statut==="Payé").reduce((a,o)=>a+(+o.total_ttc||0),0);
+  const impayees = data.factures.filter(o=>o.statut!=="Payé").length;
+  const stockBas = data.stock.filter(s=>+s.qte<=+s.seuil_alerte).length;
+  const rdvJour = data.rdv.filter(r=>r.date_rdv === new Date().toISOString().slice(0,10)).length;
+
+  A.innerHTML = `<div class="grid">
+    <div class="card"><div class="k">${data.clients.length}</div><div class="m">Clients</div></div>
+    <div class="card"><div class="k">${data.vehicules.length}</div><div class="m">Véhicules</div></div>
+    <div class="card"><div class="k">${impayees}</div><div class="m">Factures en cours</div></div>
+    <div class="card"><div class="k">${f(ca)}</div><div class="m">Encaissé TTC</div></div>
+    ${ROLES[profil.role].can.editStock?`<div class="card"><div class="k">${stockBas}</div><div class="m">Stock bas</div></div>`:""}
+    <div class="card"><div class="k">${rdvJour}</div><div class="m">RDV aujourd'hui</div></div>
+  </div>
+  <div class="card"><b>Bienvenue ${e(profil.name||profil.username)}</b><p class="m">Connecté en tant que <b>${ROLES[profil.role].label}</b>.</p></div>`;
+}
+
+/* --- PLANNING --- */
+async function addRdv() {
+  if (!ROLES[profil.role].can.editClients) return;
+  const cid = $("rd_client").value; if (!cid) { alert("Choisissez un client."); return; }
+  const d = $("rd_date").value; if (!d) { alert("Choisissez une date."); return; }
+  const { error } = await supa.from("rdv").insert({
+    client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom,
+    vehicule: ($("rd_marque").value.trim() + " " + $("rd_modele").value.trim()).trim(), immat: $("rd_immat").value.trim(),
+    date_rdv: d, heure_rdv: $("rd_heure").value, motif: $("rd_motif").value.trim(), created_by: session.user.id
+  });
+  if (error) { alert("Erreur : "+error.message); return; }
+  await jlog("Nouveau RDV", cid + " le " + d, ""); await loadAllData();
+}
+
+function remplirVehiculeRdv(id) {
+  if (!id) return; const v = data.vehicules.find(x => x.id === id); if (!v) return;
+  $("rd_marque").value = v.marque; $("rd_modele").value = v.modele; $("rd_immat").value = v.immat;
+  if (v.client_id) $("rd_client").value = v.client_id;
+}
+
+async function deleteRdv(id) { if (!confirm("Annuler ce RDV ?")) return; await supa.from("rdv").delete().eq("id", id); await loadAllData(); }
+
+function renderPlanning(A) {
+  const peutEditer = ROLES[profil.role].can.editClients;
+  const today = new Date().toISOString().slice(0,10);
+  const prochains = [...data.rdv].sort((a,b) => a.date_rdv.localeCompare(b.date_rdv)).filter(r => r.date_rdv >= today);
+
+  A.innerHTML = `
+    ${peutEditer?`<div class="card"><b>➕ Nouveau rendez-vous</b>
+      <select id="rd_client"><option value="">Client…</option>${data.clients.map(c=>`<option value="${c.id}">${e(c.nom)}</option>`).join("")}</select>
+      <select id="rd_vehicule_select" onchange="remplirVehiculeRdv(this.value)" style="font-weight:bold; margin-bottom:5px">
+        <option value="">⬇️ Choisir un véhicule existant...</option>
+        ${data.vehicules.map(v => `<option value="${v.id}">${e(v.marque)} ${e(v.modele)} (${e(v.immat)})</option>`).join("")}
+      </select>
+      <div style="display:flex; gap:8px"><input id="rd_marque" placeholder="Marque" style="flex:1"><input id="rd_modele" placeholder="Modèle" style="flex:1"></div>
+      <input id="rd_immat" placeholder="Immatriculation">
+      <div style="display:flex; gap:8px"><input id="rd_date" type="date" style="flex:2"><input id="rd_heure" type="time" style="flex:1"></div>
+      <input id="rd_motif" placeholder="Motif (ex: Vidange)">
+      <button class="p" onclick="addRdv()">Enregistrer le RDV</button></div>`:""}
+    <div class="card"><b>📅 Prochains rendez-vous</b></div>
+    ${prochains.map(r=>`<div class="card" style="border-left: 4px solid var(--r)"><div class="row" style="border-top:0"><div style="flex:1">
+      <b style="font-size:16px">${e(r.date_rdv)}</b> à <b>${e(r.heure_rdv || '--:--')}</b><br>
+      <b>${e(r.client_nom)}</b> — ${e(r.vehicule)} ${e(r.immat)}<br><span class="m">${e(r.motif || 'Pas de motif')}</span>
+    </div><div>${peutEditer?`<button class="s" onclick="deleteRdv('${r.id}')">🗑️</button>`:""}</div></div></div>`).join("") || '<div class="card m">Aucun rendez-vous.</div>'}`;
+}
+
+/* --- RAPPELS --- */
+let clientRappelId = null;
+async function definirRappel(clientId) { clientRappelId = clientId; render(); }
+async function sauverRappel() {
+  const km = +$("rap_km").value || 0, dateVal = $("rap_date").value || null, veh = $("rap_vehicule").value.trim();
+  await supa.from("clients").update({prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh}).eq("id", clientRappelId);
+  const cl = data.clients.find(c => c.id === clientRappelId);
+  await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
+  clientRappelId = null; await loadAllData();
+}
+
+function renderRappels(A) {
+  const peutEditer = ROLES[profil.role].can.editClients;
+  const aRappeler = data.clients.filter(c => (c.prochain_km > 0) || c.prochaine_date);
+  let formHtml = "";
+  if (clientRappelId) {
+    const cl = data.clients.find(c => c.id === clientRappelId);
+    if (cl) formHtml = `<div class="card" style="border:2px solid var(--r)"><b>🔔 Définir le rappel pour ${e(cl.nom)}</b>
+      <input id="rap_vehicule" placeholder="Véhicule / Immatriculation" value="${e(cl.vehicule_rappel || (data.vehicules.find(v => v.client_id === cl.id)?.immat) || '')}">
+      <input id="rap_km" type="number" placeholder="Prochain entretien km (ex: 65000)" value="${cl.prochain_km || ''}">
+      <input id="rap_date" type="date" value="${cl.prochaine_date || (() => { let d = new Date(); d.setMonth(d.getMonth() + 6); return d.toISOString().slice(0,10); })()}">
+      <div style="display:flex; gap:8px; margin-top:8px"><button class="p" onclick="sauverRappel()">Enregistrer</button><button class="s" onclick="clientRappelId=null; render()">Annuler</button></div></div>`;
+  }
+  A.innerHTML = `${formHtml}<div class="card"><b>🔔 Prochains entretiens</b></div>
+    ${aRappeler.map(c => {
+      const facturesClient = data.factures.filter(f => f.client_id === c.id).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
+      let factureVeh = facturesClient.find(f => f.immat && c.vehicule_rappel && c.vehicule_rappel.includes(f.immat)) || facturesClient[0];
+      const dernierKm = factureVeh ? factureVeh.kilometrage : 0;
+      const estDepasse = c.prochain_km > 0 && dernierKm >= c.prochain_km;
+      let msgSMS = `Bonjour ${c.nom}, il est temps de prévoir l'entretien de votre véhicule ${c.vehicule_rappel || 'inconnu'}. Contactez Speed Garage Pro.`;
+      return `<div class="card" style="border-left: 4px solid ${estDepasse ? 'var(--r)' : 'var(--ok)'}"><div class="row" style="border-top:0"><div style="flex:1">
+        <b>${e(c.nom)}</b> ${estDepasse ? '<span class="tag" style="background:var(--r);color:#fff">⚠️ À RAPPELER</span>' : ''}<br>
+        <span class="m">🚗 ${e(c.vehicule_rappel || 'Inconnu')}<br>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')}</b><br>🎯 Rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') : '—'} km</b></span>
+      </div><div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end">
+        ${peutEditer ? `<button class="s" onclick="definirRappel('${c.id}')">✏️ Modifier</button>` : ''}
+        <button class="s" style="background:#0891b2; color:#fff; border:none" onclick="envoyerSMS('${c.tel}', \`${msgSMS}\`)">💬 SMS</button>
+      </div></div></div>`;
+    }).join("") || '<div class="card m">Aucun rappel défini.</div>'}`;
+}
+
+/* --- CLIENTS --- */
+async function nextRef(type) {
+  const prefix = type==="Société" ? "SOC" : "PART";
+  const { data: rows } = await supa.from("clients").select("ref").like("ref", prefix+"-%");
+  const max = (rows||[]).map(r => +(r.ref.split("-")[1]||0)).length ? Math.max(...(rows||[]).map(r => +(r.ref.split("-")[1]||0))) : 0;
+  return prefix + "-" + String(max+1).padStart(4,"0");
+}
+let blocVehCount = 1;
+function ajouterBlocVehicule() {
+  blocVehCount++;
+  const container = document.getElementById("veh_form");
+  const newBlock = document.createElement("div");
+  newBlock.id = "veh_block_" + blocVehCount;
+  newBlock.innerHTML = `
+    <hr style="border:0; border-top:1px dashed var(--b); margin:10px 0">
+    <div style="display:flex; gap:8px">
+      <input class="v_marque_${blocVehCount}" placeholder="Marque *" style="flex:1">
+      <input class="v_modele_${blocVehCount}" placeholder="Modèle *" style="flex:1">
+    </div>
+    <input class="v_immat_${blocVehCount}" placeholder="Immatriculation *">
+    <div style="display:flex; gap:8px">
+      <select class="v_carb_${blocVehCount}" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+      <select class="v_boite_${blocVehCount}" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+      <input class="v_portes_${blocVehCount}" type="number" placeholder="Portes" style="flex:1">
+    </div>
+    <input class="v_vin_${blocVehCount}" placeholder="VIN / Châssis">
+    <input class="v_km_${blocVehCount}" type="number" placeholder="Kilométrage actuel">
+  `;
+  container.appendChild(newBlock);
+}
+async function addClient() {
+  if (!ROLES[profil.role].can.editClients) { alert("Non autorisé."); return; }
+  const type = $("cl_type").value, nom = $("cl_nom").value.trim(), tel = $("cl_tel").value.trim(), adr = $("cl_adr").value.trim();
+  
+  if (!nom) { alert("Le nom est obligatoire."); return; }
+  if (!/^\d{9}$/.test(tel)) { alert("Le téléphone doit contenir exactement 9 chiffres."); return; }
+  if (!adr) { alert("L'adresse est obligatoire."); return; }
+  
+  const ref = await nextRef(type);
+  
+  // 1. On crée le client
+  const { data: newClient, error } = await supa.from("clients").insert({
+    ref, type, nom, tel, adr, contact: "", nif: "", created_by: session.user.id
+  }).select().single();
+
+  if (error) { alert("Erreur client : "+error.message); return; }
+
+  // 2. Si la case "Ajouter un véhicule" est cochée, on crée le véhicule lié
+    if ($("cl_add_veh").checked) {
+    for (let i = 1; i <= blocVehCount; i++) {
+      let marque, modele, immat, carburant, boite, portes, vin, km;
+      if (i === 1) {
+        marque = $("v_marque").value.trim();
+        modele = $("v_modele").value.trim();
+        immat = $("v_immat").value.trim();
+        carburant = $("v_carb").value;
+        boite = $("v_boite").value;
+        portes = +$("v_portes").value || 0;
+        vin = $("v_vin").value.trim();
+        km = +$("v_km").value || 0;
+      } else {
+        marque = document.querySelector(".v_marque_" + i)?.value.trim() || "";
+        modele = document.querySelector(".v_modele_" + i)?.value.trim() || "";
+        immat = document.querySelector(".v_immat_" + i)?.value.trim() || "";
+        carburant = document.querySelector(".v_carb_" + i)?.value || "";
+        boite = document.querySelector(".v_boite_" + i)?.value || "";
+        portes = +document.querySelector(".v_portes_" + i)?.value || 0;
+        vin = document.querySelector(".v_vin_" + i)?.value.trim() || "";
+        km = +document.querySelector(".v_km_" + i)?.value || 0;
+      }
+      if (marque && modele && immat) {
+        await supa.from("vehicules").insert({
+          client_id: newClient.id, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
+        });
+      }
+    }
+  }
+await jlog("Création client", `${ref} — ${nom}`, `Type: ${type}`);
+  await loadAllData();
+}
+async function deleteClient(id) {
+  if (!ROLES[profil.role].can.deleteAny) { alert("Seul le PDG peut supprimer."); return; }
+  if (!confirm("Supprimer ce client et tous ses devis/factures ?")) return;
+  await supa.from("clients").delete().eq("id", id); await loadAllData();
+}
+
+let clientDetailId = null;
+function ouvrirFicheClient(id) { clientDetailId = id; render(); }
+function allerAuRappel(clientId) { clientDetailId = null; tab = "Rappels d'entretien"; definirRappel(clientId); }
+
+function renderClients(A) {
+  const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
+  
+  if (clientDetailId) {
+    const c = data.clients.find(x => x.id === clientDetailId);
+    if (!c) { clientDetailId = null; render(); return; }
+    
+    A.innerHTML = `<div class="card">
+      <button class="s" onclick="clientDetailId=null; render()">← Retour</button>
+      <h3>${e(c.nom)} <span class="ref">${e(c.ref)}</span></h3>
+      <p class="m">📞 ${e(c.tel)}<br>📍 ${e(c.adr)}</p>
+      <div style="display:flex; gap:8px; margin-top:10px">
+        <button class="p" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
+        ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
+      </div>
+    </div>
+
+    <div class="card"><b>🚗 Véhicules de ce client</b>
+      ${data.vehicules.filter(v => v.client_id === c.id).map(v => `
+        <div class="row" style="border-top:1px solid var(--b)">
+          <span><b>${e(v.marque)} ${e(v.modele)}</b> (${e(v.immat)})<br>
+          <span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
+          ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
+        </div>
+      `).join("") || '<div class="m">Aucun véhicule.</div>'}
+    </div>`;
+    return;
+  }
+
+  const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
+  
+  A.innerHTML = `
+    ${peutEditer?`<div class="card"><b>➕ Nouveau client</b>
+      <select id="cl_type" onchange="document.getElementById('cl_soc').style.display=this.value==='Société'?'block':'none'">
+        <option>Particulier</option><option>Société</option></select>
+      <input id="cl_nom" placeholder="Nom / Raison sociale *">
+      <div id="cl_soc" style="display:none">
+        <input id="cl_contact" placeholder="Contact *">
+        <input id="cl_nif" placeholder="NIF *">
+      </div>
+      <input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9">
+      <input id="cl_adr" placeholder="Adresse *">
+      
+      <div style="margin-top:8px; margin-bottom:8px">
+        <label><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto; margin-right:8px"> Ajouter un véhicule maintenant</label>
+      </div>
+      
+      <div id="veh_form" style="display:none; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:8px">
+   <button class="s" type="button" onclick="ajouterBlocVehicule()" style="margin-bottom:8px">+ Ajouter un autre véhicule</button>
+        <div style="display:flex; gap:8px">
+          <input id="v_marque" placeholder="Marque *" style="flex:1">
+          <input id="v_modele" placeholder="Modèle *" style="flex:1">
+        </div>
+        <input id="v_immat" placeholder="Immatriculation *">
+        <div style="display:flex; gap:8px">
+          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
+        </div>
+        <input id="v_vin" placeholder="VIN / Châssis">
+        <input id="v_km" type="number" placeholder="Kilométrage actuel">
+      </div>
+      
+      <button class="p" onclick="addClient()">Ajouter</button></div>`
+      :`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}
+      
+    <div class="card"><input placeholder="🔍 Rechercher…" value="${e(q)}" oninput="q=this.value;render()">
+      <p class="m" style="margin-top:8px">${liste.length} client(s)</p></div>
+      
+    ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
+      <div class="row" style="border-top:0">
+        <div style="flex:1"><b>${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br>
+        <span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span></div>
+        <div>→</div>
+      </div></div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
+}
+
+async function ajouterVehicule(clientId) {
+  const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
+  const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
+  if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
+  const { error } = await supa.from("vehicules").insert({client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id});
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`); await loadAllData();
+}
+
+async function deleteVehicule(id) {
+  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un véhicule."); return; }
+  if (!confirm("Supprimer ce véhicule ?")) return;
+  await supa.from("vehicules").delete().eq("id", id); await loadAllData();
+}
+
+/* --- VÉHICULES --- */
+let vhDetail = null;
+function renderVehicules(A) {
+  const liste = data.vehicules.filter(v => (v.marque + v.modele + v.immat).toLowerCase().includes(q.toLowerCase()));
+  if (vhDetail) {
+    const v = data.vehicules.find(x => x.id === vhDetail); if (!v) { vhDetail = null; render(); return; }
+    const cl = data.clients.find(c => c.id === v.client_id);
+    const sesFactures = data.factures.filter(f => f.immat === v.immat).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
+    A.innerHTML = `<div class="card"><button class="s" onclick="vhDetail=null;render()">← Retour</button><h3>${e(v.marque)} ${e(v.modele)}</h3>
+      <p class="m">Immat : <b>${e(v.immat)}</b><br>Client : <b>${e(cl ? cl.nom : 'Inconnu')}</b><br>${v.kilometrage ? `Kilométrage : ${v.kilometrage} km<br>` : ""}Carburant : ${e(v.carburant || '—')} · Boîte : ${e(v.boite || '—')}</p></div>
+      <div class="card"><b>Historique</b></div>${sesFactures.map(f => `<div class="card"><b>${e(f.activite || 'Facture')}</b> - ${f(f.total_ttc)}<br><span class="m">${e(f.date_emission)}</span></div>`).join("") || '<div class="card m">Aucune facture.</div>'}`;
+    return;
+  }
+  A.innerHTML = `<div class="card"><input placeholder="🔍 Rechercher un véhicule..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} véhicule(s)</p></div>
+    ${liste.map(v => { const cl = data.clients.find(c => c.id === v.client_id); return `<div class="card" style="cursor:pointer" onclick="vhDetail='${v.id}';render()"><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">👤 ${e(cl ? cl.nom : 'Inconnu')} · ${v.kilometrage ? v.kilometrage + ' km' : ''}</span></div>`; }).join("") || '<div class="card m">Aucun véhicule.</div>'}`;
+}
+
+/* --- DEVIS --- */
+
+function devisTotHT(){ return dLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0); }
+function updateDevisTotals() {
+  const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
+  if ($("dv_tot_ht")) $("dv_tot_ht").textContent = f(ht);
+  if ($("dv_tot_tva")) $("dv_tot_tva").textContent = f(tva);
+  if ($("dv_tot_ttc")) $("dv_tot_ttc").textContent = f(ttc);
+}
+
+function remplirVehiculeDevis(clientId) {
+  if (!clientId) return;
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  if (v) { dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; }
+  else { dMemo.veh = ""; dMemo.immat = ""; }
+  dMemo.client = clientId;
+  render();
+}
+
+let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
+let dLignes = [{d:"",q:1,p:0}];
+
+function devisTotHT(){ return dLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0); }
+function updateDevisTotals() {
+  const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
+  if ($("dv_tot_ht")) $("dv_tot_ht").textContent = f(ht);
+  if ($("dv_tot_tva")) $("dv_tot_tva").textContent = f(tva);
+  if ($("dv_tot_ttc")) $("dv_tot_ttc").textContent = f(ttc);
+}
+
+function remplirVehiculeDevis(clientId) {
+  if (!clientId) return;
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  if (v) { dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; }
+  else { dMemo.veh = ""; dMemo.immat = ""; }
+  dMemo.client = clientId;
+  render();
+}
+
+function renderDevis(A) {
+  const R = ROLES[profil.role], peutEditer = R.can.editDevis, tv = +(data.params.tva_taux||18);
+  A.innerHTML = `${peutEditer?`<div class="card"><b>➕ Nouveau devis</b>
+      <select id="dv_client" onchange="remplirVehiculeDevis(this.value)">
+        <option value="">Client…</option>
+        ${data.clients.map(c=>`<option value="${c.id}" ${c.id===dMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
+      </select>
+      <input id="dv_veh" placeholder="Véhicule" value="${e(dMemo.veh)}" oninput="dMemo.veh=this.value">
+      <input id="dv_immat" placeholder="Immatriculation" value="${e(dMemo.immat)}" oninput="dMemo.immat=this.value">
+      <input id="dv_km" type="number" placeholder="Kilométrage actuel" value="${e(dMemo.km)}" oninput="dMemo.km=this.value">
+      <textarea id="dv_motif" placeholder="Motif de la demande" style="height:60px" oninput="dMemo.motif=this.value">${e(dMemo.motif)}</textarea>
+      <input id="dv_delai" placeholder="Délai d'exécution" value="${e(dMemo.delai)}" oninput="dMemo.delai=this.value">
+      <input id="dv_paiement" placeholder="Conditions de paiement" value="${e(dMemo.paiement)}" oninput="dMemo.paiement=this.value">
+      <input id="dv_garantie" placeholder="Garantie applicable" value="${e(dMemo.garantie)}" oninput="dMemo.garantie=this.value">
+      <input id="dv_acompte" type="number" placeholder="Acompte versé (GNF)" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value">
+      
+      <table><thead><tr><th>Désignation</th><th>Qté</th><th>PU HT</th><th></th></tr></thead><tbody>
+        ${dLignes.map((l,i)=>`<tr>
+          <td><input value="${e(l.d)}" oninput="dLignes[${i}].d=this.value" placeholder="Prestation..."></td>
+          <td style="width:70px"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()"></td>
+          <td style="width:120px"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()"></td>
+          <td style="width:40px"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
+        </tr>`).join("")}
+      </tbody></table>
+      <button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Ligne</button>
+      
+      <p style="margin-top:12px"><b>Total HT :</b> <span id="dv_tot_ht">${f(devisTotHT())}</span><br>
+      <b>TVA ${tv}% :</b> <span id="dv_tot_tva">${f(devisTotHT()*tv/100)}</span><br>
+      <b style="font-size:18px">Total TTC : <span id="dv_tot_ttc">${f(devisTotHT()*(1+tv/100))}</span></b></p>
+      <button class="p" onclick="saveDevis()">Enregistrer le devis</button></div>`:""}
+      
+    <div class="card"><b>Devis enregistrés</b></div>
+    ${data.devis.map(d=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(d.numero)}</b> <span class="tag">${e(d.statut)}</span><br><span class="m">${e(d.client_nom)} — ${e(d.vehicule)} ${e(d.immat)}<br>${e(d.date_emission)}</span><br><b>${f(d.total_ttc)}</b> TTC</div>
+      <div><button class="s" onclick="printDevis('${d.id}')">🖨️</button>
+      ${peutEditer?`<button class="s" onclick="preparerFactureDepuisDevis('${d.id}')">→ Facture</button>`:""}</div></div></div>`).join("")||'<div class="card m">Aucun devis.</div>'}`;
+}
+async function saveDevis() {
+  const cid = $("dv_client").value; 
+  if (!cid) { alert("Choisissez un client."); return; }
+  
+  const lignes = dLignes.filter(l=>l.d.trim()); 
+  if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
+  
+  const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
+  
+  const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","devis").single();
+  const num = (cpt.valeur||0)+1;
+  const numero = "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  
+  const { error } = await supa.from("devis").insert({
+    numero, 
+    client_id: cid, 
+    client_nom: data.clients.find(c=>c.id===cid).nom, 
+    vehicule: $("dv_veh").value.trim(), 
+    immat: $("dv_immat").value.trim(), 
+    kilometrage: +$("dv_km").value || 0, 
+    motif: $("dv_motif").value.trim(), 
+    delai: $("dv_delai").value.trim(), 
+    paiement: $("dv_paiement").value.trim(), 
+    garantie: $("dv_garantie").value.trim(), 
+acompte: +$("dv_acompte").value || 0,
+    lignes, 
+    total_ht: ht, 
+    tva, 
+    total_ttc: ttc, 
+    statut: "Brouillon", 
+    created_by: session.user.id
+  });
+  
+  if (error) { alert("Erreur : "+error.message); return; }
+  
+  await supa.from("compteurs").update({valeur: num}).eq("cle","devis"); 
+  await jlog("Création devis", numero, ""); 
+  dLignes = [{d:"",q:1,p:0}]; 
+  dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
+  await loadAllData();
+}
+
+async function convertDevis(id) {
+  const d = data.devis.find(x=>x.id===id); if (!d || !confirm("Convertir en facture ?")) return;
+  const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
+  const num = (cpt.valeur||0)+1, numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  const { error } = await supa.from("factures").insert({numero, client_id: d.client_id, client_nom: d.client_nom, vehicule: d.vehicule, immat: d.immat, lignes: d.lignes, kilometrage: d.kilometrage || 0, motif: d.motif || "", delai: d.delai || "", paiement: d.paiement || "", garantie: d.garantie || "", total_ht: d.total_ht, tva: d.tva, total_ttc: d.total_ttc, statut: "En attente", created_by: session.user.id});
+  if (error) { alert("Erreur : "+error.message); return; }
+  await supa.from("compteurs").update({valeur: num}).eq("cle","facture"); await supa.from("devis").update({statut:"Accepté"}).eq("id", id); go("Factures");
+}
+
+/* --- FACTURES --- */
+let fMemo = { client: "", veh: "", immat: "", acompte: "" };
+let fLignes = [{d:"",q:1,p:0}];
+function preparerFactureDepuisDevis(idDevis) {
+  const d = data.devis.find(x => x.id === idDevis);
+  if (!d) return;
+  
+  // On remplit le brouillon de la facture avec les données du devis
+  fMemo.client = d.client_id;
+  fMemo.veh = d.vehicule;
+  fMemo.immat = d.immat;
+  fMemo.acompte = d.acompte || "";
+  
+  // On remplit les lignes
+  fLignes = d.lignes && d.lignes.length ? d.lignes.map(l => ({...l})) : [{d:"",q:1,p:0}];
+  
+  // On change d'onglet
+  tab = "Factures";
+  render();
+}
+function remplirVehiculeFacture(clientId) {
+  if (!clientId) return;
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  if (v) {
+    fMemo.veh = v.marque + " " + v.modele;
+    fMemo.immat = v.immat;
+  } else {
+    fMemo.veh = "";
+    fMemo.immat = "";
+  }
+  fMemo.client = clientId;
+  render();
+}
+
+function renderFactures(A) {
+  const peutEditer = ROLES[profil.role].can.editFactures;
+  const tv = +(data.params.tva_taux||18);
+  const ht = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0), ttc = ht + (ht*tv/100);
+
+  A.innerHTML = `${peutEditer ? `<div class="card"><b>➕ Créer une facture directe</b>
+      <select id="fc_client" onchange="remplirVehiculeFacture(this.value)">
+        <option value="">Client… *</option>
+        ${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
+      </select>
+      
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="fc_veh" placeholder="Véhicule *" style="flex:1" value="${e(fMemo.veh)}" oninput="fMemo.veh=this.value">
+        <input id="fc_immat" placeholder="Immatriculation *" style="flex:1" value="${e(fMemo.immat)}" oninput="fMemo.immat=this.value">
+      </div>
+      
+      <table><thead><tr><th>Désignation *</th><th>Qté *</th><th>PU HT *</th><th></th></tr></thead><tbody>
+        ${fLignes.map((l,i)=>`<tr>
+          <td><input value="${e(l.d)}" oninput="fLignes[${i}].d=this.value" placeholder="Prestation..."></td>
+          <td style="width:70px"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; renderFactures(A)"></td>
+          <td style="width:120px"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; renderFactures(A)"></td>
+          <td style="width:40px"><td style="width:40px"><button class="s" onclick="fLignes.splice(${i},1);if(!fLignes.length)fLignes=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td>
+        </tr>`).join("")}
+      </tbody></table>
+      <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Ligne</button>
+      <input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" style="margin-top:8px" value="${e(fMemo.acompte)}" oninput="fMemo.acompte=this.value">
+      <p style="margin-top:12px"><b style="font-size:18px">Total TTC : ${f(ttc)}</b></p>
+      <button class="p" onclick="saveFactureDirecte()">Créer la facture</button></div>` : ""}
+      
+    <div class="card"><input placeholder="🔍 Rechercher" value="${e(q)}" oninput="q=this.value;render()"></div>
+    ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> <span class="tag">${e(fa.statut)}</span><br><span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
+      <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}`;
+}
+async function saveFactureDirecte() {
+  const cid = $("fc_client").value, veh = $("fc_veh").value.trim(), immat = $("fc_immat").value.trim();
+  if (!cid || !veh || !immat) { alert("Tous les champs sont obligatoires."); return; }
+  const lignes = fLignes.filter(l => l.d.trim() !== ""); if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
+  for (let l of lignes) { if (!l.p || l.p <= 0) { alert("Prix obligatoire."); return; } }
+  const ht = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0), tv = +(data.params.tva_taux||18), tva = ht * tv / 100, ttc = ht + tva;
+  const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
+  const num = (cpt.valeur||0)+1, numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  const { error } = await supa.from("factures").insert({numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom, vehicule: veh, immat: immat, lignes, total_ht: ht, tva, total_ttc: ttc, acompte: +$("fc_acompte").value || 0, statut: "En attente", created_by: session.user.id});
+  if (error) { alert("Erreur : "+error.message); return; }
+  await supa.from("compteurs").update({valeur: num}).eq("cle","facture"); fLignes = [{d:"",q:1,p:0}]; await loadAllData();
+}
+
+async function updateStatut(id, st) { await supa.from("factures").update({statut:st}).eq("id", id); await loadAllData(); }
+async function deleteFacture(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer cette facture ?")) return; await supa.from("factures").delete().eq("id", id); await loadAllData(); }
+async function deleteDevis(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ce devis ?")) return; await supa.from("devis").delete().eq("id", id); await loadAllData(); }
+
+/* --- IMPRESSION --- */
+function printDevis(id) { const d = data.devis.find(x=>x.id===id); if (d) printDoc("DEVIS", d.numero, d); }
+function printFacture(id) { const fa = data.factures.find(x=>x.id===id); if (fa) printDoc("FACTURE", fa.numero, fa); }
+
+function printDoc(type, numero, doc) {
+  const p = data.params, tv = +(p.tva_taux||18), lignes = doc.lignes && doc.lignes.length ? doc.lignes : [{d:doc.activite||"Prestation", q:1, p:doc.total_ht||0}], client = data.clients.find(c=>c.id===doc.client_id) || {};
+  const w = window.open("", "_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title><style>
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; max-width: 800px; margin: auto; background: #fff; }
+    .header { display: flex; justify-content: space-between; border-bottom: 3px solid #c59b27; padding-bottom: 10px; margin-bottom: 20px; }
+    .header-left h1 { font-size: 22px; margin: 0; color: #1a2a3a; } .header-left p { margin: 2px 0; color: #555; }
+    .header-right { text-align: right; } .header-right h2 { font-size: 26px; margin: 0; color: #1a2a3a; } .header-right p { margin: 3px 0; font-size: 11px; }
+    .section-title { background: #1a2a3a; color: #fff; padding: 6px 10px; font-size: 12px; font-weight: bold; margin-top: 15px; margin-bottom: 10px; }
+    .grid-2 { display: flex; border: 1px solid #ccc; } .grid-2 > div { flex: 1; padding: 10px; } .grid-2 > div:first-child { border-right: 1px solid #ccc; } .grid-2 p { margin: 4px 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; } th { background: #1a2a3a; color: #fff; padding: 6px; font-size: 11px; text-align: left; border: 1px solid #1a2a3a; } td { padding: 6px; border: 1px solid #ccc; }
+    .totaux { width: 60%; margin-left: auto; border: 1px solid #ccc; } .totaux td { padding: 6px 10px; border-bottom: 1px solid #eee; } .totaux tr:last-child td { font-weight: bold; font-size: 14px; background: #f0f0f0; border-top: 2px solid #1a2a3a; }
+    .legal { font-size: 10px; color: #555; border: 1px solid #ccc; padding: 10px; margin-top: 15px; background: #fafafa; }
+    .signatures { display: flex; margin-top: 20px; border: 1px solid #ccc; } .signatures > div { flex: 1; padding: 10px; min-height: 80px; } .signatures > div:first-child { border-right: 1px solid #ccc; }
+    @media print { .no-print { display: none; } body { padding: 0; } }
+  </style></head><body>
+    <div class="header"><div class="header-left"><h1>${e(p.nom||"VOTRE GARAGE")}</h1><p>Mécanique • Diagnostic • Pièces</p><p>Adresse : ${e(p.adresse || '___')}</p><p>Tél : ${e(p.telephone || '___')} • Email : ${e(p.email || '___')}</p><p>RCCM : ${e(p.rccm || '___')} • NIF : ${e(p.nif || '___')}</p></div>
+      <div class="header-right"><h2>${type}</h2><p>N° : ${e(numero)}</p><p>Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}</p><p>Valable jusqu'au : ${(() => { let d = new Date(); d.setMonth(d.getMonth()+1); return d.toLocaleDateString('fr-FR'); })()}</p><p>Devise : GNF</p></div></div>
+    <div class="section-title">1. INFOS CLIENT ET VÉHICULE</div><div class="grid-2"><div><p><b>CLIENT</b></p><p>Nom : <b>${e(doc.client_nom)}</b></p><p>Tél : ${e(client.tel || '___')}</p><p>Adresse : ${e(client.adr || '___')}</p></div>
+      <div><p><b>VÉHICULE</b></p><p>Modèle : <b>${e(doc.vehicule || '___')}</b></p><p>Immat : <b>${e(doc.immat || '___')}</b></p><p>Km : <b>${doc.kilometrage ? doc.kilometrage + ' km' : '___'}</b></p></div></div>
+    <div class="section-title">2. OBJET</div><div style="border: 1px solid #ccc; padding: 10px;"><p>${e(doc.motif || "___")}</p></div>
+    <div class="section-title">3. DÉTAIL</div><table><thead><tr><th>N°</th><th>Désignation</th><th>Qté</th><th>Prix unitaire</th><th>Montant</th></tr></thead><tbody>
+      ${lignes.map((l, index) => { const montant = (+l.q || 0) * (+l.p || 0); return `<tr><td style="text-align:center">${index + 1}</td><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f(montant)}</td></tr>`; }).join("")}
+    </tbody></table>
+    <table class="totaux"><tr><td>Total HT</td><td style="text-align:right">${f(doc.total_ht)}</td></tr><tr><td>TVA ${tv}%</td><td style="text-align:right">${f(doc.tva)}</td></tr><tr><td>TOTAL TTC</td><td style="text-align:right">${f(doc.total_ttc)}</td></tr><tr><td>Acompte versé (GNF)</td><td style="text-align:right">${f(doc.acompte || 0)}</td></tr>
+<tr><td>Solde restant (GNF)</td><td style="text-align:right">${f(doc.total_ttc - (doc.acompte || 0))}</td></tr></table>
+    <div class="section-title">4. CONDITIONS</div><div style="border: 1px solid #ccc; padding: 10px;"><p>Délai : <b>${e(doc.delai || "___")}</b></p><p>Paiement : <b>${e(doc.paiement || "___")}</b></p><p>Garantie : <b>${e(doc.garantie || "___")}</b></p></div>
+    <div class="legal">Les travaux seront réalisés après acceptation. Toute prestation supplémentaire fera l'objet d'un accord.</div>
+    <div class="signatures"><div><p><b>POUR LE GARAGE</b></p><p>Date : ____ / ____ / ________</p><p>Signature / cachet :</p></div><div><p><b>ACCEPTATION CLIENT</b></p><p>Mention : « Bon pour accord »</p><p>Date : ____ / ____ / ________</p><p>Signature :</p></div></div>
+    <p style="text-align:center; margin-top:20px;" class="no-print"><button onclick="window.print()" style="padding:10px 20px;cursor:pointer;background:#1a2a3a;color:#fff;border:none;border-radius:5px;font-weight:bold;">🖨️ Imprimer</button></p>
+  </body></html>`); w.document.close();
+}
+
+/* --- STOCK --- */
+function renderStock(A) {
+  const categories = {};
+  data.stock.forEach(s => { const cat = s.categorie || "Divers"; if (!categories[cat]) categories[cat] = []; categories[cat].push(s); });
+  A.innerHTML = `<div class="card"><b>➕ Nouvel article</b>
+      <select id="st_cat"><option value="Filtres">Filtres</option><option value="Lubrifiants">Lubrifiants</option><option value="Freinage">Freinage</option><option value="Suspension">Suspension</option><option value="Pneumatiques">Pneumatiques</option><option value="Moteur">Moteur</option><option value="Carrosserie">Carrosserie</option><option value="Divers">Divers</option></select>
+      <input id="st_nom" placeholder="Désignation"><input id="st_qte" type="number" placeholder="Quantité"><input id="st_min" type="number" placeholder="Seuil d'alerte"><input id="st_prix" type="number" placeholder="Prix (GNF)">
+      <button class="p" onclick="addStock()">Ajouter</button></div>
+    ${Object.keys(categories).sort().map(cat => `<div class="card" style="background:var(--bg); margin-bottom:8px; padding:10px"><b>📦 ${cat}</b></div>
+      ${categories[cat].map(s=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(s.nom)}</b> ${+s.qte<=+s.seuil_alerte?'<span class="tag" style="background:var(--r);color:#fff">⚠️ Bas</span>':""}<br><span class="m">Qté : ${s.qte} · Seuil : ${s.seuil_alerte} · ${f(s.prix)}</span></div>
+      <div><button class="s" onclick="changeStock('${s.id}',-1)">−</button><button class="s" onclick="changeStock('${s.id}',1)">+</button><button class="s" onclick="deleteStock('${s.id}')">🗑️</button></div></div></div>`).join("")}`).join("") || '<div class="card m">Stock vide.</div>'}`;
+}
+async function addStock() { const nom = $("st_nom").value.trim(); if (!nom) return; await supa.from("stock").insert({nom, categorie: $("st_cat").value, qte:+$("st_qte").value||0, seuil_alerte:+$("st_min").value||0, prix:+$("st_prix").value||0}); await loadAllData(); }
+async function changeStock(id, delta) { const s = data.stock.find(x=>x.id===id); if (s) { await supa.from("stock").update({qte: (+s.qte||0)+delta}).eq("id", id); await loadAllData(); } }
+async function deleteStock(id) { if (!confirm("Supprimer ?")) return; await supa.from("stock").delete().eq("id", id); await loadAllData(); }
+
+/* --- TECHNICIENS --- */
+function renderTechs(A) {
+  A.innerHTML = `<div class="card"><b>➕ Nouveau technicien</b>
+    <input id="tc_nom" placeholder="Nom *"><input id="tc_sp" placeholder="Spécialité *">
+    <button class="p" onclick="addTech()">Ajouter</button></div>
+    ${data.techs.map(t=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(t.nom)}</b><br><span class="m">${e(t.specialite||"")}</span></div><button class="s" onclick="deleteTech('${t.id}')">🗑️</button></div></div>`).join("")||'<div class="card m">Aucun technicien.</div>'}`;
+}
+async function addTech() { const nom = $("tc_nom").value.trim(); if (!nom) return; await supa.from("techniciens").insert({nom, specialite:$("tc_sp").value.trim()}); await loadAllData(); }
+async function deleteTech(id) { if (!confirm("Supprimer ?")) return; await supa.from("techniciens").delete().eq("id", id); await loadAllData(); }
+
+/* --- STATISTIQUES --- */
+function renderStats(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  const caMois = {}; let totalCa = 0;
+  data.factures.filter(f => f.statut === "Payé").forEach(f => {
+    const mois = (f.date_emission || "").slice(0, 7); if (!mois) return;
+    caMois[mois] = (caMois[mois] || 0) + (+f.total_ttc || 0); totalCa += (+f.total_ttc || 0);
+  });
+  const moisTries = Object.keys(caMois).sort().reverse();
+  const techStats = {}; data.factures.forEach(f => { if (!f.technicien) return; techStats[f.technicien] = (techStats[f.technicien] || 0) + (+f.total_ttc || 0); });
+  const topTechs = Object.entries(techStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  const clientStats = {}; data.factures.forEach(f => { if (!f.client_nom) return; clientStats[f.client_nom] = (clientStats[f.client_nom] || 0) + (+f.total_ttc || 0); });
+  const topClients = Object.entries(clientStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+  A.innerHTML = `<div class="card" style="background:var(--r); color:#fff"><div class="k" style="color:#fff">${f(totalCa)}</div><div class="m" style="color:#fff; opacity:0.9">CA Total Encaissé</div></div>
+    <div class="card"><b>📈 CA par mois</b>${moisTries.map(m => { const [annee, moisNum] = m.split("-"); const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]; return `<div class="row" style="border-top:1px solid var(--b)"><span>${nomsMois[parseInt(moisNum)-1] || moisNum} ${annee}</span><b>${f(caMois[m])}</b></div>`; }).join("") || '<div class="m">Aucune facture payée.</div>'}</div>
+    <div class="card"><b>🔧 Top 5 techniciens</b>${topTechs.map((t, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(t[0])}</span><b>${f(t[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}</div>
+    <div class="card"><b>👑 Top 5 clients</b>${topClients.map((c, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(c[0])}</span><b>${f(c[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}</div>`;
+}
+
+/* --- PARAMÈTRES --- */
+function renderParams(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  const p = data.params;
+  A.innerHTML = `<div class="card"><b>Informations du garage</b>
+    <label class="m">Nom</label><input id="p_nom" value="${e(p.nom||"")}">
+    <label class="m">NIF</label><input id="p_nif" value="${e(p.nif||"")}">
+    <label class="m">RCCM</label><input id="p_rccm" value="${e(p.rccm||"")}">
+    <label class="m">Adresse</label><input id="p_adr" value="${e(p.adresse||"")}">
+    <label class="m">Téléphone</label><input id="p_tel" value="${e(p.telephone||"")}">
+    <label class="m">TVA (%)</label><input id="p_tva" type="number" value="${e(p.tva_taux||"18")}">
+    <button class="p" onclick="saveParams()">Enregistrer</button></div>`;
+}
+async function saveParams() {
+  const updates = [{cle:"nom", valeur:$("p_nom").value.trim()},{cle:"nif", valeur:$("p_nif").value.trim()},{cle:"rccm", valeur:$("p_rccm").value.trim()},{cle:"adresse", valeur:$("p_adr").value.trim()},{cle:"telephone", valeur:$("p_tel").value.trim()},{cle:"tva_taux", valeur:$("p_tva").value.trim()}];
+  for (const u of updates) await supa.from("parametres").update({valeur:u.valeur}).eq("cle",u.cle);
+  await loadAllData(); alert("Enregistré ✓");
+}
+
+function renderLogout(A) { A.innerHTML = `<div class="card"><h3>Se déconnecter</h3><button class="p" onclick="logout()">Se déconnecter</button></div>`; }
+
+/* --- DÉMARRAGE --- */
+(async () => {
+  showLock('<div class="loading">Chargement…</div>');
+  try {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data: { session: s } } = await supa.auth.getSession();
+    if (s) { session = s; await loadProfil(); } else showLogin();
+  } catch(x) { showLock(`<div class="card" style="margin:40px auto;max-width:400px"><b>Erreur</b><p class="m">${e(x.message)}</p><button class="p" onclick="location.reload()">Réessayer</button></div>`); }
+})();
+
+supa && supa.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") location.reload(); });
+</script>
+</body>
+</html>
