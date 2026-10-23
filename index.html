@@ -237,12 +237,11 @@ function changerMois(delta) {
 function renderPlanning(A) {
   const peutEditer = ROLES[profil.role].can.editClients;
   
-  // --- CONSTRUCTION DU CALENDRIER ---
   const [annee, mois] = dateCalendrier.split('-');
   const premierJour = new Date(annee, parseInt(mois)-1, 1);
   const dernierJour = new Date(annee, parseInt(mois), 0);
   const nbJours = dernierJour.getDate();
-  const jourDebut = premierJour.getDay() === 0 ? 6 : premierJour.getDay() - 1; // Lundi = 0
+  const jourDebut = premierJour.getDay() === 0 ? 6 : premierJour.getDay() - 1;
   
   const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
   const nomMois = nomsMois[parseInt(mois)-1];
@@ -258,28 +257,29 @@ function renderPlanning(A) {
   </div>
   <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px">`;
   
-  // Cases vides avant le 1er
   for (let i = 0; i < jourDebut; i++) htmlCalendrier += `<div></div>`;
   
-  // Jours du mois
   for (let j = 1; j <= nbJours; j++) {
     const dateStr = `${annee}-${mois}-${String(j).padStart(2, '0')}`;
     const nbRdv = data.rdv.filter(r => r.date_rdv === dateStr).length;
     const isToday = dateStr === new Date().toISOString().slice(0,10);
     const isSelected = dateStr === jourSelectionne;
     
-    let bg = isToday ? "var(--r)" : (nbRdv > 0 ? "#dbeafe" : "var(--bg)");
-   let color = isToday ? "#fff" : (nbRdv > 0 ? "#1e40af" : "var(--t)");
-    if (isSelected) { bg = "var(--m)"; color = "#fff"; }
+    // COULEURS
+    let bg = "var(--bg)"; 
+    let color = "var(--t)";
     
-       htmlCalendrier += `<div onclick="jourSelectionne='${dateStr}'; render(); setTimeout(() => { const el = document.getElementById('liste_rdv'); if(el) el.scrollIntoView({ behavior: 'smooth' }); }, 150)" style="cursor:pointer; padding:8px 0; border-radius:6px; background:${bg}; color:${color}; border:1px solid var(--b); position:relative">
+    if (nbRdv > 0) { bg = "#dbeafe"; color = "#1e40af"; } // BLEU POUR LES RDV
+    if (isToday) { bg = "var(--r)"; color = "#fff"; } // ROUGE POUR AUJOURD'HUI
+    if (isSelected) { bg = "var(--m)"; color = "#fff"; } // GRIS POUR SELECTION
+    
+    htmlCalendrier += `<div onclick="jourSelectionne='${dateStr}'; render(); setTimeout(() => { const el = document.getElementById('liste_rdv'); if(el) el.scrollIntoView({ behavior: 'smooth' }); }, 150)" style="cursor:pointer; padding:8px 0; border-radius:6px; background:${bg}; color:${color}; border:1px solid var(--b); position:relative">
       <b>${j}</b>
-      ${nbRdv > 0 ? `<div style="font-size:10px; margin-top:2px; font-weight:bold; color:#166534">` : ""}
+      ${nbRdv > 0 ? `<div style="font-size:10px; margin-top:2px; font-weight:bold; color:${isToday ? '#fff' : '#1e40af'}">${nbRdv} RDV</div>` : ""}
     </div>`;
   }
   htmlCalendrier += `</div></div>`;
 
-  // --- FILTRE DES RDV ---
   let rdvsAffiches = data.rdv;
   let titreRdv = "📅 Tous les rendez-vous à venir";
   if (jourSelectionne) {
@@ -288,7 +288,7 @@ function renderPlanning(A) {
   } else {
     rdvsAffiches = data.rdv.filter(r => r.date_rdv >= new Date().toISOString().slice(0,10));
   }
-  rdvsAffiches = rdvsAffiches.sort((a,b) => a.date_rdv.localeCompare(b.date_rdv) || a.heure_rdv.localeCompare(b.heure_rdv));
+  rdvsAffiches = rdvsAffiches.sort((a,b) => a.date_rdv.localeCompare(b.date_rdv) || (a.heure_rdv||"").localeCompare(b.heure_rdv||""));
 
   A.innerHTML = `
     ${htmlCalendrier}
