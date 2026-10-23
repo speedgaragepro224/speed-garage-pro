@@ -60,11 +60,11 @@ const e = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",
 const f = n => (+n || 0).toLocaleString("fr-FR", {maximumFractionDigits:0}) + " GNF";
 
 let supa = null, session = null, profil = null;
-let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[]};
+let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[], employes:[], paie:[]};
 let tab = "Tableau de bord", idleT = null, q = "";
 
 const ROLES = {
-  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
+  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Gestion de paie","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
   SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
@@ -126,6 +126,8 @@ async function loadAllData() {
     supa.from("factures").select("*").order("created_at",{ascending:false}).then(r=>data.factures=r.data||[]),
     supa.from("rdv").select("*").order("date_rdv", {ascending:true}).then(r=>data.rdv=r.data||[]),
     supa.from("vehicules").select("*").then(r=>data.vehicules=r.data||[]),
+supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
+supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
     supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
   ];
   if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
@@ -170,6 +172,7 @@ function render() {
   else if (tab==="Factures") renderFactures(A);
   else if (tab==="Stock") renderStock(A);
   else if (tab==="Techniciens") renderTechs(A);
+else if (tab==="Gestion de paie") renderPaie(A);
   else if (tab==="Journal d'audit") renderAudit(A);
   else if (tab==="Statistiques") renderStats(A);
   else if (tab==="Paramètres") renderParams(A);
@@ -752,6 +755,197 @@ function renderTechs(A) {
 async function addTech() { const nom = $("tc_nom").value.trim(); if (!nom) return; await supa.from("techniciens").insert({nom, specialite:$("tc_sp").value.trim()}); await loadAllData(); }
 async function deleteTech(id) { if (!confirm("Supprimer ?")) return; await supa.from("techniciens").delete().eq("id", id); await loadAllData(); }
 
+/* --- GESTION DE PAIE --- */
+function printBulletinPaie(paieId) {
+  const p = data.paie.find(x => x.id === paieId);
+  if (!p) return;
+  const emp = data.employes.find(x => x.id === p.employe_id);
+  if (!emp) return;
+  
+  const w = window.open("", "_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Bulletin de paie - ${emp.nom}</title>
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 13px; color: #000; padding: 30px; max-width: 700px; margin: auto; background: #fff; }
+      .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1a2a3a; padding-bottom: 10px; margin-bottom: 20px; }
+      .header h1 { font-size: 20px; margin: 0; color: #1a2a3a; }
+      .header p { margin: 2px 0; font-size: 11px; }
+      .title { text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; text-transform: uppercase; }
+      .info { display: flex; justify-content: space-between; margin-bottom: 20px; }
+      .info div { width: 48%; }
+      .info p { margin: 4px 0; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+      th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+      th { background: #eee; }
+      .totaux { text-align: right; font-size: 15px; font-weight: bold; margin-top: 20px; border-top: 2px solid #000; padding-top: 10px; }
+      .signatures { display: flex; justify-content: space-between; margin-top: 50px; }
+      .signatures div { width: 40%; border-top: 1px solid #000; text-align: center; padding-top: 5px; }
+      @media print { button { display: none; } body { padding: 0; } }
+    </style></head><body>
+    
+    <div class="header">
+      <div>
+        <h1>${e(data.params.nom || "SPEED GARAGE PRO")}</h1>
+        <p>NIF : ${e(data.params.nif || "931828172")} · RCCM : ${e(data.params.rccm || "GN.TCC.2026.B.13913")}</p>
+        <p>${e(data.params.adresse || "")} ${e(data.params.telephone ? "· Tél : " + data.params.telephone : "")}</p>
+      </div>
+      <div style="text-align:right">
+        <h2>BULLETIN DE PAIE</h2>
+        <p>Période : ${e(p.mois)}</p>
+      </div>
+    </div>
+
+    <div class="info">
+      <div>
+        <p><b>Employé :</b> ${e(emp.nom)}</p>
+        <p><b>Poste :</b> ${e(emp.poste)}</p>
+        <p><b>Téléphone :</b> ${e(emp.telephone || "—")}</p>
+      </div>
+      <div style="text-align:right">
+        <p><b>Date d'embauche :</b> ${emp.date_embauche ? new Date(emp.date_embauche).toLocaleDateString('fr-FR') : "—"}</p>
+        <p><b>Date d'édition :</b> ${new Date().toLocaleDateString('fr-FR')}</p>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Éléments</th><th style="text-align:right">Montant (GNF)</th></tr></thead>
+      <tbody>
+        <tr><td>Salaire de base</td><td style="text-align:right">${f(p.salaire_base)}</td></tr>
+        <tr><td>Primes et indemnités</td><td style="text-align:right">${f(p.primes)}</td></tr>
+        <tr><td>Avances déduites</td><td style="text-align:right">- ${f(p.avances)}</td></tr>
+      </tbody>
+    </table>
+
+    <div class="totaux">
+      NET À PAYER : ${f(p.solde)}
+    </div>
+
+    <div class="signatures">
+      <div>Signature de l'employeur</div>
+      <div>Signature de l'employé</div>
+    </div>
+    
+    <p style="text-align:center; margin-top:40px;"><button onclick="window.print()" style="padding:10px 20px; cursor:pointer;">🖨️ Imprimer</button></p>
+  </body></html>`);
+  w.document.close();
+}
+let employePaieId = null;
+
+async function addEmploye() {
+  const nom = $("emp_nom").value.trim();
+  const poste = $("emp_poste").value.trim();
+  const salaire = +$("emp_salaire").value || 0;
+  if (!nom || !poste) { alert("Le nom et le poste sont obligatoires."); return; }
+  
+  const { error } = await supa.from("employes").insert({ 
+    nom, poste, salaire_base: salaire, 
+    telephone: $("emp_tel").value.trim(), 
+    date_embauche: $("emp_date").value 
+  });
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout employé", nom, poste);
+  await loadAllData();
+}
+
+async function sauverPaie(employeId) {
+  const mois = $("paie_mois").value;
+  const base = +$("paie_base").value || 0;
+  const primes = +$("paie_primes").value || 0;
+  const avances = +$("paie_avances").value || 0;
+  const solde = base + primes - avances;
+
+  if (!mois) { alert("Choisissez le mois."); return; }
+
+  const { error } = await supa.from("paie").insert({
+    employe_id: employeId, mois: mois,
+    salaire_base: base, primes: primes, avances: avances, solde: solde
+  });
+  if (error) { alert("Erreur : " + error.message); return; }
+  
+  const emp = data.employes.find(x => x.id === employeId);
+  await jlog("Paie enregistrée", `${emp.nom} - ${mois}`, `Solde : ${f(solde)}`);
+  employePaieId = null;
+  await loadAllData();
+  alert("Paie enregistrée avec succès !");
+}
+
+function renderPaie(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
+  if (employePaieId) {
+    const emp = data.employes.find(x => x.id === employePaieId);
+    if (!emp) { employePaieId = null; render(); return; }
+    
+    const base = +$("paie_base")?.value || emp.salaire_base || 0;
+    const primes = +$("paie_primes")?.value || 0;
+    const avances = +$("paie_avances")?.value || 0;
+    const solde = base + primes - avances;
+
+    A.innerHTML = `
+      <div class="card">
+        <button class="s" onclick="employePaieId=null; render()">← Retour à la liste</button>
+        <h3 style="margin-top:10px">Fiche de paie : ${e(emp.nom)}</h3>
+        <p class="m">Poste : ${e(emp.poste)}</p>
+        
+        <div style="display:flex; gap:8px; margin-bottom:8px">
+          <input id="paie_mois" type="month" style="flex:1" value="${new Date().toISOString().slice(0,7)}">
+        </div>
+        <label class="m">Salaire de base (GNF)</label>
+        <input id="paie_base" type="number" value="${base}" oninput="renderPaie(document.getElementById('app'))">
+        <label class="m">Primes (GNF)</label>
+        <input id="paie_primes" type="number" value="${primes}" oninput="renderPaie(document.getElementById('app'))">
+        <label class="m">Avances (GNF)</label>
+        <input id="paie_avances" type="number" value="${avances}" oninput="renderPaie(document.getElementById('app'))">
+        
+        <div style="background:var(--bg); padding:15px; border-radius:8px; margin-top:15px; border:1px solid var(--r)">
+          <b style="font-size:18px">Solde à payer : ${f(solde)}</b>
+        </div>
+        <button class="p" onclick="sauverPaie('${emp.id}')" style="margin-top:15px">Enregistrer la paie</button>
+      </div>`;
+    return;
+  }
+
+  A.innerHTML = `
+    <div class="card"><b>👥 Registre des salaires</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="emp_nom" placeholder="Nom complet *" style="flex:1">
+        <input id="emp_poste" placeholder="Poste *" style="flex:1">
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="emp_salaire" type="number" placeholder="Salaire de base (GNF)" style="flex:1">
+        <input id="emp_tel" placeholder="Téléphone" style="flex:1">
+        <input id="emp_date" type="date" style="flex:1">
+      </div>
+      <button class="p" onclick="addEmploye()">Ajouter un employé</button>
+    </div>
+    
+    <div class="card">
+      <table><thead><tr><th>Nom</th><th>Poste</th><th>Salaire de base</th><th>Action</th></tr></thead><tbody>
+        ${data.employes.map(emp => `
+          <tr>
+            <td><b>${e(emp.nom)}</b></td>
+            <td>${e(emp.poste)}</td>
+            <td>${f(emp.salaire_base)}</td>
+            <td><button class="s" onclick="employePaieId='${emp.id}';render()">Faire la paie</button></td>
+          </tr>
+        `).join("") || '<tr><td colspan="4" style="text-align:center; padding:20px;">Aucun employé enregistré.</td></tr>'}
+      </tbody></table>
+    </div>
+
+    <div class="card"><b>📜 Historique des paies</b>
+      <table><thead><tr><th>Employé</th><th>Mois</th><th>Net à payer</th><th>Action</th></tr></thead><tbody>
+        ${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => {
+          const emp = data.employes.find(x => x.id === paie.employe_id);
+          return `
+            <tr>
+              <td>${e(emp ? emp.nom : "Inconnu")}</td>
+              <td>${e(paie.mois)}</td>
+              <td>${f(paie.solde)}</td>
+              <td><button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️ Bulletin</button></td>
+            </tr>`;
+        }).join("") || '<tr><td colspan="4" style="text-align:center;">Aucune paie enregistrée.</td></tr>'}
+      </tbody></table>
+    </div>`;
+}
 /* --- STATISTIQUES --- */
 function renderStats(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
