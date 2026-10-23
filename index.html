@@ -60,11 +60,11 @@ const e = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",
 const f = n => (+n || 0).toLocaleString("fr-FR", {maximumFractionDigits:0}) + " GNF";
 
 let supa = null, session = null, profil = null;
-let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[], employes:[], paie:[]};
+let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[], employes:[], paie:[], depenses:[]};
 let tab = "Tableau de bord", idleT = null, q = "";
 
 const ROLES = {
-  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Gestion de paie","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
+  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Gestion de paie","Dépenses","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
   SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
@@ -128,6 +128,7 @@ async function loadAllData() {
     supa.from("vehicules").select("*").then(r=>data.vehicules=r.data||[]),
 supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
 supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
+supa.from("depenses").select("*").order("date_depense", {ascending:false}).then(r=>data.depenses=r.data||[]),
     supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
   ];
   if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
@@ -173,6 +174,7 @@ function render() {
   else if (tab==="Stock") renderStock(A);
   else if (tab==="Techniciens") renderTechs(A);
 else if (tab==="Gestion de paie") renderPaie(A);
+else if (tab==="Dépenses") renderDepenses(A);
   else if (tab==="Journal d'audit") renderAudit(A);
   else if (tab==="Statistiques") renderStats(A);
   else if (tab==="Paramètres") renderParams(A);
@@ -367,7 +369,94 @@ async function deleteClient(id) {
   if (!confirm("Supprimer ce client et tous ses devis/factures ?")) return;
   await supa.from("clients").delete().eq("id", id); await loadAllData();
 }
+function imprimerRecuDepot(clientId) {
+  const cl = data.clients.find(c => c.id === clientId);
+  if (!cl) return;
+  const sesVehicules = data.vehicules.filter(v => v.client_id === cl.id);
+  
+  if (sesVehicules.length === 0) {
+    alert("Ce client n'a pas de véhicule enregistré. Ajoutez d'abord un véhicule.");
+    return;
+  }
+  
+  // On demande quel véhicule il dépose (s'il en a plusieurs)
+  let v = sesVehicules[0];
+  if (sesVehicules.length > 1) {
+    const choix = prompt("Quel véhicule dépose-t-il ? (1, 2, 3...)", "1");
+    v = sesVehicules[parseInt(choix)-1] || sesVehicules[0];
+  }
+  
+  const motif = prompt("Motif du dépôt (ex: Vidange, Diagnostic, Réparation) :", "Entretien");
+  const w = window.open("", "_blank");
+  const p = data.params;
 
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reçu de dépôt - ${cl.nom}</title>
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; max-width: 700px; margin: auto; }
+      .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1a2a3a; padding-bottom: 10px; margin-bottom: 20px; }
+      .header h1 { font-size: 20px; margin: 0; color: #1a2a3a; }
+      .header p { margin: 2px 0; font-size: 11px; }
+      .title { text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; text-transform: uppercase; }
+      .box { border: 1px solid #000; padding: 15px; margin-bottom: 15px; }
+      .box h3 { margin-top: 0; font-size: 14px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+      .info { display: flex; justify-content: space-between; }
+      .info div { width: 48%; }
+      .signatures { display: flex; justify-content: space-between; margin-top: 40px; }
+      .signatures div { width: 40%; border-top: 1px solid #000; text-align: center; padding-top: 5px; }
+      @media print { button { display: none; } body { padding: 0; } }
+    </style></head><body>
+    
+    <div class="header">
+      <div>
+        <h1>${e(p.nom || "SPEED GARAGE PRO")}</h1>
+        <p>NIF : ${e(p.nif || "931828172")} · RCCM : ${e(p.rccm || "GN.TCC.2026.B.13913")}</p>
+        <p>${e(p.adresse || "")} ${e(p.telephone ? "· Tél : " + p.telephone : "")}</p>
+      </div>
+      <div style="text-align:right">
+        <h2>REÇU DE DÉPÔT</h2>
+        <p>Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR').slice(0,5)}</p>
+      </div>
+    </div>
+
+    <div class="title">Fiche d'intervention</div>
+
+    <div class="box">
+      <h3>Informations Client</h3>
+      <div class="info">
+        <div><p><b>Nom :</b> ${e(cl.nom)}</p></div>
+        <div><p><b>Téléphone :</b> ${e(cl.tel || "—")}</p></div>
+      </div>
+      <p><b>Adresse :</b> ${e(cl.adr || "—")}</p>
+    </div>
+
+    <div class="box">
+      <h3>Informations Véhicule</h3>
+      <div class="info">
+        <div>
+          <p><b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)}</p>
+          <p><b>Immatriculation :</b> ${e(v.immat)}</p>
+        </div>
+        <div>
+          <p><b>Kilométrage :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : "—"}</p>
+          <p><b>Carburant :</b> ${e(v.carburant || "—")}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>Motif du dépôt</h3>
+      <p style="font-size: 14px; font-weight: bold;">${e(motif || "Entretien général")}</p>
+    </div>
+
+    <div class="signatures">
+      <div>Signature du Client<br><span style="font-size:10px; color:#555;">(Bon pour accord)</span></div>
+      <div>Cachet du Garage</div>
+    </div>
+    
+    <p style="text-align:center; margin-top:40px;"><button onclick="window.print()" style="padding:10px 20px; cursor:pointer;">🖨️ Imprimer le Reçu</button></p>
+  </body></html>`);
+  w.document.close();
+}
 let clientDetailId = null;
 function ouvrirFicheClient(id) { clientDetailId = id; render(); }
 function allerAuRappel(clientId) { clientDetailId = null; tab = "Rappels d'entretien"; definirRappel(clientId); }
@@ -385,6 +474,7 @@ function renderClients(A) {
       <p class="m">📞 ${e(c.tel)}<br>📍 ${e(c.adr)}</p>
       <div style="display:flex; gap:8px; margin-top:10px">
         <button class="p" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
+<button class="p" onclick="imprimerRecuDepot('${c.id}')" style="background:#0891b2">🖨️ Reçu de dépôt</button>
         ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
       </div>
     </div>
@@ -881,7 +971,7 @@ function renderPaie(A) {
     
     const base = +$("paie_base")?.value || emp.salaire_base || 0;
     const primes = +$("paie_primes")?.value || 0;
-           const avances = +$("paie_avances")?.value || 0;
+    const avances = +$("paie_avances")?.value || 0;
     const cnss = +$("paie_cnss")?.value || 0;
     const impot = +$("paie_impot")?.value || 0;
     const solde = base + primes - avances - cnss - impot;
@@ -895,17 +985,16 @@ function renderPaie(A) {
         <div style="display:flex; gap:8px; margin-bottom:8px">
           <input id="paie_mois" type="month" style="flex:1" value="${new Date().toISOString().slice(0,7)}">
         </div>
+        
         <label class="m">Salaire de base (GNF)</label>
         <input id="paie_base" type="number" value="${base}" oninput="renderPaie(document.getElementById('app'))">
+        
         <label class="m">Primes (GNF)</label>
         <input id="paie_primes" type="number" value="${primes}" oninput="renderPaie(document.getElementById('app'))">
-        <label class="m">Avances (GNF)</label>
-        <label class="m">Retenue CNSS (GNF)</label>
-        <input id="paie_cnss" type="number" value="${cnss}" oninput="renderPaie(document.getElementById('app'))">
         
-        <label class="m">Impôt sur le revenu (GNF)</label>
-        <input id="paie_impot" type="number" value="${impot}" oninput="renderPaie(document.getElementById('app'))">
+        <label class="m">Avances (GNF)</label>
         <input id="paie_avances" type="number" value="${avances}" oninput="renderPaie(document.getElementById('app'))">
+        
         <label class="m">Retenue CNSS (GNF)</label>
         <input id="paie_cnss" type="number" value="${cnss}" oninput="renderPaie(document.getElementById('app'))">
         
@@ -962,24 +1051,123 @@ function renderPaie(A) {
       </tbody></table>
     </div>`;
 }
+/* --- DÉPENSES --- */
+async function addDepense() {
+  const cat = $("dep_cat").value;
+  const desc = $("dep_desc").value.trim();
+  const montant = +$("dep_montant").value || 0;
+  const dateVal = $("dep_date").value || new Date().toISOString().slice(0,10);
+
+  if (!desc || montant <= 0) { alert("Description et montant obligatoires."); return; }
+
+  await supa.from("depenses").insert({
+    categorie: cat, description: desc, montant: montant, date_depense: dateVal, created_by: session.user.id
+  });
+  await jlog("Nouvelle dépense", desc, `${cat} - ${f(montant)}`);
+  await loadAllData();
+}
+
+async function deleteDepense(id) {
+  if (!confirm("Supprimer cette dépense ?")) return;
+  await supa.from("depenses").delete().eq("id", id);
+  await loadAllData();
+}
+
+function renderDepenses(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
+  const total = data.depenses.reduce((a,d) => a + (+d.montant||0), 0);
+
+  A.innerHTML = `
+    <div class="card"><b>➕ Enregistrer une dépense</b>
+      <select id="dep_cat">
+        <option value="Achat pièces">Achat de pièces</option>
+        <option value="Salaires">Salaires (si non géré via la paie)</option>
+        <option value="Loyer">Loyer du local</option>
+        <option value="Électricité">Électricité (EDG)</option>
+        <option value="Eau">Eau</option>
+        <option value="Carburant">Carburant</option>
+        <option value="Entretien">Entretien / Réparation</option>
+        <option value="Fournitures">Fournitures de bureau</option>
+        <option value="Divers">Divers</option>
+      </select>
+      <input id="dep_desc" placeholder="Description (ex: Facture EDG Octobre)">
+      <input id="dep_montant" type="number" placeholder="Montant (GNF)">
+      <input id="dep_date" type="date" value="${new Date().toISOString().slice(0,10)}">
+      <button class="p" onclick="addDepense()">Ajouter la dépense</button>
+    </div>
+
+    <div class="card" style="background:var(--bg); border-left:4px solid var(--r)">
+      <b style="font-size:18px">Total des dépenses : ${f(total)}</b>
+    </div>
+
+    <div class="card"><b>📜 Historique des dépenses</b>
+      <table><thead><tr><th>Date</th><th>Catégorie</th><th>Description</th><th>Montant</th><th></th></tr></thead><tbody>
+        ${data.depenses.map(d => `
+          <tr>
+            <td>${new Date(d.date_depense).toLocaleDateString('fr-FR')}</td>
+            <td><span class="tag">${e(d.categorie)}</span></td>
+            <td>${e(d.description)}</td>
+            <td><b>${f(d.montant)}</b></td>
+            <td><button class="s" onclick="deleteDepense('${d.id}')">🗑️</button></td>
+          </tr>
+        `).join("") || '<tr><td colspan="5" style="text-align:center;">Aucune dépense enregistrée.</td></tr>'}
+      </tbody></table>
+    </div>
+  `;
+}
 /* --- STATISTIQUES --- */
 function renderStats(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
+  // 1. Calcul du CA (Factures payées)
   const caMois = {}; let totalCa = 0;
   data.factures.filter(f => f.statut === "Payé").forEach(f => {
     const mois = (f.date_emission || "").slice(0, 7); if (!mois) return;
     caMois[mois] = (caMois[mois] || 0) + (+f.total_ttc || 0); totalCa += (+f.total_ttc || 0);
   });
   const moisTries = Object.keys(caMois).sort().reverse();
-  const techStats = {}; data.factures.forEach(f => { if (!f.technicien) return; techStats[f.technicien] = (techStats[f.technicien] || 0) + (+f.total_ttc || 0); });
+
+  // 2. Total des salaires payés
+  const totalSalaires = (data.paie || []).reduce((a,p) => a + (+p.solde||0), 0);
+
+  // 3. Total des dépenses
+  const totalDepenses = (data.depenses || []).reduce((a,d) => a + (+d.montant||0), 0);
+
+  // 4. Bénéfice Net
+  const beneficeNet = totalCa - totalSalaires - totalDepenses;
+
+  // 5. Top techniciens et clients
+  const techStats = {}; data.factures.forEach(f => { if (f.technicien) techStats[f.technicien] = (techStats[f.technicien] || 0) + (+f.total_ttc || 0); });
   const topTechs = Object.entries(techStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
-  const clientStats = {}; data.factures.forEach(f => { if (!f.client_nom) return; clientStats[f.client_nom] = (clientStats[f.client_nom] || 0) + (+f.total_ttc || 0); });
+  
+  const clientStats = {}; data.factures.forEach(f => { if (f.client_nom) clientStats[f.client_nom] = (clientStats[f.client_nom] || 0) + (+f.total_ttc || 0); });
   const topClients = Object.entries(clientStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
 
-  A.innerHTML = `<div class="card" style="background:var(--r); color:#fff"><div class="k" style="color:#fff">${f(totalCa)}</div><div class="m" style="color:#fff; opacity:0.9">CA Total Encaissé</div></div>
-    <div class="card"><b>📈 CA par mois</b>${moisTries.map(m => { const [annee, moisNum] = m.split("-"); const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]; return `<div class="row" style="border-top:1px solid var(--b)"><span>${nomsMois[parseInt(moisNum)-1] || moisNum} ${annee}</span><b>${f(caMois[m])}</b></div>`; }).join("") || '<div class="m">Aucune facture payée.</div>'}</div>
-    <div class="card"><b>🔧 Top 5 techniciens</b>${topTechs.map((t, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(t[0])}</span><b>${f(t[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}</div>
-    <div class="card"><b>👑 Top 5 clients</b>${topClients.map((c, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(c[0])}</span><b>${f(c[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}</div>`;
+  A.innerHTML = `
+    <div class="grid">
+      <div class="card" style="border-top:4px solid var(--ok)"><div class="m">Chiffre d'Affaires (Encaissé)</div><div class="k">${f(totalCa)}</div></div>
+      <div class="card" style="border-top:4px solid #f59e0b"><div class="m">Total Salaires</div><div class="k">${f(totalSalaires)}</div></div>
+      <div class="card" style="border-top:4px solid #ea580c"><div class="m">Total Dépenses</div><div class="k">${f(totalDepenses)}</div></div>
+      <div class="card" style="border-top:4px solid var(--r)"><div class="m">Bénéfice Net</div><div class="k" style="color:var(--r)">${f(beneficeNet)}</div></div>
+    </div>
+
+    <div class="card"><b>📈 CA par mois</b>
+      ${moisTries.map(m => {
+        const [annee, moisNum] = m.split("-");
+        const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+        return `<div class="row" style="border-top:1px solid var(--b)"><span>${nomsMois[parseInt(moisNum)-1] || moisNum} ${annee}</span><b>${f(caMois[m])}</b></div>`;
+      }).join("") || '<div class="m">Aucune facture payée.</div>'}
+    </div>
+
+    <div class="card"><b>🔧 Top 5 techniciens</b>
+      ${topTechs.map((t, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(t[0])}</span><b>${f(t[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}
+    </div>
+
+    <div class="card"><b>👑 Top 5 clients</b>
+      ${topClients.map((c, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(c[0])}</span><b>${f(c[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}
+    </div>
+  `;
 }
 
 /* --- PARAMÈTRES --- */
