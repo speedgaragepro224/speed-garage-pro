@@ -881,10 +881,10 @@ function renderPaie(A) {
     
     const base = +$("paie_base")?.value || emp.salaire_base || 0;
     const primes = +$("paie_primes")?.value || 0;
-       const avances = +$("paie_avances")?.value || 0;
-   const cnss = +$("paie_cnss")?.value || 0;
-   const impot = +$("paie_impot")?.value || 0;
-   const solde = base + primes - avances - cnss - impot;
+           const avances = +$("paie_avances")?.value || 0;
+    const cnss = +$("paie_cnss")?.value || 0;
+    const impot = +$("paie_impot")?.value || 0;
+    const solde = base + primes - avances - cnss - impot;
 
     A.innerHTML = `
       <div class="card">
@@ -906,6 +906,11 @@ function renderPaie(A) {
         <label class="m">Impôt sur le revenu (GNF)</label>
         <input id="paie_impot" type="number" value="${impot}" oninput="renderPaie(document.getElementById('app'))">
         <input id="paie_avances" type="number" value="${avances}" oninput="renderPaie(document.getElementById('app'))">
+        <label class="m">Retenue CNSS (GNF)</label>
+        <input id="paie_cnss" type="number" value="${cnss}" oninput="renderPaie(document.getElementById('app'))">
+        
+        <label class="m">Impôt sur le revenu (GNF)</label>
+        <input id="paie_impot" type="number" value="${impot}" oninput="renderPaie(document.getElementById('app'))">
         
         <div style="background:var(--bg); padding:15px; border-radius:8px; margin-top:15px; border:1px solid var(--r)">
           <b style="font-size:18px">Solde à payer : ${f(solde)}</b>
