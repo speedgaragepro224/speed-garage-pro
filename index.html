@@ -1190,27 +1190,34 @@ async function addCommande() {
   const fid = $("c_fournisseur").value;
   const desc = $("c_desc").value.trim();
   const montant = +$("c_montant").value || 0;
-const montantPaye = +$("c_montant_paye").value || 0;
-  if (!fid || !desc) { alert("Fournisseur et description obligatoires."); return; }
+  const montantPaye = +$("c_montant_paye").value || 0;
+  
+  if (!fid) { alert("Choisissez un fournisseur."); return; }
+  if (!desc) { alert("La description est obligatoire."); return; }
+  if (montant <= 0) { alert("Le montant total doit être supérieur à 0."); return; }
   
   const f = data.fournisseurs.find(x => x.id === fid);
-  await supa.from("commandes").insert({
-  fournisseur_id: fid, fournisseur_nom: f.nom, description: desc, montant: montant, montant_paye: montantPaye, date_commande: $("c_date").value || new Date().toISOString().slice(0,10)
-});
-  await jlog("Nouvelle commande", desc, `${f.nom} - ${f(montant)}`);
-  await loadAllData();
-}
-async function payerSolde(id) {
-  const c = data.commandes.find(x => x.id === id);
-  if (!c) return;
-  const reste = c.montant - (c.montant_paye || 0);
-  if (!confirm(`Enregistrer le paiement du solde de ${f(reste)} ?`)) return;
   
-  await supa.from("commandes").update({
-    montant_paye: c.montant,
-    statut: "Payé"
-  }).eq("id", id);
-  await jlog("Paiement fournisseur", c.fournisseur_nom, `Solde : ${f(reste)}`);
+  const { error } = await supa.from("commandes").insert({
+    fournisseur_id: fid, 
+    fournisseur_nom: f.nom, 
+    description: desc, 
+    montant: montant, 
+    montant_paye: montantPaye, 
+    date_commande: $("c_date").value || new Date().toISOString().slice(0,10),
+    statut: montantPaye >= montant ? "Payé" : (montantPaye > 0 ? "Partiel" : "Commandé")
+  });
+  
+  if (error) { alert("Erreur : " + error.message); return; }
+  
+  await jlog("Nouvelle commande", desc, `${f.nom} - ${f(montant)}`);
+  
+  // ON VIDE LES CHAMPS ICI
+  $("c_desc").value = "";
+  $("c_montant").value = "";
+  $("c_montant_paye").value = "0";
+  $("c_fournisseur").value = "";
+  
   await loadAllData();
 }
 async function changerStatutCommande(id, statut) {
@@ -1276,27 +1283,35 @@ function renderFournisseurs(A) {
       <button class="p" onclick="addCommande()">Enregistrer la commande</button>
     </div>
 
-        <div class="card"><b>📜 Historique des commandes</b>
-      <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut / Reste</th><th>Action</th></tr></thead><tbody>
-        ${(data.commandes || []).map(c => `
-          <tr>
-            <td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td>
-            <td><b>${e(c.fournisseur_nom)}</b></td>
-            <td>${e(c.description)}</td>
-            <td><b>${f(c.montant)}</b></td>
-            <td>
-              <span class="tag" style="background:${c.montant_paye >= c.montant ? 'var(--ok)' : (c.montant_paye > 0 ? '#f59e0b' : 'var(--r)')}; color:#fff;">
-                ${c.montant_paye >= c.montant ? "Payé" : (c.montant_paye > 0 ? "Partiel" : "Non payé")}
-              </span><br>
-              <span class="m">Reste : <b>${f(c.montant - (c.montant_paye||0))}</b></span>
-            </td>
-            <td>
-              ${c.montant_paye < c.montant ? `<button class="s" onclick="payerSolde('${c.id}')">Payer le solde</button>` : ""}
-              <button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>
-            </td>
-          </tr>
-        `).join("") || '<tr><td colspan="6" style="text-align:center;">Aucune commande.</td></tr>'}
-      </tbody></table>
+            <div class="card"><b>📜 Historique des commandes</b>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut / Reste</th><th>Action</th></tr></thead><tbody>
+          ${(data.commandes || []).map(c => {
+            const reste = (+c.montant||0) - (+c.montant_paye||0);
+            let statutTxt = "Non payé";
+            let statutBg = "var(--r)";
+            if (reste <= 0) { statutTxt = "Payé"; statutBg = "var(--ok)"; }
+            else if (c.montant_paye > 0) { statutTxt = "Partiel"; statutBg = "#f59e0b"; }
+            
+            return `
+              <tr>
+                <td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td>
+                <td><b>${e(c.fournisseur_nom)}</b></td>
+                <td>${e(c.description)}</td>
+                <td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td>
+                <td>
+                  <span class="tag" style="background:${statutBg}; color:#fff;">${statutTxt}</span><br>
+                  <span class="m" style="color:${reste > 0 ? 'var(--r)' : 'inherit'}">Reste : ${f(reste)}</span>
+                </td>
+                <td>
+                  ${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer le solde</button>` : ""}
+                  <button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>
+                </td>
+              </tr>
+            `;
+          }).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px;">Aucune commande enregistrée.</td></tr>'}
+        </tbody></table>
+      </div>
     </div>
 
     <div class="card"><b>🏭 Liste des fournisseurs</b>
@@ -1309,7 +1324,19 @@ function renderFournisseurs(A) {
     </div>
   `;
 }
-
+async function payerSolde(id) {
+  const c = data.commandes.find(x => x.id === id);
+  if (!c) return;
+  const reste = c.montant - (c.montant_paye || 0);
+  if (!confirm(`Enregistrer le paiement du solde de ${f(reste)} ?`)) return;
+  
+  await supa.from("commandes").update({
+    montant_paye: c.montant,
+    statut: "Payé"
+  }).eq("id", id);
+  await jlog("Paiement fournisseur", c.fournisseur_nom, `Solde : ${f(reste)}`);
+  await loadAllData();
+}
 async function deleteCommande(id) {
   if (!confirm("Supprimer cette commande ?")) return;
   await supa.from("commandes").delete().eq("id", id);
