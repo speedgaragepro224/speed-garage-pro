@@ -1060,19 +1060,39 @@ async function addDepense() {
   const desc = $("dep_desc").value.trim();
   const montant = +$("dep_montant").value || 0;
   const dateVal = $("dep_date").value || new Date().toISOString().slice(0,10);
+  
+  const salNom = $("dep_sal_nom").value.trim();
+  const salPrenom = $("dep_sal_prenom").value.trim();
+  const salFonction = $("dep_sal_fonction").value.trim();
 
   if (!desc || montant <= 0) { alert("Description et montant obligatoires."); return; }
 
-  await supa.from("depenses").insert({
-    categorie: cat, description: desc, montant: montant, date_depense: dateVal, created_by: session.user.id
-  });
-  await jlog("Nouvelle dépense", desc, `${cat} - ${f(montant)}`);
-  await loadAllData();
-}
+  // On prépare les détails pour le journal
+  let details = cat;
+  if (salNom) details += ` | Salarié : ${salNom} ${salPrenom} (${salFonction})`;
 
-async function deleteDepense(id) {
-  if (!confirm("Supprimer cette dépense ?")) return;
-  await supa.from("depenses").delete().eq("id", id);
+  const { error } = await supa.from("depenses").insert({
+    categorie: cat, 
+    description: desc, 
+    montant: montant, 
+    date_depense: dateVal, 
+    salarie_nom: salNom,
+    salarie_prenom: salPrenom,
+    salarie_fonction: salFonction,
+    created_by: session.user.id
+  });
+
+  if (error) { alert("Erreur : " + error.message); return; }
+  
+  await jlog("Nouvelle dépense", desc, details);
+  
+  // On vide les champs
+  $("dep_desc").value = "";
+  $("dep_montant").value = "";
+  $("dep_sal_nom").value = "";
+  $("dep_sal_prenom").value = "";
+  $("dep_sal_fonction").value = "";
+  
   await loadAllData();
 }
 
@@ -1094,9 +1114,17 @@ function renderDepenses(A) {
         <option value="Fournitures">Fournitures de bureau</option>
         <option value="Divers">Divers</option>
       </select>
-      <input id="dep_desc" placeholder="Description (ex: Facture EDG Octobre)">
+            <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="dep_sal_nom" placeholder="Nom du salarié (si déplacement)" style="flex:1">
+        <input id="dep_sal_prenom" placeholder="Prénom du salarié" style="flex:1">
+        <input id="dep_sal_fonction" placeholder="Fonction (ex: Mécanicien, Chauffeur)" style="flex:1">
+      </div>
+      <input id="dep_desc" placeholder="Description / Motif (ex: Achat de pièces, Essai véhicule...)">
       <input id="dep_montant" type="number" placeholder="Montant (GNF)">
       <input id="dep_date" type="date" value="${new Date().toISOString().slice(0,10)}">
+<option value="Frais de déplacement">Frais de déplacement</option>
+<option value="Appel téléphonique">Appel téléphonique (Crédit / Facture)</option>
+<option value="Connexion internet">Connexion Internet</option>
       <button class="p" onclick="addDepense()">Ajouter la dépense</button>
     </div>
 
@@ -1110,7 +1138,7 @@ function renderDepenses(A) {
           <tr>
             <td>${new Date(d.date_depense).toLocaleDateString('fr-FR')}</td>
             <td><span class="tag">${e(d.categorie)}</span></td>
-            <td>${e(d.description)}</td>
+            <td>${e(d.description)}${d.salarie_nom ? `<br><span class="m">👤 ${e(d.salarie_prenom)} ${e(d.salarie_nom)} (${e(d.salarie_fonction)})</span>` : ""}</td>
             <td><b>${f(d.montant)}</b></td>
             <td><button class="s" onclick="deleteDepense('${d.id}')">🗑️</button></td>
           </tr>
@@ -1198,24 +1226,27 @@ async function deleteFournisseur(id) {
 async function addCommande() {
   const fid = $("c_fournisseur").value;
   const desc = $("c_desc").value.trim();
-  const montant = +$("c_montant").value || 0;
-  const montantPaye = +$("c_montant_paye").value || 0;
+  const montant = parseFloat($("c_montant").value) || 0;
+  const montantPaye = parseFloat($("c_montant_paye").value) || 0;
+  const dateVal = $("c_date").value || new Date().toISOString().slice(0,10);
   
   if (!fid) { alert("Veuillez choisir un fournisseur."); return; }
   if (!desc) { alert("Veuillez saisir une description."); return; }
   if (montant <= 0) { alert("Le montant total doit être supérieur à 0."); return; }
   
-  const f = data.fournisseurs.find(x => x.id === fid);
+  const fournisseur = data.fournisseurs.find(x => x.id === fid);
+  if (!fournisseur) { alert("Fournisseur introuvable."); return; }
+  
   const statut = montantPaye >= montant ? "Payé" : (montantPaye > 0 ? "Partiel" : "Commandé");
   
   const { error } = await supa.from("commandes").insert({
     fournisseur_id: fid, 
-    fournisseur_nom: f.nom, 
+    fournisseur_nom: fournisseur.nom, 
     description: desc, 
     montant: montant, 
     montant_paye: montantPaye, 
     statut: statut,
-    date_commande: $("c_date").value || new Date().toISOString().slice(0,10)
+    date_commande: dateVal
   });
   
   if (error) { 
@@ -1223,18 +1254,18 @@ async function addCommande() {
     return; 
   }
   
-  await jlog("Nouvelle commande", desc, `${f.nom} - ${f(montant)}`);
+  await jlog("Nouvelle commande", desc, `${fournisseur.nom} - ${f(montant)}`);
   
-  // ON VIDE LES CHAMPS ICI
+  // On vide les champs
   $("c_fournisseur").value = "";
   $("c_desc").value = "";
   $("c_montant").value = "";
-  $("c_montant_paye").value = ""; // On laisse vide
-  $("c_date").value = new Date().toISOString().slice(0,10); // On remet la date du jour
+  $("c_montant_paye").value = ""; 
+  $("c_date").value = new Date().toISOString().slice(0,10); 
   
   await loadAllData();
+  alert("Commande enregistrée avec succès !");
 }
-
 async function payerSolde(id) {
   const c = data.commandes.find(x => x.id === id);
   if (!c) return;
