@@ -812,6 +812,8 @@ function printBulletinPaie(paieId) {
         <tr><td>Salaire de base</td><td style="text-align:right">${f(p.salaire_base)}</td></tr>
         <tr><td>Primes et indemnités</td><td style="text-align:right">${f(p.primes)}</td></tr>
         <tr><td>Avances déduites</td><td style="text-align:right">- ${f(p.avances)}</td></tr>
+        <tr><td>Retenue CNSS</td><td style="text-align:right">- ${f(p.cnss || 0)}</td></tr>
+        <tr><td>Impôt sur le revenu</td><td style="text-align:right">- ${f(p.impot || 0)}</td></tr>
       </tbody>
     </table>
 
@@ -851,13 +853,15 @@ async function sauverPaie(employeId) {
   const base = +$("paie_base").value || 0;
   const primes = +$("paie_primes").value || 0;
   const avances = +$("paie_avances").value || 0;
+const cnss = +$("paie_cnss").value || 0;
+const impot = +$("paie_impot").value || 0;
   const solde = base + primes - avances;
 
   if (!mois) { alert("Choisissez le mois."); return; }
 
   const { error } = await supa.from("paie").insert({
     employe_id: employeId, mois: mois,
-    salaire_base: base, primes: primes, avances: avances, solde: solde
+    salaire_base: base, primes: primes, avances: avances, cnss: cnss, impot: impot, solde: solde
   });
   if (error) { alert("Erreur : " + error.message); return; }
   
@@ -877,8 +881,10 @@ function renderPaie(A) {
     
     const base = +$("paie_base")?.value || emp.salaire_base || 0;
     const primes = +$("paie_primes")?.value || 0;
-    const avances = +$("paie_avances")?.value || 0;
-    const solde = base + primes - avances;
+       const avances = +$("paie_avances")?.value || 0;
+   const cnss = +$("paie_cnss")?.value || 0;
+   const impot = +$("paie_impot")?.value || 0;
+   const solde = base + primes - avances - cnss - impot;
 
     A.innerHTML = `
       <div class="card">
@@ -894,6 +900,11 @@ function renderPaie(A) {
         <label class="m">Primes (GNF)</label>
         <input id="paie_primes" type="number" value="${primes}" oninput="renderPaie(document.getElementById('app'))">
         <label class="m">Avances (GNF)</label>
+        <label class="m">Retenue CNSS (GNF)</label>
+        <input id="paie_cnss" type="number" value="${cnss}" oninput="renderPaie(document.getElementById('app'))">
+        
+        <label class="m">Impôt sur le revenu (GNF)</label>
+        <input id="paie_impot" type="number" value="${impot}" oninput="renderPaie(document.getElementById('app'))">
         <input id="paie_avances" type="number" value="${avances}" oninput="renderPaie(document.getElementById('app'))">
         
         <div style="background:var(--bg); padding:15px; border-radius:8px; margin-top:15px; border:1px solid var(--r)">
