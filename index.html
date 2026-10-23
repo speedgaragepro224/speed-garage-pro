@@ -223,28 +223,106 @@ function remplirVehiculeRdv(id) {
 
 async function deleteRdv(id) { if (!confirm("Annuler ce RDV ?")) return; await supa.from("rdv").delete().eq("id", id); await loadAllData(); }
 
+let dateCalendrier = new Date().toISOString().slice(0, 7); // Mois affiché (AAAA-MM)
+let jourSelectionne = null; // Jour cliqué (AAAA-MM-JJ)
+
+function changerMois(delta) {
+  let [annee, mois] = dateCalendrier.split('-');
+  let d = new Date(annee, parseInt(mois) - 1 + delta, 1);
+  dateCalendrier = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  jourSelectionne = null;
+  render();
+}
+
 function renderPlanning(A) {
   const peutEditer = ROLES[profil.role].can.editClients;
-  const today = new Date().toISOString().slice(0,10);
-  const prochains = [...data.rdv].sort((a,b) => a.date_rdv.localeCompare(b.date_rdv)).filter(r => r.date_rdv >= today);
+  
+  // --- CONSTRUCTION DU CALENDRIER ---
+  const [annee, mois] = dateCalendrier.split('-');
+  const premierJour = new Date(annee, parseInt(mois)-1, 1);
+  const dernierJour = new Date(annee, parseInt(mois), 0);
+  const nbJours = dernierJour.getDate();
+  const jourDebut = premierJour.getDay() === 0 ? 6 : premierJour.getDay() - 1; // Lundi = 0
+  
+  const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  const nomMois = nomsMois[parseInt(mois)-1];
+  const joursSemaine = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+  let htmlCalendrier = `<div class="card"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+    <button class="s" onclick="changerMois(-1)">← Précédent</button>
+    <b style="font-size:18px">${nomMois} ${annee}</b>
+    <button class="s" onclick="changerMois(1)">Suivant →</button>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; text-align:center; font-size:12px; font-weight:bold; color:var(--m); margin-bottom:4px">
+    ${joursSemaine.map(j => `<div>${j}</div>`).join("")}
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:4px">`;
+  
+  // Cases vides avant le 1er
+  for (let i = 0; i < jourDebut; i++) htmlCalendrier += `<div></div>`;
+  
+  // Jours du mois
+  for (let j = 1; j <= nbJours; j++) {
+    const dateStr = `${annee}-${mois}-${String(j).padStart(2, '0')}`;
+    const nbRdv = data.rdv.filter(r => r.date_rdv === dateStr).length;
+    const isToday = dateStr === new Date().toISOString().slice(0,10);
+    const isSelected = dateStr === jourSelectionne;
+    
+    let bg = isToday ? "var(--r)" : (nbRdv > 0 ? "#dbeafe" : "var(--bg)");
+   let color = isToday ? "#fff" : (nbRdv > 0 ? "#1e40af" : "var(--t)");
+    if (isSelected) { bg = "var(--m)"; color = "#fff"; }
+    
+       htmlCalendrier += `<div onclick="jourSelectionne='${dateStr}'; render(); setTimeout(() => { const el = document.getElementById('liste_rdv'); if(el) el.scrollIntoView({ behavior: 'smooth' }); }, 150)" style="cursor:pointer; padding:8px 0; border-radius:6px; background:${bg}; color:${color}; border:1px solid var(--b); position:relative">
+      <b>${j}</b>
+      ${nbRdv > 0 ? `<div style="font-size:10px; margin-top:2px; font-weight:bold; color:#166534">` : ""}
+    </div>`;
+  }
+  htmlCalendrier += `</div></div>`;
+
+  // --- FILTRE DES RDV ---
+  let rdvsAffiches = data.rdv;
+  let titreRdv = "📅 Tous les rendez-vous à venir";
+  if (jourSelectionne) {
+    rdvsAffiches = data.rdv.filter(r => r.date_rdv === jourSelectionne);
+    titreRdv = `📅 Rendez-vous du ${new Date(jourSelectionne).toLocaleDateString('fr-FR')}`;
+  } else {
+    rdvsAffiches = data.rdv.filter(r => r.date_rdv >= new Date().toISOString().slice(0,10));
+  }
+  rdvsAffiches = rdvsAffiches.sort((a,b) => a.date_rdv.localeCompare(b.date_rdv) || a.heure_rdv.localeCompare(b.heure_rdv));
 
   A.innerHTML = `
-    ${peutEditer?`<div class="card"><b>➕ Nouveau rendez-vous</b>
+    ${htmlCalendrier}
+    
+    ${peutEditer ? `<div class="card"><b>➕ Nouveau rendez-vous</b>
       <select id="rd_client"><option value="">Client…</option>${data.clients.map(c=>`<option value="${c.id}">${e(c.nom)}</option>`).join("")}</select>
-      <select id="rd_vehicule_select" onchange="remplirVehiculeRdv(this.value)" style="font-weight:bold; margin-bottom:5px">
-        <option value="">⬇️ Choisir un véhicule existant...</option>
-        ${data.vehicules.map(v => `<option value="${v.id}">${e(v.marque)} ${e(v.modele)} (${e(v.immat)})</option>`).join("")}
-      </select>
-      <div style="display:flex; gap:8px"><input id="rd_marque" placeholder="Marque" style="flex:1"><input id="rd_modele" placeholder="Modèle" style="flex:1"></div>
+      <div style="display:flex; gap:8px">
+        <input id="rd_marque" placeholder="Marque" style="flex:1">
+        <input id="rd_modele" placeholder="Modèle" style="flex:1">
+      </div>
       <input id="rd_immat" placeholder="Immatriculation">
-      <div style="display:flex; gap:8px"><input id="rd_date" type="date" style="flex:2"><input id="rd_heure" type="time" style="flex:1"></div>
+      <div style="display:flex; gap:8px">
+        <input id="rd_date" type="date" value="${jourSelectionne || (new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0'))}" style="flex:2">
+        <input id="rd_heure" type="time" style="flex:1">
+      </div>
       <input id="rd_motif" placeholder="Motif (ex: Vidange)">
-      <button class="p" onclick="addRdv()">Enregistrer le RDV</button></div>`:""}
-    <div class="card"><b>📅 Prochains rendez-vous</b></div>
-    ${prochains.map(r=>`<div class="card" style="border-left: 4px solid var(--r)"><div class="row" style="border-top:0"><div style="flex:1">
-      <b style="font-size:16px">${e(r.date_rdv)}</b> à <b>${e(r.heure_rdv || '--:--')}</b><br>
-      <b>${e(r.client_nom)}</b> — ${e(r.vehicule)} ${e(r.immat)}<br><span class="m">${e(r.motif || 'Pas de motif')}</span>
-    </div><div>${peutEditer?`<button class="s" onclick="deleteRdv('${r.id}')">🗑️</button>`:""}</div></div></div>`).join("") || '<div class="card m">Aucun rendez-vous.</div>'}`;
+      <button class="p" onclick="addRdv()">Enregistrer le RDV</button>
+    </div>` : ""}
+    
+    <div id="liste_rdv" class="card"><b>${titreRdv}</b> ${jourSelectionne ? `<button class="s" style="float:right" onclick="jourSelectionne=null; render()">Voir tout</button>` : ""}</div>
+    
+    ${rdvsAffiches.map(r => `
+      <div class="card" style="border-left: 4px solid var(--r)">
+        <div class="row" style="border-top:0">
+          <div style="flex:1">
+            <b>${e(r.date_rdv)}</b> à <b>${e(r.heure_rdv || '--:--')}</b><br>
+            <b>${e(r.client_nom)}</b> — ${e(r.vehicule)} ${e(r.immat)}<br>
+            <span class="m">${e(r.motif || 'Pas de motif')}</span>
+          </div>
+          <div>${peutEditer ? `<button class="s" onclick="deleteRdv('${r.id}')">🗑️</button>` : ""}</div>
+        </div>
+      </div>
+    `).join("") || '<div class="card m">Aucun rendez-vous.</div>'}
+  `;
 }
 
 /* --- RAPPELS --- */
