@@ -474,6 +474,7 @@ function renderClients(A) {
       <p class="m">📞 ${e(c.tel)}<br>📍 ${e(c.adr)}</p>
       <div style="display:flex; gap:8px; margin-top:10px">
         <button class="p" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
+<button class="p" onclick="imprimerRecuDepot('${c.id}')" style="background:#0891b2; margin-left:8px">🖨️ Reçu de dépôt</button>
 <button class="p" onclick="imprimerRecuDepot('${c.id}')" style="background:#0891b2">🖨️ Reçu de dépôt</button>
         ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
       </div>
