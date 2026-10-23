@@ -1103,15 +1103,18 @@ function renderDepenses(A) {
 
   A.innerHTML = `
     <div class="card"><b>➕ Enregistrer une dépense</b>
-      <select id="dep_cat">
+            <select id="dep_cat">
         <option value="Achat pièces">Achat de pièces</option>
-        <option value="Salaires">Salaires (si non géré via la paie)</option>
+        <option value="Salaires">Salaires</option>
         <option value="Loyer">Loyer du local</option>
         <option value="Électricité">Électricité (EDG)</option>
         <option value="Eau">Eau</option>
         <option value="Carburant">Carburant</option>
         <option value="Entretien">Entretien / Réparation</option>
         <option value="Fournitures">Fournitures de bureau</option>
+        <option value="Frais de déplacement">Frais de déplacement</option>
+        <option value="Appel téléphonique">Appel téléphonique (Crédit / Facture)</option>
+        <option value="Connexion internet">Connexion Internet</option>
         <option value="Divers">Divers</option>
       </select>
             <div style="display:flex; gap:8px; margin-bottom:8px">
@@ -1151,24 +1154,27 @@ function renderDepenses(A) {
 function renderStats(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
   
-  // 1. Calcul du CA (Factures payées)
-  const caMois = {}; let totalCa = 0;
+  // 1. CALCUL DES RECETTES (Factures payées)
+  const caMois = {}; 
+  let totalRecettes = 0;
   data.factures.filter(f => f.statut === "Payé").forEach(f => {
     const mois = (f.date_emission || "").slice(0, 7); if (!mois) return;
-    caMois[mois] = (caMois[mois] || 0) + (+f.total_ttc || 0); totalCa += (+f.total_ttc || 0);
+    caMois[mois] = (caMois[mois] || 0) + (+f.total_ttc || 0); 
+    totalRecettes += (+f.total_ttc || 0);
   });
   const moisTries = Object.keys(caMois).sort().reverse();
 
-  // 2. Total des salaires payés
+  // 2. CALCUL DES SORTIES DE TRÉSORERIE
   const totalSalaires = (data.paie || []).reduce((a,p) => a + (+p.solde||0), 0);
-
-  // 3. Total des dépenses
   const totalDepenses = (data.depenses || []).reduce((a,d) => a + (+d.montant||0), 0);
+  const totalFournisseurs = (data.commandes || []).reduce((a,c) => a + (+c.montant_paye||0), 0);
+  
+  const totalSorties = totalSalaires + totalDepenses + totalFournisseurs;
 
-  // 4. Bénéfice Net
-  const beneficeNet = totalCa - totalSalaires - totalDepenses;
+  // 3. CALCUL DU BÉNÉFICE NET
+  const beneficeNet = totalRecettes - totalSorties;
 
-  // 5. Top techniciens et clients
+  // 4. TOP TECHNICIENS ET CLIENTS
   const techStats = {}; data.factures.forEach(f => { if (f.technicien) techStats[f.technicien] = (techStats[f.technicien] || 0) + (+f.total_ttc || 0); });
   const topTechs = Object.entries(techStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
   
@@ -1176,189 +1182,44 @@ function renderStats(A) {
   const topClients = Object.entries(clientStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
 
   A.innerHTML = `
-    <div class="grid">
-      <div class="card" style="border-top:4px solid var(--ok)"><div class="m">Chiffre d'Affaires (Encaissé)</div><div class="k">${f(totalCa)}</div></div>
-      <div class="card" style="border-top:4px solid #f59e0b"><div class="m">Total Salaires</div><div class="k">${f(totalSalaires)}</div></div>
-      <div class="card" style="border-top:4px solid #ea580c"><div class="m">Total Dépenses</div><div class="k">${f(totalDepenses)}</div></div>
-      <div class="card" style="border-top:4px solid var(--r)"><div class="m">Bénéfice Net</div><div class="k" style="color:var(--r)">${f(beneficeNet)}</div></div>
+    <div class="card" style="background:var(--bg)">
+      <b style="font-size:16px">💰 Tableau de bord financier</b>
+      <div class="grid" style="margin-top:10px">
+        <div class="card" style="border-top:4px solid var(--ok)">
+          <div class="m">Recettes (Encaissé)</div>
+          <div class="k" style="color:var(--ok)">${f(totalRecettes)}</div>
+        </div>
+        <div class="card" style="border-top:4px solid var(--r)">
+          <div class="m">Sorties de trésorerie</div>
+          <div class="k" style="color:var(--r)">${f(totalSorties)}</div>
+          <div class="m" style="font-size:11px; margin-top:4px">
+            (Salaires: ${f(totalSalaires)} | Dépenses: ${f(totalDepenses)} | Fournisseurs: ${f(totalFournisseurs)})
+          </div>
+        </div>
+        <div class="card" style="border-top:4px solid #7c3aed">
+          <div class="m">Bénéfice Net</div>
+          <div class="k" style="color:${beneficeNet >= 0 ? 'var(--ok)' : 'var(--r)'}">${f(beneficeNet)}</div>
+        </div>
+      </div>
     </div>
 
-    <div class="card"><b>📈 CA par mois</b>
+    <div class="card"><b>📈 Recettes par mois (Factures payées)</b>
       ${moisTries.map(m => {
         const [annee, moisNum] = m.split("-");
         const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
         return `<div class="row" style="border-top:1px solid var(--b)"><span>${nomsMois[parseInt(moisNum)-1] || moisNum} ${annee}</span><b>${f(caMois[m])}</b></div>`;
-      }).join("") || '<div class="m">Aucune facture payée.</div>'}
+      }).join("") || '<div class="m">Aucune facture payée pour le moment.</div>'}
     </div>
 
-    <div class="card"><b>🔧 Top 5 techniciens</b>
-      ${topTechs.map((t, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(t[0])}</span><b>${f(t[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}
+    <div class="card"><b>🔧 Top 5 techniciens (par CA généré)</b>
+      ${topTechs.map((t, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(t[0])}</span><b>${f(t[1])}</b></div>`).join("") || '<div class="m">Aucune donnée technicien.</div>'}
     </div>
 
-    <div class="card"><b>👑 Top 5 clients</b>
-      ${topClients.map((c, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(c[0])}</span><b>${f(c[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}
-    </div>
-  `;
-}
-/* --- FOURNISSEURS ET COMMANDES --- */
-async function addFournisseur() {
-  const nom = $("f_nom").value.trim();
-  if (!nom) { alert("Le nom du fournisseur est obligatoire."); return; }
-  
-  const { error } = await supa.from("fournisseurs").insert({ 
-    nom, 
-    contact: $("f_contact").value.trim(), 
-    telephone: $("f_tel").value.trim(), 
-    adresse: $("f_adr").value.trim() 
-  });
-  
-  if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Ajout fournisseur", nom, "");
-  await loadAllData();
-}
-
-async function deleteFournisseur(id) {
-  if (!confirm("Supprimer ce fournisseur et toutes ses commandes ?")) return;
-  await supa.from("fournisseurs").delete().eq("id", id);
-  await loadAllData();
-}
-
-async function addCommande() {
-  const fid = $("c_fournisseur").value;
-  const desc = $("c_desc").value.trim();
-  const montant = parseFloat($("c_montant").value) || 0;
-  const montantPaye = parseFloat($("c_montant_paye").value) || 0;
-  const dateVal = $("c_date").value || new Date().toISOString().slice(0,10);
-  
-  if (!fid) { alert("Veuillez choisir un fournisseur."); return; }
-  if (!desc) { alert("Veuillez saisir une description."); return; }
-  if (montant <= 0) { alert("Le montant total doit être supérieur à 0."); return; }
-  
-  const fournisseur = data.fournisseurs.find(x => x.id === fid);
-  if (!fournisseur) { alert("Fournisseur introuvable."); return; }
-  
-  const statut = montantPaye >= montant ? "Payé" : (montantPaye > 0 ? "Partiel" : "Commandé");
-  
-  const { error } = await supa.from("commandes").insert({
-    fournisseur_id: fid, 
-    fournisseur_nom: fournisseur.nom, 
-    description: desc, 
-    montant: montant, 
-    montant_paye: montantPaye, 
-    statut: statut,
-    date_commande: dateVal
-  });
-  
-  if (error) { 
-    alert("Erreur Supabase : " + error.message); 
-    return; 
-  }
-  
-  await jlog("Nouvelle commande", desc, `${fournisseur.nom} - ${f(montant)}`);
-  
-  // On vide les champs
-  $("c_fournisseur").value = "";
-  $("c_desc").value = "";
-  $("c_montant").value = "";
-  $("c_montant_paye").value = ""; 
-  $("c_date").value = new Date().toISOString().slice(0,10); 
-  
-  await loadAllData();
-  alert("Commande enregistrée avec succès !");
-}
-async function payerSolde(id) {
-  const c = data.commandes.find(x => x.id === id);
-  if (!c) return;
-  const reste = c.montant - (c.montant_paye || 0);
-  if (!confirm(`Enregistrer le paiement du solde de ${f(reste)} ?`)) return;
-  
-  await supa.from("commandes").update({ montant_paye: c.montant, statut: "Payé" }).eq("id", id);
-  await jlog("Paiement fournisseur", c.fournisseur_nom, `Solde : ${f(reste)}`);
-  await loadAllData();
-}
-
-async function deleteCommande(id) {
-  if (!confirm("Supprimer cette commande ?")) return;
-  await supa.from("commandes").delete().eq("id", id);
-  await loadAllData();
-}
-
-function renderFournisseurs(A) {
-  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
-  
-  const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
-
-  A.innerHTML = `
-    <div class="grid">
-      <div class="card" style="border-top:4px solid var(--r)">
-        <div class="m">Dettes fournisseurs</div>
-        <div class="k" style="color:var(--r)">${f(dette)}</div>
-      </div>
-    </div>
-
-    <div class="card"><b>🏭 Nouveau fournisseur</b>
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="f_nom" placeholder="Nom du fournisseur *" style="flex:2">
-        <input id="f_contact" placeholder="Contact" style="flex:1">
-        <input id="f_tel" placeholder="Téléphone" style="flex:1">
-      </div>
-      <input id="f_adr" placeholder="Adresse du fournisseur" style="margin-bottom:8px">
-      <button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button>
-    </div>
-
-    <div class="card"><b>📦 Nouvelle commande</b>
-      <select id="c_fournisseur">
-        <option value="">Choisir un fournisseur *</option>
-        ${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}
-      </select>
-      <input id="c_desc" placeholder="Description (ex: 10 filtres à huile...)">
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="c_montant" type="number" placeholder="Montant total (GNF)" style="flex:1">
-        <input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1">
-        <input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1">
-      </div>
-      <button class="p" onclick="addCommande()">Enregistrer la commande</button>
-    </div>
-
-    <div class="card"><b>📜 Historique des commandes</b>
-      <div style="overflow-x:auto">
-        <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut / Reste</th><th>Action</th></tr></thead><tbody>
-          ${(data.commandes || []).map(c => {
-            const reste = (+c.montant||0) - (+c.montant_paye||0);
-            let statutTxt = reste <= 0 ? "Payé" : (c.montant_paye > 0 ? "Partiel" : "Commandé");
-            let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)");
-            return `
-              <tr>
-                <td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td>
-                <td><b>${e(c.fournisseur_nom)}</b></td>
-                <td>${e(c.description)}</td>
-                <td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td>
-                <td>
-                  <span class="tag" style="background:${statutBg}; color:#fff;">${statutTxt}</span><br>
-                  <span class="m" style="color:${reste > 0 ? 'var(--r)' : 'inherit'}">Reste : ${f(reste)}</span>
-                </td>
-                <td>
-                  ${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer</button>` : ""}
-                  <button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>
-                </td>
-              </tr>
-            `;
-          }).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px;">Aucune commande enregistrée.</td></tr>'}
-        </tbody></table>
-      </div>
-    </div>
-
-    <div class="card"><b>🏭 Liste des fournisseurs</b>
-      ${data.fournisseurs.map(f => `
-        <div class="row" style="border-top:1px solid var(--b)">
-          <span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone?"· "+f.telephone:"")}<br>📍 ${e(f.adresse||"—")}</span></span>
-          <button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>
-        </div>
-      `).join("") || '<div class="m">Aucun fournisseur enregistré.</div>'}
+    <div class="card"><b>👑 Top 5 meilleurs clients</b>
+      ${topClients.map((c, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(c[0])}</span><b>${f(c[1])}</b></div>`).join("") || '<div class="m">Aucune donnée client.</div>'}
     </div>
   `;
 }
-
 /* --- PARAMÈTRES --- */
 function renderParams(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
