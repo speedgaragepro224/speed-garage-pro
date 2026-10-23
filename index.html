@@ -60,11 +60,11 @@ const e = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",
 const f = n => (+n || 0).toLocaleString("fr-FR", {maximumFractionDigits:0}) + " GNF";
 
 let supa = null, session = null, profil = null;
-let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[], employes:[], paie:[], depenses:[]};
+let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[], employes:[], paie:[], depenses:[], fournisseurs:[], commandes:[]};
 let tab = "Tableau de bord", idleT = null, q = "";
 
 const ROLES = {
-  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Gestion de paie","Dépenses","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
+  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Gestion de paie","Dépenses","Fournisseurs","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
   SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
@@ -129,6 +129,8 @@ async function loadAllData() {
 supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
 supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
 supa.from("depenses").select("*").order("date_depense", {ascending:false}).then(r=>data.depenses=r.data||[]),
+supa.from("fournisseurs").select("*").order("nom").then(r=>data.fournisseurs=r.data||[]),
+supa.from("commandes").select("*").order("date_commande", {ascending:false}).then(r=>data.commandes=r.data||[]),
     supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
   ];
   if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
@@ -175,6 +177,7 @@ function render() {
   else if (tab==="Techniciens") renderTechs(A);
 else if (tab==="Gestion de paie") renderPaie(A);
 else if (tab==="Dépenses") renderDepenses(A);
+else if (tab==="Fournisseurs") renderFournisseurs(A);
   else if (tab==="Journal d'audit") renderAudit(A);
   else if (tab==="Statistiques") renderStats(A);
   else if (tab==="Paramètres") renderParams(A);
@@ -1168,6 +1171,113 @@ function renderStats(A) {
       ${topClients.map((c, i) => `<div class="row" style="border-top:1px solid var(--b)"><span><b>#${i+1}</b> ${e(c[0])}</span><b>${f(c[1])}</b></div>`).join("") || '<div class="m">Aucune donnée.</div>'}
     </div>
   `;
+}/* --- FOURNISSEURS ET COMMANDES --- */
+async function addFournisseur() {
+  const nom = $("f_nom").value.trim();
+  if (!nom) { alert("Le nom est obligatoire."); return; }
+  await supa.from("fournisseurs").insert({ nom, contact: $("f_contact").value.trim(), telephone: $("f_tel").value.trim() });
+  await jlog("Ajout fournisseur", nom, "");
+  await loadAllData();
+}
+
+async function deleteFournisseur(id) {
+  if (!confirm("Supprimer ce fournisseur et toutes ses commandes ?")) return;
+  await supa.from("fournisseurs").delete().eq("id", id);
+  await loadAllData();
+}
+
+async function addCommande() {
+  const fid = $("c_fournisseur").value;
+  const desc = $("c_desc").value.trim();
+  const montant = +$("c_montant").value || 0;
+  if (!fid || !desc) { alert("Fournisseur et description obligatoires."); return; }
+  
+  const f = data.fournisseurs.find(x => x.id === fid);
+  await supa.from("commandes").insert({
+    fournisseur_id: fid, fournisseur_nom: f.nom, description: desc, montant: montant, date_commande: $("c_date").value || new Date().toISOString().slice(0,10)
+  });
+  await jlog("Nouvelle commande", desc, `${f.nom} - ${f(montant)}`);
+  await loadAllData();
+}
+
+async function changerStatutCommande(id, statut) {
+  await supa.from("commandes").update({statut: statut}).eq("id", id);
+  if (statut === "Payé") {
+    // Optionnel : on pourrait ajouter automatiquement aux dépenses ici
+  }
+  await loadAllData();
+}
+
+function renderFournisseurs(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
+  // Calcul de la dette totale (commandes non payées)
+  const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + (+c.montant||0), 0);
+
+  A.innerHTML = `
+    <div class="grid">
+      <div class="card" style="border-top:4px solid var(--r)">
+        <div class="m">Dettes fournisseurs</div>
+        <div class="k" style="color:var(--r)">${f(dette)}</div>
+      </div>
+    </div>
+
+    <div class="card"><b>🏭 Nouveau fournisseur</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="f_nom" placeholder="Nom du fournisseur *" style="flex:2">
+        <input id="f_contact" placeholder="Contact (nom)" style="flex:1">
+        <input id="f_tel" placeholder="Téléphone" style="flex:1">
+      </div>
+      <button class="p" onclick="addFournisseur()">Ajouter</button>
+    </div>
+
+    <div class="card"><b>📦 Nouvelle commande</b>
+      <select id="c_fournisseur">
+        <option value="">Choisir un fournisseur *</option>
+        ${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}
+      </select>
+      <input id="c_desc" placeholder="Description (ex: 10 filtres à huile, 5 plaquettes...)">
+      <div style="display:flex; gap:8px">
+        <input id="c_montant" type="number" placeholder="Montant total (GNF)" style="flex:2">
+        <input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1">
+      </div>
+      <button class="p" onclick="addCommande()">Enregistrer la commande</button>
+    </div>
+
+    <div class="card"><b>📜 Historique des commandes</b>
+      <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
+        ${(data.commandes || []).map(c => `
+          <tr>
+            <td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td>
+            <td><b>${e(c.fournisseur_nom)}</b></td>
+            <td>${e(c.description)}</td>
+            <td><b>${f(c.montant)}</b></td>
+            <td>
+              <select onchange="changerStatutCommande('${c.id}', this.value)">
+                ${["Commandé","Livré","Payé"].map(s => `<option ${s===c.statut?'selected':''}>${s}</option>`).join("")}
+              </select>
+            </td>
+            <td><button class="s" onclick="deleteCommande('${c.id}')">🗑️</button></td>
+          </tr>
+        `).join("") || '<tr><td colspan="6" style="text-align:center;">Aucune commande.</td></tr>'}
+      </tbody></table>
+    </div>
+
+    <div class="card"><b>🏭 Liste des fournisseurs</b>
+      ${data.fournisseurs.map(f => `
+        <div class="row" style="border-top:1px solid var(--b)">
+          <span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone?"· "+f.telephone:"")}</span></span>
+          <button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>
+        </div>
+      `).join("") || '<div class="m">Aucun fournisseur.</div>'}
+    </div>
+  `;
+}
+
+async function deleteCommande(id) {
+  if (!confirm("Supprimer cette commande ?")) return;
+  await supa.from("commandes").delete().eq("id", id);
+  await loadAllData();
 }
 
 /* --- PARAMÈTRES --- */
