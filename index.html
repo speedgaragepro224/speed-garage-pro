@@ -723,8 +723,16 @@ function updateDevisTotals() {
 function remplirVehiculeDevis(clientId) {
   if (!clientId) return;
   const v = data.vehicules.find(x => x.client_id === clientId);
-  if (v) { dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; }
-  else { dMemo.veh = ""; dMemo.immat = ""; }
+  if (v) { 
+    dMemo.veh = v.marque + " " + v.modele; 
+    dMemo.immat = v.immat; 
+    dMemo.km = v.kilometrage || ""; // On récupère le kilométrage
+  }
+  else { 
+    dMemo.veh = ""; 
+    dMemo.immat = ""; 
+    dMemo.km = "";
+  }
   dMemo.client = clientId;
   render();
 }
@@ -738,10 +746,16 @@ function renderDevis(A) {
       </select>
       <input id="dv_veh" placeholder="Véhicule" value="${e(dMemo.veh)}" oninput="dMemo.veh=this.value">
       <input id="dv_immat" placeholder="Immatriculation" value="${e(dMemo.immat)}" oninput="dMemo.immat=this.value">
-      <input id="dv_km" type="number" placeholder="Kilométrage actuel" value="${e(dMemo.km)}" oninput="dMemo.km=this.value">
+      <input id="dv_km" type="number" placeholder="Kilométrage actuel (km)" value="${e(dMemo.km)}" oninput="dMemo.km=this.value">
       <textarea id="dv_motif" placeholder="Motif de la demande" style="height:60px" oninput="dMemo.motif=this.value">${e(dMemo.motif)}</textarea>
       <input id="dv_delai" placeholder="Délai d'exécution" value="${e(dMemo.delai)}" oninput="dMemo.delai=this.value">
-      <input id="dv_paiement" placeholder="Conditions de paiement" value="${e(dMemo.paiement)}" oninput="dMemo.paiement=this.value">
+            <select id="dv_paiement" onchange="dMemo.paiement=this.value" style="margin-bottom:4px">
+        <option value="">Mode de paiement…</option>
+        <option value="Espèces" ${dMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option>
+        <option value="Orange Money" ${dMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option>
+        <option value="Virement Bancaire" ${dMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
+        <option value="Chèque" ${dMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
+      </select>
       <input id="dv_garantie" placeholder="Garantie applicable" value="${e(dMemo.garantie)}" oninput="dMemo.garantie=this.value">
       <input id="dv_acompte" type="number" placeholder="Acompte versé (GNF)" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value">
       
@@ -916,9 +930,14 @@ async function saveFactureDirecte() {
   
   await supa.from("compteurs").update({valeur: num}).eq("cle","facture");
   
-  // ON VIDE LES CHAMPS ICI
-  fMemo = { client: "", veh: "", immat: "", acompte: "" };
+    // On vide les champs
+  $("fc_client").value = "";
+  $("fc_veh").value = "";
+  $("fc_immat").value = "";
+  if($("fc_acompte")) $("fc_acompte").value = "";
+  
   fLignes = [{d:"",q:1,p:0}];
+  fMemo = { client: "", veh: "", immat: "", acompte: "" };
   
   await loadAllData();
   alert("Facture créée avec succès !");
