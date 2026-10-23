@@ -1175,7 +1175,7 @@ function renderStats(A) {
 async function addFournisseur() {
   const nom = $("f_nom").value.trim();
   if (!nom) { alert("Le nom est obligatoire."); return; }
-  await supa.from("fournisseurs").insert({ nom, contact: $("f_contact").value.trim(), telephone: $("f_tel").value.trim() });
+  await supa.from("fournisseurs").insert({ nom, contact: $("f_contact").value.trim(), telephone: $("f_tel").value.trim(), adresse: $("f_adr").value.trim() });
   await jlog("Ajout fournisseur", nom, "");
   await loadAllData();
 }
@@ -1190,21 +1190,47 @@ async function addCommande() {
   const fid = $("c_fournisseur").value;
   const desc = $("c_desc").value.trim();
   const montant = +$("c_montant").value || 0;
+const montantPaye = +$("c_montant_paye").value || 0;
   if (!fid || !desc) { alert("Fournisseur et description obligatoires."); return; }
   
   const f = data.fournisseurs.find(x => x.id === fid);
   await supa.from("commandes").insert({
-    fournisseur_id: fid, fournisseur_nom: f.nom, description: desc, montant: montant, date_commande: $("c_date").value || new Date().toISOString().slice(0,10)
-  });
+  fournisseur_id: fid, fournisseur_nom: f.nom, description: desc, montant: montant, montant_paye: montantPaye, date_commande: $("c_date").value || new Date().toISOString().slice(0,10)
+});
   await jlog("Nouvelle commande", desc, `${f.nom} - ${f(montant)}`);
   await loadAllData();
 }
-
+async function payerSolde(id) {
+  const c = data.commandes.find(x => x.id === id);
+  if (!c) return;
+  const reste = c.montant - (c.montant_paye || 0);
+  if (!confirm(`Enregistrer le paiement du solde de ${f(reste)} ?`)) return;
+  
+  await supa.from("commandes").update({
+    montant_paye: c.montant,
+    statut: "Payé"
+  }).eq("id", id);
+  await jlog("Paiement fournisseur", c.fournisseur_nom, `Solde : ${f(reste)}`);
+  await loadAllData();
+}
 async function changerStatutCommande(id, statut) {
-  await supa.from("commandes").update({statut: statut}).eq("id", id);
+  const c = data.commandes.find(x => x.id === id);
+  if (!c) return;
+  
+  let montantPaye = c.montant_paye || 0;
+  let nouveauStatut = statut;
+  
+  // Si on choisit "Payé", on met le montant payé = montant total
   if (statut === "Payé") {
-    // Optionnel : on pourrait ajouter automatiquement aux dépenses ici
+    montantPaye = c.montant;
+    nouveauStatut = "Payé";
+  } 
+  // Si on choisit "Livré", on ne change pas le paiement (ou on le laisse tel quel)
+  else if (statut === "Livré") {
+    nouveauStatut = "Livré";
   }
+
+  await supa.from("commandes").update({statut: nouveauStatut, montant_paye: montantPaye}).eq("id", id);
   await loadAllData();
 }
 
@@ -1227,25 +1253,31 @@ function renderFournisseurs(A) {
         <input id="f_nom" placeholder="Nom du fournisseur *" style="flex:2">
         <input id="f_contact" placeholder="Contact (nom)" style="flex:1">
         <input id="f_tel" placeholder="Téléphone" style="flex:1">
+   </div>
+   <input id="f_adr" placeholder="Adresse du fournisseur" style="margin-bottom:8px">
+   <div style="display:flex; gap:8px">
       </div>
       <button class="p" onclick="addFournisseur()">Ajouter</button>
     </div>
 
-    <div class="card"><b>📦 Nouvelle commande</b>
+        <div class="card"><b>📦 Nouvelle commande</b>
       <select id="c_fournisseur">
         <option value="">Choisir un fournisseur *</option>
         ${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}
       </select>
       <input id="c_desc" placeholder="Description (ex: 10 filtres à huile, 5 plaquettes...)">
-      <div style="display:flex; gap:8px">
-        <input id="c_montant" type="number" placeholder="Montant total (GNF)" style="flex:2">
+      
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="c_montant" type="number" placeholder="Montant total (GNF)" style="flex:1">
+        <input id="c_montant_paye" type="number" placeholder="Acompte versé (GNF)" value="0" style="flex:1">
         <input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1">
       </div>
+      
       <button class="p" onclick="addCommande()">Enregistrer la commande</button>
     </div>
 
-    <div class="card"><b>📜 Historique des commandes</b>
-      <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
+        <div class="card"><b>📜 Historique des commandes</b>
+      <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut / Reste</th><th>Action</th></tr></thead><tbody>
         ${(data.commandes || []).map(c => `
           <tr>
             <td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td>
@@ -1253,11 +1285,15 @@ function renderFournisseurs(A) {
             <td>${e(c.description)}</td>
             <td><b>${f(c.montant)}</b></td>
             <td>
-              <select onchange="changerStatutCommande('${c.id}', this.value)">
-                ${["Commandé","Livré","Payé"].map(s => `<option ${s===c.statut?'selected':''}>${s}</option>`).join("")}
-              </select>
+              <span class="tag" style="background:${c.montant_paye >= c.montant ? 'var(--ok)' : (c.montant_paye > 0 ? '#f59e0b' : 'var(--r)')}; color:#fff;">
+                ${c.montant_paye >= c.montant ? "Payé" : (c.montant_paye > 0 ? "Partiel" : "Non payé")}
+              </span><br>
+              <span class="m">Reste : <b>${f(c.montant - (c.montant_paye||0))}</b></span>
             </td>
-            <td><button class="s" onclick="deleteCommande('${c.id}')">🗑️</button></td>
+            <td>
+              ${c.montant_paye < c.montant ? `<button class="s" onclick="payerSolde('${c.id}')">Payer le solde</button>` : ""}
+              <button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>
+            </td>
           </tr>
         `).join("") || '<tr><td colspan="6" style="text-align:center;">Aucune commande.</td></tr>'}
       </tbody></table>
@@ -1266,7 +1302,7 @@ function renderFournisseurs(A) {
     <div class="card"><b>🏭 Liste des fournisseurs</b>
       ${data.fournisseurs.map(f => `
         <div class="row" style="border-top:1px solid var(--b)">
-          <span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone?"· "+f.telephone:"")}</span></span>
+          <span class="m">${e(f.contact||"")} ${e(f.telephone?"· "+f.telephone:"")}<br>📍 ${e(f.adresse || "Adresse non renseignée")}</span>
           <button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>
         </div>
       `).join("") || '<div class="m">Aucun fournisseur.</div>'}
