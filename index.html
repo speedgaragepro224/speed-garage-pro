@@ -1201,23 +1201,37 @@ async function addCommande() {
   const montant = +$("c_montant").value || 0;
   const montantPaye = +$("c_montant_paye").value || 0;
   
-  if (!fid || !desc || montant <= 0) { 
-    alert("Veuillez remplir correctement le fournisseur, la description et le montant."); 
-    return; 
-  }
+  if (!fid) { alert("Veuillez choisir un fournisseur."); return; }
+  if (!desc) { alert("Veuillez saisir une description."); return; }
+  if (montant <= 0) { alert("Le montant total doit être supérieur à 0."); return; }
   
   const f = data.fournisseurs.find(x => x.id === fid);
   const statut = montantPaye >= montant ? "Payé" : (montantPaye > 0 ? "Partiel" : "Commandé");
   
   const { error } = await supa.from("commandes").insert({
-    fournisseur_id: fid, fournisseur_nom: f.nom, description: desc, 
-    montant: montant, montant_paye: montantPaye, statut: statut,
+    fournisseur_id: fid, 
+    fournisseur_nom: f.nom, 
+    description: desc, 
+    montant: montant, 
+    montant_paye: montantPaye, 
+    statut: statut,
     date_commande: $("c_date").value || new Date().toISOString().slice(0,10)
   });
   
-  if (error) { alert("Erreur : " + error.message); return; }
+  if (error) { 
+    alert("Erreur Supabase : " + error.message); 
+    return; 
+  }
   
   await jlog("Nouvelle commande", desc, `${f.nom} - ${f(montant)}`);
+  
+  // ON VIDE LES CHAMPS ICI
+  $("c_fournisseur").value = "";
+  $("c_desc").value = "";
+  $("c_montant").value = "";
+  $("c_montant_paye").value = ""; // On laisse vide
+  $("c_date").value = new Date().toISOString().slice(0,10); // On remet la date du jour
+  
   await loadAllData();
 }
 
@@ -1269,7 +1283,7 @@ function renderFournisseurs(A) {
       <input id="c_desc" placeholder="Description (ex: 10 filtres à huile...)">
       <div style="display:flex; gap:8px; margin-bottom:8px">
         <input id="c_montant" type="number" placeholder="Montant total (GNF)" style="flex:1">
-        <input id="c_montant_paye" type="number" placeholder="Acompte versé" value="0" style="flex:1">
+        <input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1">
         <input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1">
       </div>
       <button class="p" onclick="addCommande()">Enregistrer la commande</button>
