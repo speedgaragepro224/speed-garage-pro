@@ -1582,21 +1582,50 @@ function renderStats(A) {
 function renderParams(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
   const p = data.params;
-  A.innerHTML = `<div class="card"><b>Informations du garage</b>
-    <label class="m">Nom</label><input id="p_nom" value="${e(p.nom||"")}">
-    <label class="m">NIF</label><input id="p_nif" value="${e(p.nif||"")}">
-    <label class="m">RCCM</label><input id="p_rccm" value="${e(p.rccm||"")}">
-    <label class="m">Adresse</label><input id="p_adr" value="${e(p.adresse||"")}">
-    <label class="m">Téléphone</label><input id="p_tel" value="${e(p.telephone||"")}">
-    <label class="m">TVA (%)</label><input id="p_tva" type="number" value="${e(p.tva_taux||"18")}">
-    <button class="p" onclick="saveParams()">Enregistrer</button></div>`;
-}
-async function saveParams() {
-  const updates = [{cle:"nom", valeur:$("p_nom").value.trim()},{cle:"nif", valeur:$("p_nif").value.trim()},{cle:"rccm", valeur:$("p_rccm").value.trim()},{cle:"adresse", valeur:$("p_adr").value.trim()},{cle:"telephone", valeur:$("p_tel").value.trim()},{cle:"tva_taux", valeur:$("p_tva").value.trim()}];
-  for (const u of updates) await supa.from("parametres").update({valeur:u.valeur}).eq("cle",u.cle);
-  await loadAllData(); alert("Enregistré ✓");
+  
+  A.innerHTML = `
+    <div class="card">
+      <b>Informations du garage</b>
+      <label class="m">Nom</label><input id="p_nom" value="${e(p.nom||"")}">
+      <label class="m">NIF</label><input id="p_nif" value="${e(p.nif||"")}">
+      <label class="m">RCCM</label><input id="p_rccm" value="${e(p.rccm||"")}">
+      <label class="m">Adresse</label><input id="p_adr" value="${e(p.adresse||"")}">
+      <label class="m">Téléphone</label><input id="p_tel" value="${e(p.telephone||"")}">
+      <label class="m">TVA (%)</label><input id="p_tva" type="number" value="${e(p.tva_taux||"18")}">
+      <button class="p" onclick="saveParams()">Enregistrer</button>
+    </div>
+
+    <div class="card">
+      <b>💾 Sauvegarde</b><br>
+      <span class="m">Téléchargez une copie de toutes les données (clients, devis, factures, paie, etc.) pour la garder en sécurité.</span><br>
+      <button class="p" onclick="exportAll()">📥 Exporter une sauvegarde</button>
+    </div>
+  `;
 }
 
+function exportAll() {
+  const dataStr = JSON.stringify({
+    exporte_le: new Date().toISOString(),
+    version: "v-final",
+    clients: data.clients,
+    vehicules: data.vehicules,
+    devis: data.devis,
+    factures: data.factures,
+    stock: data.stock,
+    employes: data.employes,
+    paie: data.paie,
+    depenses: data.depenses,
+    fournisseurs: data.fournisseurs,
+    commandes: data.commandes,
+    journal: data.journal
+  }, null, 1);
+  
+  const blob = new Blob([dataStr], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "sauvegarde-speed-garage-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+}
 function renderLogout(A) { A.innerHTML = `<div class="card"><h3>Se déconnecter</h3><button class="p" onclick="logout()">Se déconnecter</button></div>`; }
 
 /* --- DÉMARRAGE --- */
