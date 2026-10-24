@@ -214,11 +214,30 @@ async function addRdv() {
   if (error) { alert("Erreur : "+error.message); return; }
   await jlog("Nouveau RDV", cid + " le " + d, ""); await loadAllData();
 }
-
+function autoRemplirPlanning(clientId) {
+  if (!clientId) return;
+  // On cherche le premier véhicule de ce client
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  if (v) {
+    if ($("rd_marque")) $("rd_marque").value = v.marque;
+    if ($("rd_modele")) $("rd_modele").value = v.modele;
+    if ($("rd_immat")) $("rd_immat").value = v.immat;
+  } else {
+    // Si le client n'a pas de véhicule, on vide les champs
+    if ($("rd_marque")) $("rd_marque").value = "";
+    if ($("rd_modele")) $("rd_modele").value = "";
+    if ($("rd_immat")) $("rd_immat").value = "";
+  }
+}
 function remplirVehiculeRdv(id) {
-  if (!id) return; const v = data.vehicules.find(x => x.id === id); if (!v) return;
-  $("rd_marque").value = v.marque; $("rd_modele").value = v.modele; $("rd_immat").value = v.immat;
-  if (v.client_id) $("rd_client").value = v.client_id;
+  if (!id) return;
+  const v = data.vehicules.find(x => x.id === id); 
+  if (!v) return;
+  
+  // On remplit les champs du véhicule
+  if ($("rd_marque")) $("rd_marque").value = v.marque;
+  if ($("rd_modele")) $("rd_modele").value = v.modele;
+  if ($("rd_immat")) $("rd_immat").value = v.immat;
 }
 
 async function deleteRdv(id) { if (!confirm("Annuler ce RDV ?")) return; await supa.from("rdv").delete().eq("id", id); await loadAllData(); }
@@ -294,7 +313,7 @@ function renderPlanning(A) {
     ${htmlCalendrier}
     
     ${peutEditer ? `<div class="card"><b>➕ Nouveau rendez-vous</b>
-      <select id="rd_client"><option value="">Client…</option>${data.clients.map(c=>`<option value="${c.id}">${e(c.nom)}</option>`).join("")}</select>
+      <select id="rd_client" onchange="autoRemplirPlanning(this.value)"><option value="">Client…</option>${data.clients.map(c=>`<option value="${c.id}">${e(c.nom)}</option>`).join("")}</select>
       <div style="display:flex; gap:8px">
         <input id="rd_marque" placeholder="Marque" style="flex:1">
         <input id="rd_modele" placeholder="Modèle" style="flex:1">
