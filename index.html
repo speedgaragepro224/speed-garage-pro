@@ -1207,33 +1207,58 @@ function renderPaie(A) {
       <button class="p" onclick="addEmploye()">Ajouter un employé</button>
     </div>
     
-    <div class="card">
-      <table><thead><tr><th>Nom</th><th>Poste</th><th>Salaire de base</th><th>Action</th></tr></thead><tbody>
-        ${data.employes.map(emp => `
-          <tr>
-            <td><b>${e(emp.nom)}</b></td>
-            <td>${e(emp.poste)}</td>
-            <td>${f(emp.salaire_base)}</td>
-            <td><button class="s" onclick="employePaieId='${emp.id}';render()">Faire la paie</button></td>
+          <div class="card">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:10px; width:30%;">Nom & Prénom</th>
+            <th style="padding:10px; width:25%;">Poste</th>
+            <th style="padding:10px; width:25%; text-align:right;">Salaire de base</th>
+            <th style="padding:10px; width:20%; text-align:center;">Action</th>
           </tr>
-        `).join("") || '<tr><td colspan="4" style="text-align:center; padding:20px;">Aucun employé enregistré.</td></tr>'}
-      </tbody></table>
+        </thead>
+        <tbody>
+          ${data.employes.map(emp => `
+            <tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:10px;"><b>${e(emp.nom)}</b></td>
+              <td style="padding:10px;">${e(emp.poste)}</td>
+              <td style="padding:10px; text-align:right;">${f(emp.salaire_base)}</td>
+              <td style="padding:10px; text-align:center;">
+                <button class="s" onclick="employePaieId='${emp.id}';render()">Faire la paie</button>
+              </td>
+            </tr>
+          `).join("") || '<tr><td colspan="4" style="text-align:center; padding:20px;">Aucun employé enregistré.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
     </div>
 
-    <div class="card"><b>📜 Historique des paies</b>
-      <table><thead><tr><th>Employé</th><th>Mois</th><th>Net à payer</th><th>Action</th></tr></thead><tbody>
-        ${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => {
-          const emp = data.employes.find(x => x.id === paie.employe_id);
-          return `
-            <tr>
-              <td>${e(emp ? emp.nom : "Inconnu")}</td>
-              <td>${e(paie.mois)}</td>
-              <td>${f(paie.solde)}</td>
-              <td><button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️ Bulletin</button></td>
-            </tr>`;
-        }).join("") || '<tr><td colspan="4" style="text-align:center;">Aucune paie enregistrée.</td></tr>'}
-      </tbody></table>
-    </div>`;
+            <div class="card"><b>📜 Historique des paies</b>
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:10px; width:35%;">Employé</th>
+            <th style="padding:10px; width:20%;">Mois</th>
+            <th style="padding:10px; width:25%; text-align:right;">Net à payer</th>
+            <th style="padding:10px; width:20%; text-align:center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => {
+            const emp = data.employes.find(x => x.id === paie.employe_id);
+            return `
+              <tr style="border-bottom:1px solid var(--b);">
+                <td style="padding:10px;">${e(emp ? emp.nom : "Inconnu")}</td>
+                <td style="padding:10px;">${e(paie.mois)}</td>
+                <td style="padding:10px; text-align:right;"><b>${f(paie.solde)}</b></td>
+                <td style="padding:10px; text-align:center;">
+                  <button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️ Bulletin</button>
+                </td>
+              </tr>`;
+          }).join("") || '<tr><td colspan="4" style="text-align:center; padding:20px;">Aucune paie enregistrée.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
 }
 /* --- DÉPENSES --- */
 async function addDepense() {
