@@ -658,7 +658,6 @@ function renderFactures(A) {
         <input id="fc_veh" placeholder="Véhicule *" style="flex:1" value="${e(fMemo.veh)}">
         <input id="fc_immat" placeholder="Immatriculation *" style="flex:1" value="${e(fMemo.immat)}">
       </div>
-      
       <table style="width:100%; border-collapse:collapse; margin-top:10px;">
         <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
           <th style="padding:8px; width:120px;">Type</th><th style="padding:8px;">Désignation *</th><th style="padding:8px; width:80px;">Qté *</th><th style="padding:8px; width:130px;">PU HT *</th><th style="padding:8px; width:40px;"></th>
@@ -685,7 +684,6 @@ function renderFactures(A) {
         </tbody>
       </table>
       <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Ligne</button>
-      
       <input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" style="margin-top:8px" value="${e(fMemo.acompte)}">
       <select id="fc_paiement" style="margin-top:8px">
         <option value="">Mode de paiement…</option>
@@ -694,18 +692,13 @@ function renderFactures(A) {
         <option value="Virement Bancaire" ${fMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
         <option value="Chèque" ${fMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
       </select>
-
       <p style="margin-top:12px"><b style="font-size:18px">Total TTC : <span id="fc_tot_ttc">${f(ttc)}</span></b></p>
       <button class="p" onclick="saveFactureDirecte()">Créer la facture</button></div>` : ""}
-      
     <div class="card"><input placeholder="🔍 Rechercher" value="${e(q)}" oninput="q=this.value;render()"></div>
-    ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> 
-      <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br>
-      <span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
+    ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br><span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
       <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
       <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}`;
 }
-
 async function saveFactureDirecte() {
   const cid = $("fc_client").value, veh = $("fc_veh").value.trim(), immat = $("fc_immat").value.trim();
   const acompte = +$("fc_acompte").value || 0;
@@ -1075,7 +1068,7 @@ function renderLogout(A) { A.innerHTML = `<div class="card"><h3>Se déconnecter<
       <p class="m">${e(x.message)}</p>
       <button class="p" onclick="location.reload()">Réessayer</button>
     </div>`); 
-  }
+   }
 })();
 
 supa && supa.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") location.reload(); });
