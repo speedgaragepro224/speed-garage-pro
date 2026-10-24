@@ -1595,43 +1595,47 @@ function renderParams(A) {
       <button class="p" onclick="saveParams()">Enregistrer</button>
     </div>
 
-    <div class="card">
-    <div class="card">
+        <div class="card">
       <b>🔐 Changer mon mot de passe</b><br>
-      <span class="m">Choisissez un mot de passe fort (8 caractères min, avec majuscule, chiffre et symbole).</span>
-      <input id="new_password" type="password" placeholder="Nouveau mot de passe" style="margin-top:8px">
-      <input id="confirm_password" type="password" placeholder="Confirmer le mot de passe">
+      <span class="m">Pour des raisons de sécurité, veuillez saisir votre ancien mot de passe.</span>
+      <input id="old_password" type="password" placeholder="Ancien mot de passe" style="margin-top:8px">
+      <input id="new_password" type="password" placeholder="Nouveau mot de passe">
+      <input id="confirm_password" type="password" placeholder="Confirmer le nouveau mot de passe">
       <button class="p" onclick="changerMotDePasse()">Mettre à jour</button>
-    </div>
-      <b>💾 Sauvegarde</b><br>
-      <span class="m">Téléchargez une copie de toutes les données (clients, devis, factures, paie, etc.) pour la garder en sécurité.</span><br>
-      <button class="p" onclick="exportAll()">📥 Exporter une sauvegarde</button>
-      
-      <div style="margin-top:10px; border-top:1px solid var(--b); padding-top:10px">
-        <b>📤 Restaurer une sauvegarde</b><br>
-        <span class="m">Attention : cela ajoutera les données du fichier aux données actuelles.</span><br>
-        <input type="file" id="import_file" accept=".json" style="display:none" onchange="importAll(this)">
-        <button class="p" onclick="document.getElementById('import_file').click()" style="background:#0891b2">📤 Importer un fichier</button>
-      </div>
     </div>
   `;
 }
 async function changerMotDePasse() {
+  const oldPass = $("old_password").value;
   const newPass = $("new_password").value;
   const confirmPass = $("confirm_password").value;
 
-  if (newPass.length < 8) { alert("Le mot de passe doit contenir au moins 8 caractères."); return; }
+  if (!oldPass) { alert("Veuillez saisir votre ancien mot de passe."); return; }
+  if (newPass.length < 8) { alert("Le nouveau mot de passe doit contenir au moins 8 caractères."); return; }
   if (!/[A-Z]/.test(newPass) || !/[0-9]/.test(newPass) || !/[^A-Za-z0-9]/.test(newPass)) {
     alert("Il faut au moins une majuscule, un chiffre et un symbole."); return;
   }
-  if (newPass !== confirmPass) { alert("Les deux mots de passe ne correspondent pas."); return; }
+  if (newPass !== confirmPass) { alert("Les deux nouveaux mots de passe ne correspondent pas."); return; }
 
+  // 1. On vérifie l'ancien mot de passe en essayant de se reconnecter
+  const { error: loginError } = await supa.auth.signInWithPassword({ 
+    email: session.user.email, 
+    password: oldPass 
+  });
+
+  if (loginError) {
+    alert("L'ancien mot de passe est incorrect.");
+    return;
+  }
+
+  // 2. Si l'ancien est bon, on met à jour
   const { error } = await supa.auth.updateUser({ password: newPass });
   
   if (error) {
     alert("Erreur : " + error.message);
   } else {
     alert("✅ Votre mot de passe a été mis à jour avec succès !");
+    $("old_password").value = "";
     $("new_password").value = "";
     $("confirm_password").value = "";
     await jlog("Changement mot de passe", profil.username, "");
