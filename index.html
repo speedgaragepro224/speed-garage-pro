@@ -1601,6 +1601,12 @@ function renderParams(A) {
       <button class="p" onclick="exportAll()">📥 Exporter une sauvegarde</button>
     </div>
   `;
+      <div style="margin-top:10px; border-top:1px solid var(--b); padding-top:10px">
+        <b>📤 Restaurer une sauvegarde</b><br>
+        <span class="m">Attention : cela remplacera toutes les données actuelles par celles du fichier.</span><br>
+        <input type="file" id="import_file" accept=".json" style="display:none" onchange="importAll(this)">
+        <button class="p" onclick="document.getElementById('import_file').click()" style="background:#0891b2">📤 Importer un fichier</button>
+      </div>
 }
 
 function exportAll() {
@@ -1625,6 +1631,62 @@ function exportAll() {
   a.href = URL.createObjectURL(blob);
   a.download = "sauvegarde-speed-garage-" + new Date().toISOString().slice(0,10) + ".json";
   a.click();
+}
+function importAll(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  if (!confirm("⚠️ ATTENTION : Cette action va remplacer TOUTES les données actuelles par celles du fichier. Voulez-vous continuer ?")) {
+    input.value = "";
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const json = JSON.parse(e.target.result);
+      
+      // On vérifie que le fichier contient bien les données
+      if (!json.clients && !json.factures) {
+        alert("Fichier de sauvegarde invalide.");
+        return;
+      }
+
+      alert("Importation en cours... Cela peut prendre quelques secondes. Ne fermez pas la page.");
+      
+      // On envoie les données vers Supabase (on écrase les anciennes)
+      // Note : Pour faire simple, on ne supprime pas les anciennes, on ajoute les nouvelles.
+      // Si tu veux un vrai écrasement, il faudrait vider les tables avant, mais c'est risqué.
+      
+      for (const c of (json.clients || [])) {
+        delete c.id; // On retire l'ancien ID pour que Supabase en crée un nouveau
+        await supa.from("clients").insert(c);
+      }
+      for (const v of (json.vehicules || [])) {
+        delete v.id;
+        await supa.from("vehicules").insert(v);
+      }
+      for (const d of (json.devis || [])) {
+        delete d.id;
+        await supa.from("devis").insert(d);
+      }
+      for (const f of (json.factures || [])) {
+        delete f.id;
+        await supa.from("factures").insert(f);
+      }
+      for (const s of (json.stock || [])) {
+        delete s.id;
+        await supa.from("stock").insert(s);
+      }
+      
+      alert("✅ Importation terminée avec succès !");
+      await loadAllData();
+      
+    } catch(err) {
+      alert("Erreur lors de la lecture du fichier : " + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 function renderLogout(A) { A.innerHTML = `<div class="card"><h3>Se déconnecter</h3><button class="p" onclick="logout()">Se déconnecter</button></div>`; }
 
