@@ -310,8 +310,10 @@ function renderPlanning(A) {
 /* --- RAPPELS --- */
 async function definirRappel(clientId) { clientRappelId = clientId; render(); }
 
-async function sauverRappel() {
-  const km = +$("rap_km").value || 0, dateVal = $("rap_date").value || null, veh = $("rap_vehicule").value.trim();
+async function sauverRappel() {  const km = +$("rap_km").value || 0, dateVal = $("rap_date").value || null;
+  const cl = data.clients.find(c => c.id === clientRappelId);
+  const vehicule = data.vehicules.find(v => v.client_id === clientRappelId);
+  const veh = vehicule ? `${vehicule.marque} ${vehicule.modele} (${vehicule.immat})` : "";
   await supa.from("clients").update({prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh}).eq("id", clientRappelId);
   const cl = data.clients.find(c => c.id === clientRappelId);
   await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
@@ -322,14 +324,41 @@ function renderRappels(A) {
   const peutEditer = ROLES[profil.role].can.editClients;
   const aRappeler = data.clients.filter(c => (c.prochain_km > 0) || c.prochaine_date);
   let formHtml = "";
+  
   if (clientRappelId) {
     const cl = data.clients.find(c => c.id === clientRappelId);
-    if (cl) formHtml = `<div class="card" style="border:2px solid var(--r)"><b>🔔 Définir le rappel pour ${e(cl.nom)}</b>
-      <input id="rap_vehicule" placeholder="Véhicule / Immatriculation" value="${e(cl.vehicule_rappel || '')}">
-      <input id="rap_km" type="number" placeholder="Prochain entretien km (ex: 65000)" value="${cl.prochain_km || ''}">
-      <input id="rap_date" type="date" value="${cl.prochaine_date || ''}">
-      <div style="display:flex; gap:8px; margin-top:8px"><button class="p" onclick="sauverRappel()">Enregistrer</button><button class="s" onclick="clientRappelId=null; render()">Annuler</button></div></div>`;
+    if (cl) {
+      const v = data.vehicules.find(x => x.client_id === cl.id);
+      
+      formHtml = `<div class="card" style="border:2px solid var(--r)">
+        <b>🔔 Définir le rappel pour ${e(cl.nom)}</b>
+        
+        <div style="background:var(--bg); padding:10px; border-radius:8px; margin:10px 0; font-size:13px">
+          <b>Informations client :</b><br>
+          📞 Téléphone : <b>${e(cl.tel || "Non renseigné")}</b>
+        </div>
+
+        ${v ? `
+          <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px">
+            <b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)} (${e(v.immat)})<br>
+            <b>VIN :</b> ${e(v.vin || "Non renseigné")}
+          </div>
+        ` : `<div class="m" style="margin-bottom:10px">Aucun véhicule enregistré pour ce client.</div>`}
+
+        <label class="m">Prochain entretien km (ex: 65000)</label>
+        <input id="rap_km" type="number" value="${cl.prochain_km || ''}">
+        
+        <label class="m">Date de rappel</label>
+        <input id="rap_date" type="date" value="${cl.prochaine_date || (() => { let d = new Date(); d.setMonth(d.getMonth() + 6); return d.toISOString().slice(0,10); })()}">
+        
+        <div style="display:flex; gap:8px; margin-top:10px">
+          <button class="p" onclick="sauverRappel()">Enregistrer</button>
+          <button class="s" onclick="clientRappelId=null; render()">Annuler</button>
+        </div>
+      </div>`;
+    }
   }
+  
   A.innerHTML = `${formHtml}<div class="card"><b>🔔 Prochains entretiens</b></div>
     ${aRappeler.map(c => {
       let dernierKm = 0;
@@ -361,7 +390,6 @@ function renderRappels(A) {
       </div></div></div>`;
     }).join("") || '<div class="card m">Aucun rappel défini.</div>'}`;
 }
-
 /* --- CLIENTS --- */
 async function nextRef(type) {
   const prefix = type==="Société" ? "SOC" : "PART";
