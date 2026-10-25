@@ -678,7 +678,7 @@ async function saveDevis() {
     kilometrage: +$("dv_km").value || 0, motif: $("dv_motif").value.trim(), 
     delai: $("dv_delai").value.trim(), paiement: $("dv_paiement").value, 
     garantie: $("dv_garantie").value.trim(), acompte: +$("dv_acompte").value || 0,
-    lignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id
+    lignes: toutesLesLignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id
   });
   if (error) { alert("Erreur : "+error.message); return; }
   await supa.from("compteurs").update({valeur: num}).eq("cle","devis"); 
@@ -698,10 +698,11 @@ function preparerFactureDepuisDevis(idDevis) {
 /* --- FACTURES --- */
 let fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
 let fLignes = [{d:"",q:1,p:0}];
-function factTotHT(){ return fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0); }
-function updateFactTotals() {
-  const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
-  if ($("fc_tot_ttc")) $("fc_tot_ttc").textContent = f(ttc);
+let fLignesMO = [{d:"",q:1,p:0}];
+function factTotHT(){ 
+  const htPieces = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
+  const htMO = fLignesMO.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
+  return htPieces + htMO; 
 }
 
 function remplirVehiculeFacture(clientId) {
@@ -725,14 +726,15 @@ function choisirArticleStock(index, stockId) {
 
 function renderFactures(A) {
   const peutEditer = ROLES[profil.role].can.editFactures, tv = +(data.params.tva_taux||18);
-  const ht = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0), ttc = ht + (ht*tv/100);
+  const ht = factTotHT(), ttc = ht + (ht*tv/100);
 
   A.innerHTML = `${peutEditer ? `<div class="card"><b>➕ Créer une facture directe</b>
       <select id="fc_client" onchange="remplirVehiculeFacture(this.value)">
         <option value="">Client… *</option>
         ${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
       </select>
-           <div style="display:flex; gap:8px; margin-bottom:8px">
+      
+      <div style="display:flex; gap:8px; margin-bottom:8px">
         <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">
           🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}
         </div>
@@ -740,35 +742,52 @@ function renderFactures(A) {
           🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}
         </div>
       </div>
-      <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-        <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
-          <th style="padding:8px; width:120px;">Type</th><th style="padding:8px;">Désignation *</th><th style="padding:8px; width:80px;">Qté *</th><th style="padding:8px; width:130px;">PU HT *</th><th style="padding:8px; width:40px;"></th>
-        </tr></thead>
-        <tbody>
-          ${fLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
-            <td style="padding:8px;">
-              <select onchange="fLignes[${i}].t=this.value" style="padding:6px; font-size:12px; width:100%;">
-                <option value="Main d'œuvre" ${l.t === "Main d'œuvre" ? "selected" : ""}>Main d'œuvre</option>
-                <option value="Pièce" ${l.t === "Pièce" ? "selected" : ""}>Pièce</option>
-              </select>
-            </td>
-                        <td style="padding:8px;">
-              <div style="display:flex; gap:4px">
-                <input value="${e(l.d)}" oninput="fLignes[${i}].d=this.value" placeholder="Saisir..." style="flex:1; margin:0;">
-                <select onchange="choisirArticleStock(${i}, this.value)" style="width:110px; margin:0; font-size:12px; padding:4px;">
-                  <option value="">📦 Stock</option>
-                  ${data.stock.map(s => `<option value="${s.id}">${e(s.nom)} (${s.qte})</option>`).join("")}
-                </select>
-              </div>
-            </td>
-            <td style="padding:8px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; updateFactTotals()" style="width:100%;"></td>
-            <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; updateFactTotals()" style="width:100%;"></td>
-            <td style="padding:8px; text-align:center;"><button class="s" onclick="fLignes.splice(${i},1);if(!fLignes.length)fLignes=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-      <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Ligne</button>
-            <div style="display:flex; gap:8px; margin-top:15px; margin-bottom:10px">
+
+      <div style="display:flex; gap:15px; margin-top:10px">
+        <div style="flex:1">
+          <b style="font-size:14px; color:var(--r)">📦 Pièces détachées</b>
+          <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+            <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+              <th style="padding:5px; font-size:12px;">Désignation</th><th style="padding:5px; width:50px; font-size:12px;">Qté</th><th style="padding:5px; width:80px; font-size:12px;">P.U</th><th style="padding:5px; width:30px;"></th>
+            </tr></thead>
+            <tbody>
+              ${fLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+                <td style="padding:5px;">
+                  <input value="${e(l.d)}" oninput="fLignes[${i}].d=this.value" placeholder="Pièce..." style="margin-bottom:2px; font-size:13px;">
+                  <select onchange="choisirArticleStock(${i}, this.value)" style="font-size:11px; padding:2px; width:100%;">
+                    <option value="">📦 Stock</option>
+                    ${data.stock.map(s => `<option value="${s.id}">${e(s.nom)} (${s.qte})</option>`).join("")}
+                  </select>
+                </td>
+                <td style="padding:5px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px; text-align:center;"><button class="s" onclick="fLignes.splice(${i},1);if(!fLignes.length)fLignes=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td>
+              </tr>`).join("")}
+            </tbody>
+          </table>
+          <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Pièce</button>
+        </div>
+
+        <div style="flex:1">
+          <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
+          <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+            <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+              <th style="padding:5px; font-size:12px;">Désignation</th><th style="padding:5px; width:50px; font-size:12px;">Qté</th><th style="padding:5px; width:80px; font-size:12px;">P.U</th><th style="padding:5px; width:30px;"></th>
+            </tr></thead>
+            <tbody>
+              ${fLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+                <td style="padding:5px;"><input value="${e(l.d)}" oninput="fLignesMO[${i}].d=this.value" placeholder="Prestation..." style="font-size:13px;"></td>
+                <td style="padding:5px;"><input type="number" value="${l.q}" oninput="fLignesMO[${i}].q=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px; text-align:center;"><button class="s" onclick="fLignesMO.splice(${i},1);if(!fLignesMO.length)fLignesMO=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td>
+              </tr>`).join("")}
+            </tbody>
+          </table>
+          <button class="s" onclick="fLignesMO.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Main d'œuvre</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:15px; margin-bottom:10px">
         <input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" style="flex:1; margin:0" value="${e(fMemo.acompte)}">
         <select id="fc_paiement" style="flex:1; margin:0">
           <option value="">Mode de paiement…</option>
@@ -778,8 +797,10 @@ function renderFactures(A) {
           <option value="Chèque" ${fMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
         </select>
       </div>
-      <p style="margin-top:12px"><b style="font-size:18px">Total TTC : <span id="fc_tot_ttc">${f(ttc)}</span></b></p>
+
+      <p style="margin-top:12px"><b style="font-size:18px">Total TTC : ${f(ttc)}</b></p>
       <button class="p" onclick="saveFactureDirecte()">Créer la facture</button></div>` : ""}
+      
     <div class="card"><input placeholder="🔍 Rechercher" value="${e(q)}" oninput="q=this.value;render()"></div>
     ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br><span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
       <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
@@ -793,7 +814,12 @@ async function saveFactureDirecte() {
   const paiement = $("fc_paiement").value || "";
   
   if (!cid || !veh || !immat) { alert("Tous les champs sont obligatoires."); return; }
-  const lignes = fLignes.filter(l => l.d.trim() !== ""); if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
+  const lignes = fLignes.filter(l => l.d.trim() !== ""); 
+const lignesMO = fLignesMO.filter(l => l.d.trim() !== "");
+// On fusionne les pièces (avec leur stock_id) et la main d'œuvre
+const toutesLesLignes = [...lignes.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
+if (!toutesLesLignes.length) { alert("Ajoutez au moins une ligne."); return; }
+if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
   for (let l of lignes) { if (!l.p || l.p <= 0) { alert("Prix obligatoire."); return; } }
   
   const ht = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0), tv = +(data.params.tva_taux||18), tva = ht * tv / 100, ttc = ht + tva;
