@@ -141,6 +141,8 @@ async function loadAllData() {
     supa.from("factures").select("*").order("created_at",{ascending:false}).then(r=>data.factures=r.data||[]),
     supa.from("rdv").select("*").order("date_rdv", {ascending:true}).then(r=>data.rdv=r.data||[]),
     supa.from("vehicules").select("*").then(r=>data.vehicules=r.data||[]),
+supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
+supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
     supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
   ];
   if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
@@ -768,17 +770,20 @@ function renderFactures(A) {
           <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Pièce</button>
         </div>
 
-        <div style="flex:1">
+                <div style="flex:1">
           <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
           <table style="width:100%; border-collapse:collapse; margin-top:5px;">
             <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
-              <th style="padding:5px; font-size:12px;">Désignation</th><th style="padding:5px; width:50px; font-size:12px;">Qté</th><th style="padding:5px; width:80px; font-size:12px;">P.U</th><th style="padding:5px; width:30px;"></th>
+              <th style="padding:5px; font-size:12px;">Désignation</th>
+              <th style="padding:5px; width:70px; font-size:12px;">Temps</th>
+              <th style="padding:5px; width:100px; font-size:12px;">Coût (GNF)</th>
+              <th style="padding:5px; width:30px;"></th>
             </tr></thead>
             <tbody>
               ${fLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
                 <td style="padding:5px;"><input value="${e(l.d)}" oninput="fLignesMO[${i}].d=this.value" placeholder="Prestation..." style="font-size:13px;"></td>
-                <td style="padding:5px;"><input type="number" value="${l.q}" oninput="fLignesMO[${i}].q=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
-                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px;"><input value="${e(l.temps||'')}" oninput="fLignesMO[${i}].temps=this.value" placeholder="ex: 2h" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; renderFactures(document.getElementById('app'))" placeholder="0" style="width:100%; font-size:13px;"></td>
                 <td style="padding:5px; text-align:center;"><button class="s" onclick="fLignesMO.splice(${i},1);if(!fLignesMO.length)fLignesMO=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td>
               </tr>`).join("")}
             </tbody>
@@ -865,7 +870,7 @@ function printDoc(type, numero, doc) {
 
   // On trie les lignes
   lignes.forEach(l => {
-    const montant = (+l.q || 0) * (+l.p || 0);
+   const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
     const estPiece = (l.t === "Pièce") || (l.d && (l.d.toLowerCase().includes("filtre") || l.d.toLowerCase().includes("huile") || l.d.toLowerCase().includes("pièce") || l.d.toLowerCase().includes("pneu") || l.d.toLowerCase().includes("plaquette")));
     
     if (estPiece) {
@@ -949,19 +954,93 @@ async function deleteStock(id) { if (!confirm("Supprimer ?")) return; await supa
 /* --- TECHNICIENS --- */
 function renderTechs(A) {
   A.innerHTML = `<div class="card"><b>➕ Nouveau technicien</b>
-    <input id="tc_nom" placeholder="Nom *"><input id="tc_sp" placeholder="Spécialité *">
-    <button class="p" onclick="addTech()">Ajouter</button></div>
-    ${data.techs.map(t=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(t.nom)}</b><br><span class="m">${e(t.specialite||"")}</span></div><button class="s" onclick="deleteTech('${t.id}')">🗑️</button></div></div>`).join("")||'<div class="card m">Aucun technicien.</div>'}`;
+    <div style="display:flex; gap:8px; margin-bottom:8px">
+      <input id="tc_prenom" placeholder="Prénom *" style="flex:1">
+      <input id="tc_nom" placeholder="Nom *" style="flex:1">
+    </div>
+    <select id="tc_sp" style="margin-bottom:8px">
+      <option value="">Spécialité *</option>
+      <option value="Mécanicien">Mécanicien</option>
+      <option value="Électricien">Électricien</option>
+      <option value="Peintre">Peintre</option>
+      <option value="Tôlier">Tôlier</option>
+      <option value="Autre">Autre</option>
+    </select>
+    <input id="tc_adr" placeholder="Adresse" style="margin-bottom:8px">
+    <input id="tc_tel" type="tel" placeholder="Téléphone *" style="margin-bottom:8px">
+    <button class="p" onclick="addTech()">Ajouter</button>
+  </div>
+  
+  <div class="card">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--b); text-align:left;">
+          <th style="padding:10px;">Nom & Prénom</th>
+          <th style="padding:10px;">Spécialité</th>
+          <th style="padding:10px;">Téléphone</th>
+          <th style="padding:10px;">Adresse</th>
+          <th style="padding:10px; text-align:center;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.techs.map(t => `
+          <tr style="border-bottom:1px solid var(--b);">
+            <td style="padding:10px;"><b>${e(t.prenom || '')} ${e(t.nom)}</b></td>
+            <td style="padding:10px;">${e(t.specialite || '—')}</td>
+            <td style="padding:10px;">${e(t.telephone || '—')}</td>
+            <td style="padding:10px;">${e(t.adresse || '—')}</td>
+            <td style="padding:10px; text-align:center;"><button class="s" onclick="deleteTech('${t.id}')">🗑️</button></td>
+          </tr>
+        `).join("") || '<tr><td colspan="5" style="text-align:center; padding:20px;">Aucun technicien.</td></tr>'}
+      </tbody>
+    </table>
+  </div>`;
 }
-async function addTech() { const nom = $("tc_nom").value.trim(); if (!nom) return; await supa.from("techniciens").insert({nom, specialite:$("tc_sp").value.trim()}); await loadAllData(); }
-async function deleteTech(id) { if (!confirm("Supprimer ?")) return; await supa.from("techniciens").delete().eq("id", id); await loadAllData(); }
 
+async function addTech() {
+  const prenom = $("tc_prenom").value.trim();
+  const nom = $("tc_nom").value.trim();
+  const sp = $("tc_sp").value;
+  const adr = $("tc_adr").value.trim();
+  const tel = $("tc_tel").value.trim();
+
+  if (!prenom || !nom) { alert("Le prénom et le nom sont obligatoires."); return; }
+  if (!sp) { alert("La spécialité est obligatoire."); return; }
+  if (!tel) { alert("Le téléphone est obligatoire."); return; }
+
+  const { error } = await supa.from("techniciens").insert({
+    prenom, nom, specialite: sp, adresse: adr, telephone: tel
+  });
+
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout technicien", `${prenom} ${nom}`, sp);
+  await loadAllData();
+}
+
+async function deleteTech(id) {
+  if (!confirm("Supprimer ce technicien ?")) return;
+  await supa.from("techniciens").delete().eq("id", id);
+  await loadAllData();
+}
 /* --- GESTION DE PAIE --- */
 async function addEmploye() {
-  const nom = $("emp_nom").value.trim(); const poste = $("emp_poste").value.trim();
+  const nom = $("emp_nom").value.trim(); 
+  const poste = $("emp_poste").value.trim();
+  const salaire = +$("emp_salaire").value || 0;
+  const tel = $("emp_tel").value.trim();
+  const date = $("emp_date").value;
+
   if (!nom || !poste) { alert("Le nom et le poste sont obligatoires."); return; }
-  await supa.from("employes").insert({ nom, poste, salaire_base: +$("emp_salaire").value || 0, telephone: $("emp_tel").value.trim(), date_embauche: $("emp_date").value });
-  await jlog("Ajout employé", nom, poste); await loadAllData();
+  
+  const { error } = await supa.from("employes").insert({ 
+    nom, poste, salaire_base: salaire, telephone: tel, date_embauche: date 
+  });
+  
+  if (error) { alert("Erreur : " + error.message); return; }
+  
+  await jlog("Ajout employé", nom, poste); 
+  await loadAllData(); 
+  alert("Employé ajouté avec succès !");
 }
 
 async function sauverPaie(employeId) {
@@ -1090,22 +1169,76 @@ async function deleteCommande(id) { if (!confirm("Supprimer ?")) return; await s
 
 function renderFournisseurs(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
   const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
-  A.innerHTML = `<div class="grid"><div class="card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
+
+  A.innerHTML = `
+    <div class="grid">
+      <div class="card" style="border-top:4px solid var(--r)">
+        <div class="m">Dettes fournisseurs</div>
+        <div class="k" style="color:var(--r)">${f(dette)}</div>
+      </div>
+    </div>
+
     <div class="card"><b>🏭 Nouveau fournisseur</b>
-      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="f_nom" placeholder="Nom *" style="flex:2"><input id="f_contact" placeholder="Contact" style="flex:1"><input id="f_tel" placeholder="Téléphone" style="flex:1"></div>
-      <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px"><button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button></div>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="f_nom" placeholder="Nom *" style="flex:2">
+        <input id="f_contact" placeholder="Contact" style="flex:1">
+        <input id="f_tel" placeholder="Téléphone" style="flex:1">
+      </div>
+      <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px">
+      <button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button>
+    </div>
+
     <div class="card"><b>📦 Nouvelle commande</b>
       <select id="c_fournisseur"><option value="">Choisir un fournisseur *</option>${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}</select>
       <input id="c_desc" placeholder="Description (ex: 10 filtres...)">
-      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="c_montant" type="number" placeholder="Montant total" style="flex:1"><input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1"><input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1"></div>
-      <button class="p" onclick="addCommande()">Enregistrer la commande</button></div>
-    <div class="card"><b>📜 Historique</b><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
-      ${(data.commandes || []).map(c => { const reste = (+c.montant||0) - (+c.montant_paye||0); let statutTxt = reste <= 0 ? "Payé" : (c.montant_paye > 0 ? "Partiel" : "Commandé"); let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)"); return `<tr><td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td><td><b>${e(c.fournisseur_nom)}</b></td><td>${e(c.description)}</td><td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td><td><span class="tag" style="background:${statutBg};color:#fff">${statutTxt}</span><br><span class="m">Reste : ${f(reste)}</span></td><td>${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer</button>` : ""}<button class="s" onclick="deleteCommande('${c.id}')">🗑️</button></td></tr>`; }).join("") || '<tr><td colspan="6" style="text-align:center">Aucune commande.</td></tr>'}
-    </tbody></table></div></div>
-    <div class="card"><b>🏭 Liste des fournisseurs</b>${data.fournisseurs.map(f => `<div class="row"><span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span><button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button></div>`).join("") || '<div class="m">Aucun fournisseur.</div>'}</div>`;
-}
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="c_montant" type="number" placeholder="Montant total" style="flex:1">
+        <input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1">
+        <input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1">
+      </div>
+      <button class="p" onclick="addCommande()">Enregistrer la commande</button>
+    </div>
 
+    <div class="card"><b>📜 Historique des commandes</b>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut / Reste</th><th>Action</th></tr></thead><tbody>
+          ${(data.commandes || []).map(c => {
+            const reste = (+c.montant||0) - (+c.montant_paye||0);
+            let statutTxt = reste <= 0 ? "Soldé" : (c.montant_paye > 0 ? "Reste à payer" : "Impayé");
+            let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)");
+            return `
+              <tr>
+                <td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td>
+                <td><b>${e(c.fournisseur_nom)}</b></td>
+                <td>${e(c.description)}</td>
+                <td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td>
+                <td>
+                  <span class="tag" style="background:${statutBg}; color:#fff;">${statutTxt}</span><br>
+                  <span class="m" style="color:${reste > 0 ? 'var(--r)' : 'inherit'}">Reste : ${f(reste)}</span>
+                </td>
+                <td>
+                  ${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer le solde</button>` : ""}
+                  <button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>
+                </td>
+              </tr>
+            `;
+          }).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px;">Aucune commande enregistrée.</td></tr>'}
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="card"><b>🏭 Liste des fournisseurs</b>
+      ${data.fournisseurs.map(f => `
+        <div class="row" style="border-top:1px solid var(--b)">
+          <span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span>
+          <button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>
+        </div>
+      `).join("") || '<div class="m">Aucun fournisseur enregistré.</div>'}
+    </div>
+  `;
+}
 /* --- STATISTIQUES --- */
 function renderStats(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
