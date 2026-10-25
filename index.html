@@ -310,14 +310,24 @@ function renderPlanning(A) {
 /* --- RAPPELS --- */
 async function definirRappel(clientId) { clientRappelId = clientId; render(); }
 
-async function sauverRappel() {  const km = +$("rap_km").value || 0, dateVal = $("rap_date").value || null;
+async function sauverRappel() {
+  const km = +$("rap_km").value || 0;
+  const dateVal = $("rap_date").value || null;
+  
   const cl = data.clients.find(c => c.id === clientRappelId);
   const vehicule = data.vehicules.find(v => v.client_id === clientRappelId);
   const veh = vehicule ? `${vehicule.marque} ${vehicule.modele} (${vehicule.immat})` : "";
-  await supa.from("clients").update({prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh}).eq("id", clientRappelId);
-  const cl = data.clients.find(c => c.id === clientRappelId);
+  
+  await supa.from("clients").update({
+    prochain_km: km, 
+    prochaine_date: dateVal, 
+    vehicule_rappel: veh
+  }).eq("id", clientRappelId);
+  
   await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
-  clientRappelId = null; await loadAllData();
+  
+  clientRappelId = null; 
+  await loadAllData();
 }
 
 function renderRappels(A) {
@@ -341,7 +351,8 @@ function renderRappels(A) {
         ${v ? `
           <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px">
             <b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)} (${e(v.immat)})<br>
-            <b>VIN :</b> ${e(v.vin || "Non renseigné")}
+            <b>VIN :</b> ${e(v.vin || "Non renseigné")}<br>
+            <b>Dernier km :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + " km" : "Non renseigné"}
           </div>
         ` : `<div class="m" style="margin-bottom:10px">Aucun véhicule enregistré pour ce client.</div>`}
 
@@ -362,8 +373,18 @@ function renderRappels(A) {
   A.innerHTML = `${formHtml}<div class="card"><b>🔔 Prochains entretiens</b></div>
     ${aRappeler.map(c => {
       let dernierKm = 0;
-      const vehiculeClient = data.vehicules.find(v => v.client_id === c.id && (v.immat === c.vehicule_rappel || !c.vehicule_rappel));
-      if (vehiculeClient && vehiculeClient.kilometrage) dernierKm = vehiculeClient.kilometrage;
+      // On cherche le véhicule du client pour avoir son kilométrage exact
+      const vehiculeClient = data.vehicules.find(v => v.client_id === c.id);
+      
+      if (vehiculeClient && vehiculeClient.kilometrage) {
+        dernierKm = vehiculeClient.kilometrage;
+      } else {
+        // Si pas de km sur le véhicule, on cherche dans les factures
+        const facturesClient = data.factures.filter(f => f.client_id === c.id).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
+        if (facturesClient.length && facturesClient[0].kilometrage) {
+          dernierKm = facturesClient[0].kilometrage;
+        }
+      }
       
       let estDepasse = false, estBientot = false, motifAlerte = [];
 
@@ -384,7 +405,7 @@ function renderRappels(A) {
         ${estDepasse ? `<span class="tag" style="background:var(--r);color:#fff">⚠️ À RAPPELER (${motifAlerte.join(", ")})</span>` : 
           (estBientot ? `<span class="tag" style="background:#f59e0b;color:#fff">⏳ BIENTÔT (${motifAlerte.join(", ")})</span>` : '')}
         <br>
-        <span class="m">🚗 ${e(c.vehicule_rappel || 'Inconnu')}<br>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')}</b><br>🎯 Rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') : '—'} km</b></span>
+        <span class="m">🚗 ${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}<br>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')}</b><br>🎯 Rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') : '—'} km</b></span>
       </div><div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end">
         ${peutEditer ? `<button class="s" onclick="definirRappel('${c.id}')">✏️ Modifier</button>` : ''}
       </div></div></div>`;
@@ -576,34 +597,64 @@ function remplirVehiculeDevis(clientId) {
 
 function renderDevis(A) {
   const R = ROLES[profil.role], peutEditer = R.can.editDevis, tv = +(data.params.tva_taux||18);
+  
+  // On récupère le client et le véhicule sélectionnés pour l'affichage
+  const selectedClient = data.clients.find(c => c.id === dMemo.client);
+  const selectedVehicule = data.vehicules.find(v => v.client_id === dMemo.client);
+
   A.innerHTML = `${peutEditer?`<div class="card"><b>➕ Nouveau devis</b>
-      <select id="dv_client" onchange="remplirVehiculeDevis(this.value)">
-        <option value="">Client…</option>
-        ${data.clients.map(c=>`<option value="${c.id}" ${c.id===dMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
-      </select>
-      <input id="dv_veh" placeholder="Véhicule" value="${e(dMemo.veh)}" oninput="dMemo.veh=this.value">
-      <input id="dv_immat" placeholder="Immatriculation" value="${e(dMemo.immat)}" oninput="dMemo.immat=this.value">
-      <input id="dv_km" type="number" placeholder="Kilométrage actuel (km)" value="${e(dMemo.km)}" oninput="dMemo.km=this.value">
-      <textarea id="dv_motif" placeholder="Motif de la demande" style="height:60px" oninput="dMemo.motif=this.value">${e(dMemo.motif)}</textarea>
-      <input id="dv_delai" placeholder="Délai d'exécution" value="${e(dMemo.delai)}" oninput="dMemo.delai=this.value">
-      <select id="dv_paiement" onchange="dMemo.paiement=this.value" style="margin-bottom:4px">
-        <option value="">Mode de paiement…</option>
-        <option value="Espèces" ${dMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option>
-        <option value="Orange Money" ${dMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option>
-        <option value="Virement Bancaire" ${dMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
-        <option value="Chèque" ${dMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
-      </select>
-      <input id="dv_garantie" placeholder="Garantie applicable" value="${e(dMemo.garantie)}" oninput="dMemo.garantie=this.value">
-      <input id="dv_acompte" type="number" placeholder="Acompte versé (GNF)" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value">
       
-      <table><thead><tr><th>Désignation</th><th>Qté</th><th>PU HT</th><th></th></tr></thead><tbody>
-        ${dLignes.map((l,i)=>`<tr>
-          <td><input value="${e(l.d)}" oninput="dLignes[${i}].d=this.value" placeholder="Prestation..."></td>
-          <td style="width:70px"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()"></td>
-          <td style="width:120px"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()"></td>
-          <td style="width:40px"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
-        </tr>`).join("")}
-      </tbody></table>
+           <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:15px; border:2px solid var(--r)">
+        <b>Informations Client & Véhicule</b>
+        <select id="dv_client" onchange="remplirVehiculeDevis(this.value)" style="margin-top:8px; margin-bottom:8px">
+          <option value="">Choisir un client…</option>
+          ${data.clients.map(c=>`<option value="${c.id}" ${c.id===dMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
+        </select>
+        
+        ${selectedClient ? `
+          <div style="font-size:13px; margin-bottom:8px">
+            📞 Téléphone : <b>${e(selectedClient.tel)}</b>
+          </div>
+        ` : ""}
+
+                <div style="background:#fff; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #ccc">
+          <div style="display:flex; gap:8px">
+            <div style="flex:1; padding:8px; border-bottom:1px solid #eee">🚗 <b>Véhicule :</b> ${e(dMemo.veh || "Non renseigné")}</div>
+            <div style="flex:1; padding:8px; border-bottom:1px solid #eee">🔢 <b>Immatriculation :</b> ${e(dMemo.immat || "Non renseignée")}</div>
+          </div>
+          <div style="padding:8px; border-bottom:1px solid #eee">📏 <b>Kilométrage :</b> ${e(dMemo.km || "0")} km</div>
+        </div>
+      </div>
+
+            <div style="display:flex; gap:8px; margin-bottom:8px">
+        <textarea id="dv_motif" placeholder="Motif de la demande / diagnostic" style="height:60px; flex:2" oninput="dMemo.motif=this.value">${e(dMemo.motif)}</textarea>
+        <input id="dv_delai" placeholder="Délai d'exécution (ex: 2 jours)" style="flex:1" value="${e(dMemo.delai)}" oninput="dMemo.delai=this.value">
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <select id="dv_paiement" onchange="dMemo.paiement=this.value" style="flex:1">
+          <option value="">Mode de paiement…</option>
+          <option value="Espèces" ${dMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option>
+          <option value="Orange Money" ${dMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option>
+          <option value="Virement Bancaire" ${dMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
+          <option value="Chèque" ${dMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
+        </select>
+        <input id="dv_garantie" placeholder="Garantie (ex: 3 mois)" style="flex:1" value="${e(dMemo.garantie)}" oninput="dMemo.garantie=this.value">
+        <input id="dv_acompte" type="number" placeholder="Acompte (GNF)" style="flex:1" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value">
+      </div>
+      <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+        <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+          <th style="padding:8px;">Désignation</th><th style="padding:8px; width:80px;">Qté</th><th style="padding:8px; width:130px;">PU HT</th><th style="padding:8px; width:40px;"></th>
+        </tr></thead>
+        <tbody>
+          ${dLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+            <td style="padding:8px;"><input value="${e(l.d)}" oninput="dLignes[${i}].d=this.value" placeholder="Prestation..."></td>
+            <td style="padding:8px;"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()" style="width:100%"></td>
+            <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()" style="width:100%"></td>
+            <td style="padding:8px; text-align:center;"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
       <button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Ligne</button>
       
       <p style="margin-top:12px"><b>Total HT :</b> <span id="dv_tot_ht">${f(devisTotHT())}</span><br>
@@ -615,7 +666,6 @@ function renderDevis(A) {
     ${data.devis.map(d=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(d.numero)}</b> <span class="tag">${e(d.statut)}</span><br><span class="m">${e(d.client_nom)} — ${e(d.vehicule)} ${e(d.immat)}<br>${e(d.date_emission)}</span><br><b>${f(d.total_ttc)}</b> TTC</div>
       <div><button class="s" onclick="printDevis('${d.id}')">🖨️</button>${peutEditer?`<button class="s" onclick="preparerFactureDepuisDevis('${d.id}')">→ Facture</button>`:""}</div></div></div>`).join("")||'<div class="card m">Aucun devis.</div>'}`;
 }
-
 async function saveDevis() {
   const cid = $("dv_client").value; if (!cid) { alert("Choisissez un client."); return; }
   const lignes = dLignes.filter(l=>l.d.trim()); if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
@@ -682,9 +732,13 @@ function renderFactures(A) {
         <option value="">Client… *</option>
         ${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
       </select>
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="fc_veh" placeholder="Véhicule *" style="flex:1" value="${e(fMemo.veh)}">
-        <input id="fc_immat" placeholder="Immatriculation *" style="flex:1" value="${e(fMemo.immat)}">
+           <div style="display:flex; gap:8px; margin-bottom:8px">
+        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">
+          🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}
+        </div>
+        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">
+          🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}
+        </div>
       </div>
       <table style="width:100%; border-collapse:collapse; margin-top:10px;">
         <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
@@ -698,12 +752,14 @@ function renderFactures(A) {
                 <option value="Pièce" ${l.t === "Pièce" ? "selected" : ""}>Pièce</option>
               </select>
             </td>
-            <td style="padding:8px;">
-              <input value="${e(l.d)}" oninput="fLignes[${i}].d=this.value" placeholder="Saisir..." style="margin-bottom:4px;">
-              <select onchange="choisirArticleStock(${i}, this.value)" style="font-size:11px; padding:4px; width:100%;">
-                <option value="">⬇️ Piocher dans le stock...</option>
-                ${data.stock.map(s => `<option value="${s.id}">${e(s.nom)} (${s.qte} en stock)</option>`).join("")}
-              </select>
+                        <td style="padding:8px;">
+              <div style="display:flex; gap:4px">
+                <input value="${e(l.d)}" oninput="fLignes[${i}].d=this.value" placeholder="Saisir..." style="flex:1; margin:0;">
+                <select onchange="choisirArticleStock(${i}, this.value)" style="width:110px; margin:0; font-size:12px; padding:4px;">
+                  <option value="">📦 Stock</option>
+                  ${data.stock.map(s => `<option value="${s.id}">${e(s.nom)} (${s.qte})</option>`).join("")}
+                </select>
+              </div>
             </td>
             <td style="padding:8px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; updateFactTotals()" style="width:100%;"></td>
             <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; updateFactTotals()" style="width:100%;"></td>
@@ -712,14 +768,16 @@ function renderFactures(A) {
         </tbody>
       </table>
       <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Ligne</button>
-      <input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" style="margin-top:8px" value="${e(fMemo.acompte)}">
-      <select id="fc_paiement" style="margin-top:8px">
-        <option value="">Mode de paiement…</option>
-        <option value="Espèces" ${fMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option>
-        <option value="Orange Money" ${fMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option>
-        <option value="Virement Bancaire" ${fMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
-        <option value="Chèque" ${fMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
-      </select>
+            <div style="display:flex; gap:8px; margin-top:15px; margin-bottom:10px">
+        <input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" style="flex:1; margin:0" value="${e(fMemo.acompte)}">
+        <select id="fc_paiement" style="flex:1; margin:0">
+          <option value="">Mode de paiement…</option>
+          <option value="Espèces" ${fMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option>
+          <option value="Orange Money" ${fMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option>
+          <option value="Virement Bancaire" ${fMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
+          <option value="Chèque" ${fMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
+        </select>
+      </div>
       <p style="margin-top:12px"><b style="font-size:18px">Total TTC : <span id="fc_tot_ttc">${f(ttc)}</span></b></p>
       <button class="p" onclick="saveFactureDirecte()">Créer la facture</button></div>` : ""}
     <div class="card"><input placeholder="🔍 Rechercher" value="${e(q)}" oninput="q=this.value;render()"></div>
@@ -728,7 +786,9 @@ function renderFactures(A) {
       <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}`;
 }
 async function saveFactureDirecte() {
-  const cid = $("fc_client").value, veh = $("fc_veh").value.trim(), immat = $("fc_immat").value.trim();
+    const cid = $("fc_client").value;
+  const veh = fMemo.veh;
+  const immat = fMemo.immat;
   const acompte = +$("fc_acompte").value || 0;
   const paiement = $("fc_paiement").value || "";
   
@@ -773,17 +833,35 @@ function printFacture(id) { const fa = data.factures.find(x=>x.id===id); if (fa)
 function printDoc(type, numero, doc) {
   const p = data.params, tv = +(p.tva_taux||18), lignes = doc.lignes && doc.lignes.length ? doc.lignes : [{d:doc.activite||"Prestation", q:1, p:doc.total_ht||0}], client = data.clients.find(c=>c.id===doc.client_id) || {};
   const w = window.open("", "_blank");
-  let totalPieces = 0, totalMainOeuvre = 0;
   
-  const tbodyHtml = lignes.map((l, index) => {
+  let totalPieces = 0, totalMainOeuvre = 0;
+  let lignesPieces = [], lignesMainOeuvre = [];
+
+  // On trie les lignes
+  lignes.forEach(l => {
     const montant = (+l.q || 0) * (+l.p || 0);
-    if (l.t === "Pièce" || (l.d && (l.d.toLowerCase().includes("filtre") || l.d.toLowerCase().includes("huile") || l.d.toLowerCase().includes("pièce") || l.d.toLowerCase().includes("pneu") || l.d.toLowerCase().includes("plaquette")))) {
+    const estPiece = (l.t === "Pièce") || (l.d && (l.d.toLowerCase().includes("filtre") || l.d.toLowerCase().includes("huile") || l.d.toLowerCase().includes("pièce") || l.d.toLowerCase().includes("pneu") || l.d.toLowerCase().includes("plaquette")));
+    
+    if (estPiece) {
       totalPieces += montant;
+      lignesPieces.push(l);
     } else {
       totalMainOeuvre += montant;
+      lignesMainOeuvre.push(l);
     }
-    return `<tr><td style="text-align:center">${index + 1}</td><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f(montant)}</td></tr>`;
-  }).join("");
+  });
+
+  const tablePieces = `
+    <table><thead><tr><th>Désignation (Pièces)</th><th>Qté</th><th>PU HT</th><th>Montant</th></tr></thead><tbody>
+      ${lignesPieces.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f((+l.q||0)*(+l.p||0))}</td></tr>`).join("")}
+    </tbody></table>
+  `;
+
+  const tableMainOeuvre = `
+    <table><thead><tr><th>Désignation (Main d'œuvre)</th><th>Qté</th><th>PU HT</th><th>Montant</th></tr></thead><tbody>
+      ${lignesMainOeuvre.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f((+l.q||0)*(+l.p||0))}</td></tr>`).join("")}
+    </tbody></table>
+  `;
 
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title><style>
     body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; max-width: 800px; margin: auto; background: #fff; }
@@ -800,12 +878,26 @@ function printDoc(type, numero, doc) {
   </style></head><body>
     <div class="header"><div class="header-left"><h1>${e(p.nom||"VOTRE GARAGE")}</h1><p>Mécanique • Diagnostic • Pièces</p><p>Adresse : ${e(p.adresse || '___')}</p><p>Tél : ${e(p.telephone || '___')} • Email : ${e(p.email || '___')}</p><p>RCCM : ${e(p.rccm || '___')} • NIF : ${e(p.nif || '___')}</p></div>
       <div class="header-right"><h2>${type}</h2><p>N° : ${e(numero)}</p><p>Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}</p><p>Valable jusqu'au : ${(() => { let d = new Date(); d.setMonth(d.getMonth()+1); return d.toLocaleDateString('fr-FR'); })()}</p><p>Devise : GNF</p></div></div>
+    
     <div class="section-title">1. INFOS CLIENT ET VÉHICULE</div><div class="grid-2"><div><p><b>CLIENT</b></p><p>Nom : <b>${e(doc.client_nom)}</b></p><p>Tél : ${e(client.tel || '___')}</p><p>Adresse : ${e(client.adr || '___')}</p></div>
       <div><p><b>VÉHICULE</b></p><p>Modèle : <b>${e(doc.vehicule || '___')}</b></p><p>Immat : <b>${e(doc.immat || '___')}</b></p><p>Km : <b>${doc.kilometrage ? doc.kilometrage + ' km' : '___'}</b></p></div></div>
+    
     <div class="section-title">2. OBJET</div><div style="border: 1px solid #ccc; padding: 10px;"><p>${e(doc.motif || "___")}</p></div>
-    <div class="section-title">3. DÉTAIL</div><table><thead><tr><th>N°</th><th>Désignation</th><th>Qté</th><th>Prix unitaire</th><th>Montant</th></tr></thead><tbody>${tbodyHtml}</tbody></table>
-    <table class="totaux"><tr><td>Total pièces (GNF)</td><td style="text-align:right">${f(totalPieces)}</td></tr><tr><td>Total main-d'œuvre (GNF)</td><td style="text-align:right">${f(totalMainOeuvre)}</td></tr><tr><td>Autres frais</td><td style="text-align:right">${f(0)}</td></tr><tr><td>Remise</td><td style="text-align:right">${f(0)}</td></tr><tr><td>TVA ${tv}%</td><td style="text-align:right">${f(doc.tva)}</td></tr><tr><td>TOTAL GÉNÉRAL À PAYER (GNF)</td><td style="text-align:right">${f(doc.total_ttc)}</td></tr><tr><td>Acompte versé</td><td style="text-align:right">${f(doc.acompte || 0)}</td></tr><tr><td>Solde restant</td><td style="text-align:right">${f(doc.total_ttc - (doc.acompte || 0))}</td></tr></table>
-    <div class="section-title">4. CONDITIONS</div><div style="border: 1px solid #ccc; padding: 10px;"><p>Délai : <b>${e(doc.delai || "___")}</b></p><p>Paiement : <b>${e(doc.paiement || "___")}</b></p><p>Garantie : <b>${e(doc.garantie || "___")}</b></p></div>
+    
+    ${lignesPieces.length > 0 ? `<div class="section-title">3. PIÈCES DÉTACHÉES</div>${tablePieces}` : ""}
+    ${lignesMainOeuvre.length > 0 ? `<div class="section-title">4. MAIN D'ŒUVRE</div>${tableMainOeuvre}` : ""}
+
+    <table class="totaux">
+      ${lignesPieces.length > 0 ? `<tr><td>Total Pièces (HT)</td><td style="text-align:right">${f(totalPieces)}</td></tr>` : ""}
+      ${lignesMainOeuvre.length > 0 ? `<tr><td>Total Main d'œuvre (HT)</td><td style="text-align:right">${f(totalMainOeuvre)}</td></tr>` : ""}
+      <tr><td>Total HT</td><td style="text-align:right">${f(totalPieces + totalMainOeuvre)}</td></tr>
+      <tr><td>TVA ${tv}%</td><td style="text-align:right">${f(doc.tva)}</td></tr>
+      <tr><td>TOTAL GÉNÉRAL À PAYER (GNF)</td><td style="text-align:right">${f(doc.total_ttc)}</td></tr>
+      <tr><td>Acompte versé</td><td style="text-align:right">${f(doc.acompte || 0)}</td></tr>
+      <tr><td>Solde restant</td><td style="text-align:right">${f(doc.total_ttc - (doc.acompte || 0))}</td></tr>
+    </table>
+
+    <div class="section-title">5. CONDITIONS</div><div style="border: 1px solid #ccc; padding: 10px;"><p>Délai : <b>${e(doc.delai || "___")}</b></p><p>Paiement : <b>${e(doc.paiement || "___")}</b></p><p>Garantie : <b>${e(doc.garantie || "___")}</b></p></div>
     <div class="legal">Les travaux seront réalisés après acceptation. Toute prestation supplémentaire fera l'objet d'un accord.</div>
     <div class="signatures"><div><p><b>POUR LE GARAGE</b></p><p>Date : ____ / ____ / ________</p><p>Signature / cachet :</p></div><div><p><b>ACCEPTATION CLIENT</b></p><p>Mention : « Bon pour accord »</p><p>Date : ____ / ____ / ________</p><p>Signature :</p></div></div>
     <p style="text-align:center; margin-top:20px;" class="no-print"><button onclick="window.print()" style="padding:10px 20px;cursor:pointer;background:#1a2a3a;color:#fff;border:none;border-radius:5px;font-weight:bold;">🖨️ Imprimer</button></p>
