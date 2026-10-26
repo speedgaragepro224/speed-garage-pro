@@ -14,16 +14,16 @@ body{margin:0;background:var(--bg);color:var(--t);font:15px system-ui,-apple-sys
 header{background:#000;color:#fff;padding:10px 16px;font-weight:700;border-bottom:3px solid var(--r);display:flex;align-items:center;gap:10px}
 header span{flex:1}
 header small{font-weight:400;font-size:12px;opacity:.85}
-nav{display:flex;flex-direction:column;gap:4px;padding:8px;width:220px;flex:none;background:var(--c);border-right:1px solid var(--b);min-height:calc(100vh - 60px)}
+nav{display:flex;flex-direction:column;gap:4px;padding:8px;width:240px;flex:none;background:var(--c);border-right:1px solid var(--b);min-height:calc(100vh - 60px)}
 nav button{text-align:left;border:0;background:none;color:var(--m);padding:10px 12px;border-radius:8px;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 nav button.on{background:var(--r);color:#fff}
 nav button:hover:not(.on){background:var(--b)}
 .wrap{display:flex;align-items:stretch;min-height:calc(100vh - 60px)}
-main{flex:1;min-width:0;padding:16px;max-width:1000px}
+main{flex:1;min-width:0;padding:16px;max-width:1100px}
 .mb{display:none;background:none;border:0;color:#fff;font-size:22px;padding:0;cursor:pointer}
-@media (max-width:700px){nav{position:fixed;left:0;top:0;bottom:0;z-index:20;width:230px;transform:translateX(-100%);transition:transform .2s;overflow-y:auto}nav.open{transform:none;box-shadow:4px 0 16px rgba(0,0,0,.4)}.mb{display:inline-block}}
-.card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:14px;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+@media (max-width:700px){nav{position:fixed;left:0;top:0;bottom:0;z-index:20;width:250px;transform:translateX(-100%);transition:transform .2s;overflow-y:auto}nav.open{transform:none;box-shadow:4px 0 16px rgba(0,0,0,.4)}.mb{display:inline-block}}
+.card{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:16px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 .k{font-size:24px;font-weight:700}
 .m{color:var(--m);font-size:13px}
 input,select,textarea{width:100%;padding:10px;margin:4px 0;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);font:inherit}
@@ -38,18 +38,10 @@ button.s:hover{background:var(--b)}
 .tag.mkt{background:#ea580c;color:#fff}
 .ref{font-family:monospace;font-size:12px;background:var(--b);padding:2px 7px;border-radius:5px}
 #lock{position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto}
-.alert{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:14px}
-.alert.ok{background:#dcfce7;color:#166534}
-.alert.err{background:#fee2e2;color:#991b1b}
 table{width:100%;border-collapse:collapse;margin:8px 0}
-th,td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--b);font-size:14px}
-th{font-weight:600;color:var(--m);font-size:12px;text-transform:uppercase}
-.inv{max-width:800px;margin:0 auto;background:#fff;color:#000;padding:30px}
-.inv h2{text-align:center;margin:10px 0}
-.inv .info{display:flex;justify-content:space-between;flex-wrap:wrap;margin:20px 0;gap:10px}
-.inv .totaux{text-align:right;margin-top:15px;font-size:15px}
-.inv .totaux b{font-size:20px}
-@media print{header,nav,.no,#lock{display:none!important}body{background:#fff}.inv{border:none;padding:0}}
+th,td{padding:10px;text-align:left;border-bottom:1px solid var(--b);font-size:14px}
+th{background:var(--bg);font-weight:600;color:var(--m);font-size:12px;text-transform:uppercase}
+tr:hover{background:var(--bg)}
 .loading{text-align:center;padding:40px;color:var(--m)}
 </style>
 </head>
@@ -73,17 +65,17 @@ const f = n => (+n || 0).toLocaleString("fr-FR", {maximumFractionDigits:0}) + " 
 
 let supa = null, session = null, profil = null;
 let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[], employes:[], paie:[], depenses:[], fournisseurs:[], commandes:[]};
-let tab = "Tableau de bord", idleT = null, q = "";
+let tab = "📊 Tableau de bord", idleT = null, q = "";
 let clientDetailId = null, employePaieId = null, clientRappelId = null;
 let dateCalendrier = new Date().toISOString().slice(0, 7);
 let jourSelectionne = null;
 
 const ROLES = {
-  PDG: {label:"PDG", cls:"pdg", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Techniciens","Gestion de paie","Dépenses","Fournisseurs","Journal d'audit","Statistiques","Paramètres","Se déconnecter"],
+  PDG: {label:"PDG", cls:"pdg", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","💰 Gestion de paie","💸 Dépenses","🏭 Fournisseurs","🔍 Journal d'audit","📈 Statistiques","⚙️ Paramètres","🚪 Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
-  SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["Tableau de bord","Planning","Rappels d'entretien","Clients","Véhicules","Devis","Factures","Stock","Se déconnecter"],
+  SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🚪 Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
-  MARKETING: {label:"Marketing", cls:"mkt", pages:["Tableau de bord","Clients","Véhicules","Se déconnecter"],
+  MARKETING: {label:"Marketing", cls:"mkt", pages:["📊 Tableau de bord","👥 Clients","🚗 Véhicules","🚪 Se déconnecter"],
     can:{editClients:false,editDevis:false,editFactures:false,editStock:false,deleteAny:false,viewAudit:false,exportData:true}}
 };
 
@@ -130,6 +122,7 @@ function enterApp() {
 function logout() { if (!confirm("Se déconnecter ?")) return; supa.auth.signOut().then(()=>location.reload()); }
 function resetIdle() { clearTimeout(idleT); idleT = setTimeout(()=>{ supa.auth.signOut().then(()=>location.reload()); }, 7200000); }
 ["click","keydown","touchstart"].forEach(ev => addEventListener(ev, () => { if(profil) resetIdle(); }));
+
 function go(t){ tab=t; q=""; $("nav").classList.remove("open"); render(); }
 
 async function loadAllData() {
@@ -141,8 +134,11 @@ async function loadAllData() {
     supa.from("factures").select("*").order("created_at",{ascending:false}).then(r=>data.factures=r.data||[]),
     supa.from("rdv").select("*").order("date_rdv", {ascending:true}).then(r=>data.rdv=r.data||[]),
     supa.from("vehicules").select("*").then(r=>data.vehicules=r.data||[]),
-supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
-supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
+    supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
+    supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
+    supa.from("depenses").select("*").order("date_depense", {ascending:false}).then(r=>data.depenses=r.data||[]),
+    supa.from("fournisseurs").select("*").order("nom").then(r=>data.fournisseurs=r.data||[]),
+    supa.from("commandes").select("*").order("date_commande", {ascending:false}).then(r=>data.commandes=r.data||[]),
     supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
   ];
   if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
@@ -158,42 +154,73 @@ async function jlog(action, reference, details) {
 function render() {
   if (!profil) return;
   const R = ROLES[profil.role];
-  if (!R.pages.includes(tab)) tab = "Tableau de bord";
+  if (!R.pages.includes(tab)) tab = "📊 Tableau de bord";
   $("hd").innerHTML = `<button class="mb" onclick="$('nav').classList.toggle('open')">☰</button><span>SPEED GARAGE PRO</span><small>${e(profil.name||profil.username)} · <span class="tag ${R.cls}">${R.label}</span></small>`;
   $("nav").innerHTML = R.pages.map(t => `<button class="${t===tab?"on":""}" onclick="go('${t.replace(/'/g,"\\'")}')">${t}</button>`).join("");
+  
   const A = $("app");
-  if (tab==="Tableau de bord") renderDashboard(A);
-  else if (tab==="Planning") renderPlanning(A);
-  else if (tab==="Rappels d'entretien") renderRappels(A);
-  else if (tab==="Clients") renderClients(A);
-  else if (tab==="Véhicules") renderVehicules(A);
-  else if (tab==="Devis") renderDevis(A);
-  else if (tab==="Factures") renderFactures(A);
-  else if (tab==="Stock") renderStock(A);
-  else if (tab==="Techniciens") renderTechs(A);
-  else if (tab==="Gestion de paie") renderPaie(A);
-  else if (tab==="Dépenses") renderDepenses(A);
-  else if (tab==="Fournisseurs") renderFournisseurs(A);
-  else if (tab==="Journal d'audit") renderAudit(A);
-  else if (tab==="Statistiques") renderStats(A);
-  else if (tab==="Paramètres") renderParams(A);
-  else if (tab==="Se déconnecter") renderLogout(A);
+  const pageClean = tab.replace(/[^\w\s'éèàçùûîô]/g, '').trim();
+  if (pageClean === "Tableau de bord") renderDashboard(A);
+  else if (pageClean === "Planning") renderPlanning(A);
+  else if (pageClean === "Rappels") renderRappels(A);
+  else if (pageClean === "Clients") renderClients(A);
+  else if (pageClean === "Véhicules") renderVehicules(A);
+  else if (pageClean === "Devis") renderDevis(A);
+  else if (pageClean === "Factures") renderFactures(A);
+  else if (pageClean === "Stock") renderStock(A);
+  else if (pageClean === "Techniciens") renderTechs(A);
+  else if (pageClean === "Gestion de paie") renderPaie(A);
+  else if (pageClean === "Dépenses") renderDepenses(A);
+  else if (pageClean === "Fournisseurs") renderFournisseurs(A);
+  else if (pageClean === "Journal d'audit") renderAudit(A);
+  else if (pageClean === "Statistiques") renderStats(A);
+  else if (pageClean === "Paramètres") renderParams(A);
+  else if (pageClean === "Se déconnecter") renderLogout(A);
 }
+
 function renderDashboard(A) {
   const ca = data.factures.filter(o=>o.statut==="Payé").reduce((a,o)=>a+(+o.total_ttc||0),0);
   const impayees = data.factures.filter(o=>o.statut!=="Payé").length;
   const stockBas = data.stock.filter(s=>+s.qte<=+s.seuil_alerte).length;
   const rdvJour = data.rdv.filter(r=>r.date_rdv === new Date().toISOString().slice(0,10)).length;
+  const rappelsUrgents = data.clients.filter(c => c.prochain_km > 0 || c.prochaine_date).length;
 
-  A.innerHTML = `<div class="grid">
-    <div class="card"><div class="k">${data.clients.length}</div><div class="m">Clients</div></div>
-    <div class="card"><div class="k">${data.vehicules.length}</div><div class="m">Véhicules</div></div>
-    <div class="card"><div class="k">${impayees}</div><div class="m">Factures en cours</div></div>
-    <div class="card"><div class="k">${f(ca)}</div><div class="m">Encaissé TTC</div></div>
-    ${ROLES[profil.role].can.editStock?`<div class="card"><div class="k">${stockBas}</div><div class="m">Stock bas</div></div>`:""}
-    <div class="card"><div class="k">${rdvJour}</div><div class="m">RDV aujourd'hui</div></div>
-  </div>
-  <div class="card"><b>Bienvenue ${e(profil.name||profil.username)}</b><p class="m">Connecté en tant que <b>${ROLES[profil.role].label}</b>.</p></div>`;
+  A.innerHTML = `
+    <div class="grid">
+      <div class="card" style="border-top:4px solid var(--r)">
+        <div class="m">Encaissé (Total)</div><div class="k" style="color:var(--ok)">${f(ca)}</div>
+      </div>
+      <div class="card" style="border-top:4px solid #f59e0b">
+        <div class="m">Factures en attente</div><div class="k">${impayees}</div>
+      </div>
+      <div class="card" style="border-top:4px solid #2563eb">
+        <div class="m">RDV Aujourd'hui</div><div class="k">${rdvJour}</div>
+      </div>
+      <div class="card" style="border-top:4px solid #7c3aed">
+        <div class="m">Rappels en attente</div><div class="k">${rappelsUrgents}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <b>⚡ Actions Rapides</b>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+        <button class="p" style="margin:0" onclick="go('👥 Clients')">➕ Nouveau Client</button>
+        <button class="p" style="margin:0; background:#0891b2" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
+        <button class="p" style="margin:0; background:#7c3aed" onclick="go('📅 Planning')">📅 Prendre RDV</button>
+      </div>
+    </div>
+
+    ${stockBas > 0 ? `
+    <div class="card" style="border-left:4px solid var(--r); background:#fef2f2">
+      <b style="color:var(--r)">⚠️ Alerte Stock</b>
+      <p class="m">Vous avez ${stockBas} article(s) en rupture ou stock bas. <a href="#" onclick="go('📦 Stock'); return false;" style="color:var(--r); font-weight:bold;">Voir le stock →</a></p>
+    </div>` : ""}
+
+    <div class="card">
+      <b>Bienvenue ${e(profil.name||profil.username)} 👋</b>
+      <p class="m">Vous êtes connecté en tant que <b>${ROLES[profil.role].label}</b>.</p>
+    </div>
+  `;
 }
 
 /* --- PLANNING --- */
@@ -262,8 +289,7 @@ function renderPlanning(A) {
     const isToday = dateStr === new Date().toISOString().slice(0,10);
     const isSelected = dateStr === jourSelectionne;
     
-    let bg = "var(--bg)"; 
-    let color = "var(--t)";
+    let bg = "var(--bg)"; let color = "var(--t)";
     if (nbRdv > 0) { bg = "#2563eb"; color = "#fff"; }
     if (isToday) { bg = "var(--r)"; color = "#fff"; }
     if (isSelected) { bg = "#93c5fd"; color = "#1e3a8a"; }
@@ -321,15 +347,11 @@ async function sauverRappel() {
   const veh = vehicule ? `${vehicule.marque} ${vehicule.modele} (${vehicule.immat})` : "";
   
   await supa.from("clients").update({
-    prochain_km: km, 
-    prochaine_date: dateVal, 
-    vehicule_rappel: veh
+    prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh
   }).eq("id", clientRappelId);
   
   await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
-  
-  clientRappelId = null; 
-  await loadAllData();
+  clientRappelId = null; await loadAllData();
 }
 
 function renderRappels(A) {
@@ -341,29 +363,22 @@ function renderRappels(A) {
     const cl = data.clients.find(c => c.id === clientRappelId);
     if (cl) {
       const v = data.vehicules.find(x => x.client_id === cl.id);
-      
       formHtml = `<div class="card" style="border:2px solid var(--r)">
         <b>🔔 Définir le rappel pour ${e(cl.nom)}</b>
-        
         <div style="background:var(--bg); padding:10px; border-radius:8px; margin:10px 0; font-size:13px">
-          <b>Informations client :</b><br>
-          📞 Téléphone : <b>${e(cl.tel || "Non renseigné")}</b>
+          <b>Informations client :</b><br>📞 Téléphone : <b>${e(cl.tel || "Non renseigné")}</b>
         </div>
-
         ${v ? `
           <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px">
             <b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)} (${e(v.immat)})<br>
             <b>VIN :</b> ${e(v.vin || "Non renseigné")}<br>
             <b>Dernier km :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + " km" : "Non renseigné"}
           </div>
-        ` : `<div class="m" style="margin-bottom:10px">Aucun véhicule enregistré pour ce client.</div>`}
-
+        ` : `<div class="m" style="margin-bottom:10px">Aucun véhicule enregistré.</div>`}
         <label class="m">Prochain entretien km (ex: 65000)</label>
         <input id="rap_km" type="number" value="${cl.prochain_km || ''}">
-        
         <label class="m">Date de rappel</label>
         <input id="rap_date" type="date" value="${cl.prochaine_date || (() => { let d = new Date(); d.setMonth(d.getMonth() + 6); return d.toISOString().slice(0,10); })()}">
-        
         <div style="display:flex; gap:8px; margin-top:10px">
           <button class="p" onclick="sauverRappel()">Enregistrer</button>
           <button class="s" onclick="clientRappelId=null; render()">Annuler</button>
@@ -375,24 +390,12 @@ function renderRappels(A) {
   A.innerHTML = `${formHtml}<div class="card"><b>🔔 Prochains entretiens</b></div>
     ${aRappeler.map(c => {
       let dernierKm = 0;
-      // On cherche le véhicule du client pour avoir son kilométrage exact
       const vehiculeClient = data.vehicules.find(v => v.client_id === c.id);
-      
-      if (vehiculeClient && vehiculeClient.kilometrage) {
-        dernierKm = vehiculeClient.kilometrage;
-      } else {
-        // Si pas de km sur le véhicule, on cherche dans les factures
-        const facturesClient = data.factures.filter(f => f.client_id === c.id).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
-        if (facturesClient.length && facturesClient[0].kilometrage) {
-          dernierKm = facturesClient[0].kilometrage;
-        }
-      }
+      if (vehiculeClient && vehiculeClient.kilometrage) dernierKm = vehiculeClient.kilometrage;
       
       let estDepasse = false, estBientot = false, motifAlerte = [];
-
       if (c.prochain_km > 0 && dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push("Km dépassé"); }
       else if (c.prochain_km > 0 && (c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push("Km bientôt"); }
-
       if (c.prochaine_date) {
         const dateRappel = new Date(c.prochaine_date).getTime();
         const aujourdhui = new Date().setHours(0,0,0,0);
@@ -413,83 +416,13 @@ function renderRappels(A) {
       </div></div></div>`;
     }).join("") || '<div class="card m">Aucun rappel défini.</div>'}`;
 }
+
 /* --- CLIENTS --- */
 async function nextRef(type) {
   const prefix = type==="Société" ? "SOC" : "PART";
   const { data: rows } = await supa.from("clients").select("ref").like("ref", prefix+"-%");
   const max = (rows||[]).map(r => +(r.ref.split("-")[1]||0)).length ? Math.max(...(rows||[]).map(r => +(r.ref.split("-")[1]||0))) : 0;
   return prefix + "-" + String(max+1).padStart(4,"0");
-}
-
-async function addClient() {
-  if (!ROLES[profil.role].can.editClients) { alert("Non autorisé."); return; }
-  const type = $("cl_type").value, nom = $("cl_nom").value.trim(), tel = $("cl_tel").value.trim(), adr = $("cl_adr").value.trim();
-  if (!nom) { alert("Le nom est obligatoire."); return; }
-  if (!/^\d{9}$/.test(tel)) { alert("Le téléphone doit contenir exactement 9 chiffres."); return; }
-  if (!adr) { alert("L'adresse est obligatoire."); return; }
-  const ref = await nextRef(type);
-  const { error } = await supa.from("clients").insert({ref, type, nom, tel, adr, contact: "", nif: "", created_by: session.user.id});
-  if (error) { alert("Erreur : "+error.message); return; }
-  await jlog("Création client", `${ref} — ${nom}`, `Type: ${type}`); await loadAllData();
-}
-
-async function deleteClient(id) {
-  if (!ROLES[profil.role].can.deleteAny) { alert("Seul le PDG peut supprimer."); return; }
-  if (!confirm("Supprimer ce client et tous ses devis/factures ?")) return;
-  await supa.from("clients").delete().eq("id", id); await loadAllData();
-}
-
-function ouvrirFicheClient(id) { clientDetailId = id; render(); }
-function allerAuRappel(clientId) { clientDetailId = null; tab = "Rappels d'entretien"; definirRappel(clientId); }
-
-function renderClients(A) {
-  const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
-  
-  if (clientDetailId) {
-    const c = data.clients.find(x => x.id === clientDetailId);
-    if (!c) { clientDetailId = null; render(); return; }
-    A.innerHTML = `<div class="card"><button class="s" onclick="clientDetailId=null; render()">← Retour</button>
-      <h3>${e(c.nom)} <span class="ref">${e(c.ref)}</span></h3><p class="m">📞 ${e(c.tel)}<br>📍 ${e(c.adr)}</p>
-      <div style="display:flex; gap:8px; margin-top:10px"><button class="p" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
-      <button class="p" onclick="imprimerRecuDepot('${c.id}')" style="background:#0891b2">🖨️ Reçu de dépôt</button>
-      ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}</div></div>
-      <div class="card"><b>🚗 Véhicules de ce client</b>
-        ${data.vehicules.filter(v => v.client_id === c.id).map(v => `<div class="row" style="border-top:1px solid var(--b)">
-          <span><b>${e(v.marque)} ${e(v.modele)}</b> (${e(v.immat)})<br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
-          ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
-        </div>`).join("") || '<div class="m">Aucun véhicule.</div>'}</div>`;
-    return;
-  }
-  
-  const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
-  A.innerHTML = `
-    ${peutEditer?`<div class="card"><b>➕ Nouveau client</b>
-      <select id="cl_type" onchange="document.getElementById('cl_soc').style.display=this.value==='Société'?'block':'none'"><option>Particulier</option><option>Société</option></select>
-      <input id="cl_nom" placeholder="Nom / Raison sociale *">
-      <div id="cl_soc" style="display:none"><input id="cl_contact" placeholder="Contact *"><input id="cl_nif" placeholder="NIF *"></div>
-      <input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9">
-      <input id="cl_adr" placeholder="Adresse *">
-      
-      <div style="margin-top:8px; margin-bottom:8px">
-        <label><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto; margin-right:8px"> Ajouter un véhicule maintenant</label>
-      </div>
-      
-      <div id="veh_form" style="display:none; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:8px">
-        <div style="display:flex; gap:8px"><input id="v_marque" placeholder="Marque *" style="flex:1"><input id="v_modele" placeholder="Modèle *" style="flex:1"></div>
-        <input id="v_immat" placeholder="Immatriculation *">
-        <div style="display:flex; gap:8px">
-          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
-          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
-          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
-        </div>
-        <input id="v_vin" placeholder="VIN / Châssis"><input id="v_km" type="number" placeholder="Kilométrage actuel">
-      </div>
-      <button class="p" onclick="addClient()">Ajouter</button></div>`
-      :`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}
-      
-    <div class="card"><input placeholder="🔍 Rechercher…" value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} client(s)</p></div>
-    ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')"><div class="row" style="border-top:0"><div style="flex:1">
-      <b>${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br><span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span></div><div>→</div></div></div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
 }
 
 async function addClient() {
@@ -513,6 +446,91 @@ async function addClient() {
   await loadAllData();
 }
 
+async function deleteClient(id) {
+  if (!ROLES[profil.role].can.deleteAny) { alert("Seul le PDG peut supprimer."); return; }
+  if (!confirm("Supprimer ce client et tous ses devis/factures ?")) return;
+  await supa.from("clients").delete().eq("id", id); await loadAllData();
+}
+
+function ouvrirFicheClient(id) { clientDetailId = id; render(); }
+function allerAuRappel(clientId) { clientDetailId = null; tab = "🔔 Rappels"; definirRappel(clientId); }
+
+function renderClients(A) {
+  const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
+  
+  if (clientDetailId) {
+    const c = data.clients.find(x => x.id === clientDetailId);
+    if (!c) { clientDetailId = null; render(); return; }
+    A.innerHTML = `<div class="card" style="border-top:4px solid var(--r)">
+      <button class="s" onclick="clientDetailId=null; render()">← Retour</button>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px">
+        <div>
+          <h3 style="margin:0">${e(c.nom)}</h3>
+          <span class="ref">${e(c.ref)}</span>
+          <p class="m" style="margin-top:10px">📞 <a href="tel:${e(c.tel)}" style="color:var(--r)">${e(c.tel)}</a><br>📍 ${e(c.adr)}</p>
+        </div>
+        <div style="display:flex; gap:5px; flex-direction:column">
+          <button class="p" style="margin:0; padding:8px" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
+          <button class="p" style="margin:0; padding:8px; background:#0891b2" onclick="imprimerRecuDepot('${c.id}')">🖨️ Reçu</button>
+          ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
+        </div>
+      </div>
+    </div>
+    <div class="card"><b>🚗 Véhicules de ce client</b>
+      ${data.vehicules.filter(v => v.client_id === c.id).map(v => `<div class="row" style="border-top:1px solid var(--b)">
+        <span><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
+        ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
+      </div>`).join("") || '<div class="m">Aucun véhicule enregistré.</div>'}</div>`;
+    return;
+  }
+  
+  const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
+  A.innerHTML = `
+    ${peutEditer?`<div class="card"><b>➕ Nouveau client</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <select id="cl_type" onchange="document.getElementById('cl_soc').style.display=this.value==='Société'?'block':'none'" style="flex:1"><option>Particulier</option><option>Société</option></select>
+        <input id="cl_nom" placeholder="Nom / Raison sociale *" style="flex:2">
+      </div>
+      <div id="cl_soc" style="display:none; margin-bottom:8px">
+        <input id="cl_contact" placeholder="Contact *">
+        <input id="cl_nif" placeholder="NIF *">
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9" style="flex:1">
+        <input id="cl_adr" placeholder="Adresse *" style="flex:2">
+      </div>
+      
+      <div style="margin-bottom:8px">
+        <label style="font-size:13px"><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto; margin-right:8px"> Ajouter un véhicule en même temps</label>
+      </div>
+      
+      <div id="veh_form" style="display:none; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:8px">
+        <div style="display:flex; gap:8px; margin-bottom:8px"><input id="v_marque" placeholder="Marque *" style="flex:1"><input id="v_modele" placeholder="Modèle *" style="flex:1"></div>
+        <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px">
+        <div style="display:flex; gap:8px">
+          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
+        </div>
+        <input id="v_vin" placeholder="VIN / Châssis">
+        <input id="v_km" type="number" placeholder="Kilométrage actuel">
+      </div>
+      <button class="p" onclick="addClient()">Ajouter le client</button></div>`
+      :`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}
+      
+    <div class="card"><input placeholder="🔍 Rechercher un client..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} client(s)</p></div>
+    
+    ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
+      <div class="row" style="border-top:0; padding:0">
+        <div style="flex:1">
+          <b style="font-size:16px">${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br>
+          <span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span>
+        </div>
+        <div style="font-size:20px; color:var(--r)">→</div>
+      </div>
+    </div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
+}
+
 async function ajouterVehicule(clientId) {
   const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
   const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
@@ -528,38 +546,6 @@ async function deleteVehicule(id) {
   await supa.from("vehicules").delete().eq("id", id); await loadAllData();
 }
 
-function imprimerRecuDepot(clientId) {
-  const cl = data.clients.find(c => c.id === clientId);
-  if (!cl) return;
-  const sesVehicules = data.vehicules.filter(v => v.client_id === cl.id);
-  if (sesVehicules.length === 0) { alert("Ce client n'a pas de véhicule enregistré."); return; }
-  let v = sesVehicules[0];
-  if (sesVehicules.length > 1) {
-    const choix = prompt("Quel véhicule dépose-t-il ? (1, 2, 3...)", "1");
-    v = sesVehicules[parseInt(choix)-1] || sesVehicules[0];
-  }
-  const motif = prompt("Motif du dépôt (ex: Vidange, Diagnostic, Réparation) :", "Entretien");
-  const w = window.open("", "_blank");
-  const p = data.params;
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reçu de dépôt - ${cl.nom}</title>
-    <style>body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; max-width: 700px; margin: auto; }
-    .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1a2a3a; padding-bottom: 10px; margin-bottom: 20px; }
-    .header h1 { font-size: 20px; margin: 0; color: #1a2a3a; } .header p { margin: 2px 0; font-size: 11px; }
-    .title { text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; text-transform: uppercase; }
-    .box { border: 1px solid #000; padding: 15px; margin-bottom: 15px; } .box h3 { margin-top: 0; font-size: 14px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-    .info { display: flex; justify-content: space-between; } .info div { width: 48%; }
-    .signatures { display: flex; justify-content: space-between; margin-top: 40px; } .signatures div { width: 40%; border-top: 1px solid #000; text-align: center; padding-top: 5px; }
-    @media print { button { display: none; } body { padding: 0; } }</style></head><body>
-    <div class="header"><div><h1>${e(p.nom || "SPEED GARAGE PRO")}</h1><p>NIF : ${e(p.nif || "931828172")} · RCCM : ${e(p.rccm || "GN.TCC.2026.B.13913")}</p><p>${e(p.adresse || "")} ${e(p.telephone ? "· Tél : " + p.telephone : "")}</p></div>
-      <div style="text-align:right"><h2>REÇU DE DÉPÔT</h2><p>Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR').slice(0,5)}</p></div></div>
-    <div class="title">Fiche d'intervention</div>
-    <div class="box"><h3>Informations Client</h3><div class="info"><div><p><b>Nom :</b> ${e(cl.nom)}</p></div><div><p><b>Téléphone :</b> ${e(cl.tel || "—")}</p></div></div><p><b>Adresse :</b> ${e(cl.adr || "—")}</p></div>
-    <div class="box"><h3>Informations Véhicule</h3><div class="info"><div><p><b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)}</p><p><b>Immatriculation :</b> ${e(v.immat)}</p></div><div><p><b>Kilométrage :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : "—"}</p><p><b>Carburant :</b> ${e(v.carburant || "—")}</p></div></div></div>
-    <div class="box"><h3>Motif du dépôt</h3><p style="font-size: 14px; font-weight: bold;">${e(motif || "Entretien général")}</p></div>
-    <div class="signatures"><div>Signature du Client<br><span style="font-size:10px; color:#555;">(Bon pour accord)</span></div><div>Cachet du Garage</div></div>
-    <p style="text-align:center; margin-top:40px;"><button onclick="window.print()" style="padding:10px 20px; cursor:pointer;">🖨️ Imprimer le Reçu</button></p></body></html>`);
-  w.document.close();
-}
 /* --- VÉHICULES --- */
 let vhDetail = null;
 function renderVehicules(A) {
@@ -576,11 +562,17 @@ function renderVehicules(A) {
   A.innerHTML = `<div class="card"><input placeholder="🔍 Rechercher un véhicule..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} véhicule(s)</p></div>
     ${liste.map(v => { const cl = data.clients.find(c => c.id === v.client_id); return `<div class="card" style="cursor:pointer" onclick="vhDetail='${v.id}';render()"><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">👤 ${e(cl ? cl.nom : 'Inconnu')} · ${v.kilometrage ? v.kilometrage + ' km' : ''}</span></div>`; }).join("") || '<div class="card m">Aucun véhicule.</div>'}`;
 }
-
 /* --- DEVIS --- */
 let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
 let dLignes = [{d:"",q:1,p:0}];
-function devisTotHT(){ return dLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0); }
+let dLignesMO = [{d:"",q:1,p:0}];
+
+function devisTotHT(){ 
+  const htPieces = dLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
+  const htMO = dLignesMO.reduce((a,x)=>a+(+x.p||0),0);
+  return htPieces + htMO; 
+}
+
 function updateDevisTotals() {
   const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
   if ($("dv_tot_ht")) $("dv_tot_ht").textContent = f(ht);
@@ -594,32 +586,32 @@ function remplirVehiculeDevis(clientId) {
   if (v) { dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; dMemo.km = v.kilometrage || ""; }
   else { dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; }
   dMemo.client = clientId;
-  render();
+  renderDevis(document.getElementById('app'));
+}
+
+function rechercherPieceDevis(index, valeur) {
+  dLignes[index].d = valeur;
+  const article = data.stock.find(s => s.nom.toLowerCase() === valeur.toLowerCase());
+  if (article) {
+    dLignes[index].p = article.prix;
+    dLignes[index].stock_id = article.id;
+    renderDevis(document.getElementById('app'));
+  }
 }
 
 function renderDevis(A) {
   const R = ROLES[profil.role], peutEditer = R.can.editDevis, tv = +(data.params.tva_taux||18);
-  
-  // On récupère le client et le véhicule sélectionnés pour l'affichage
   const selectedClient = data.clients.find(c => c.id === dMemo.client);
-  const selectedVehicule = data.vehicules.find(v => v.client_id === dMemo.client);
 
   A.innerHTML = `${peutEditer?`<div class="card"><b>➕ Nouveau devis</b>
-      
-           <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:15px; border:2px solid var(--r)">
+      <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:15px; border:2px solid var(--r)">
         <b>Informations Client & Véhicule</b>
         <select id="dv_client" onchange="remplirVehiculeDevis(this.value)" style="margin-top:8px; margin-bottom:8px">
           <option value="">Choisir un client…</option>
           ${data.clients.map(c=>`<option value="${c.id}" ${c.id===dMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
         </select>
-        
-        ${selectedClient ? `
-          <div style="font-size:13px; margin-bottom:8px">
-            📞 Téléphone : <b>${e(selectedClient.tel)}</b>
-          </div>
-        ` : ""}
-
-                <div style="background:#fff; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #ccc">
+        ${selectedClient ? `<div style="font-size:13px; margin-bottom:8px">📞 Téléphone : <b>${e(selectedClient.tel)}</b></div>` : ""}
+        <div style="background:#fff; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #ccc">
           <div style="display:flex; gap:8px">
             <div style="flex:1; padding:8px; border-bottom:1px solid #eee">🚗 <b>Véhicule :</b> ${e(dMemo.veh || "Non renseigné")}</div>
             <div style="flex:1; padding:8px; border-bottom:1px solid #eee">🔢 <b>Immatriculation :</b> ${e(dMemo.immat || "Non renseignée")}</div>
@@ -628,7 +620,7 @@ function renderDevis(A) {
         </div>
       </div>
 
-            <div style="display:flex; gap:8px; margin-bottom:8px">
+      <div style="display:flex; gap:8px; margin-bottom:8px">
         <textarea id="dv_motif" placeholder="Motif de la demande / diagnostic" style="height:60px; flex:2" oninput="dMemo.motif=this.value">${e(dMemo.motif)}</textarea>
         <input id="dv_delai" placeholder="Délai d'exécution (ex: 2 jours)" style="flex:1" value="${e(dMemo.delai)}" oninput="dMemo.delai=this.value">
       </div>
@@ -644,20 +636,49 @@ function renderDevis(A) {
         <input id="dv_garantie" placeholder="Garantie (ex: 3 mois)" style="flex:1" value="${e(dMemo.garantie)}" oninput="dMemo.garantie=this.value">
         <input id="dv_acompte" type="number" placeholder="Acompte (GNF)" style="flex:1" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value">
       </div>
-      <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-        <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
-          <th style="padding:8px;">Désignation</th><th style="padding:8px; width:80px;">Qté</th><th style="padding:8px; width:130px;">PU HT</th><th style="padding:8px; width:40px;"></th>
-        </tr></thead>
-        <tbody>
-          ${dLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
-            <td style="padding:8px;"><input value="${e(l.d)}" oninput="dLignes[${i}].d=this.value" placeholder="Prestation..."></td>
-            <td style="padding:8px;"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()" style="width:100%"></td>
-            <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()" style="width:100%"></td>
-            <td style="padding:8px; text-align:center;"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-      <button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Ligne</button>
+      
+      <div style="display:flex; gap:15px; margin-top:10px">
+        <div style="flex:1">
+          <b style="font-size:14px; color:var(--r)">📦 Pièces détachées</b>
+          <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+            <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+              <th style="padding:5px; font-size:12px;">Désignation</th><th style="padding:5px; width:50px; font-size:12px;">Qté</th><th style="padding:5px; width:80px; font-size:12px;">P.U</th><th style="padding:5px; width:30px;"></th>
+            </tr></thead>
+            <tbody>
+              ${dLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+                <td style="padding:5px;">
+                  <input list="stock_list_dv_${i}" value="${e(l.d)}" oninput="rechercherPieceDevis(${i}, this.value)" placeholder="Taper ou choisir..." style="margin:0; font-size:13px; width:100%">
+                  <datalist id="stock_list_dv_${i}">
+                    ${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}
+                  </datalist>
+                </td>
+                <td style="padding:5px;"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px; text-align:center;"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
+              </tr>`).join("")}
+            </tbody>
+          </table>
+          <button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Pièce</button>
+        </div>
+
+        <div style="flex:1">
+          <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
+          <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+            <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+              <th style="padding:5px; font-size:12px;">Désignation</th><th style="padding:5px; width:70px; font-size:12px;">Temps</th><th style="padding:5px; width:100px; font-size:12px;">Coût (GNF)</th><th style="padding:5px; width:30px;"></th>
+            </tr></thead>
+            <tbody>
+              ${dLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+                <td style="padding:5px;"><input value="${e(l.d)}" oninput="dLignesMO[${i}].d=this.value" placeholder="Prestation..." style="font-size:13px;"></td>
+                <td style="padding:5px;"><input value="${e(l.temps||'')}" oninput="dLignesMO[${i}].temps=this.value" placeholder="ex: 2h" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="dLignesMO[${i}].p=+this.value; updateDevisTotals()" placeholder="0" style="width:100%; font-size:13px;"></td>
+                <td style="padding:5px; text-align:center;"><button class="s" onclick="dLignesMO.splice(${i},1);if(!dLignesMO.length)dLignesMO=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
+              </tr>`).join("")}
+            </tbody>
+          </table>
+          <button class="s" onclick="dLignesMO.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Main d'œuvre</button>
+        </div>
+      </div>
       
       <p style="margin-top:12px"><b>Total HT :</b> <span id="dv_tot_ht">${f(devisTotHT())}</span><br>
       <b>TVA ${tv}% :</b> <span id="dv_tot_tva">${f(devisTotHT()*tv/100)}</span><br>
@@ -668,24 +689,31 @@ function renderDevis(A) {
     ${data.devis.map(d=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(d.numero)}</b> <span class="tag">${e(d.statut)}</span><br><span class="m">${e(d.client_nom)} — ${e(d.vehicule)} ${e(d.immat)}<br>${e(d.date_emission)}</span><br><b>${f(d.total_ttc)}</b> TTC</div>
       <div><button class="s" onclick="printDevis('${d.id}')">🖨️</button>${peutEditer?`<button class="s" onclick="preparerFactureDepuisDevis('${d.id}')">→ Facture</button>`:""}</div></div></div>`).join("")||'<div class="card m">Aucun devis.</div>'}`;
 }
+
 async function saveDevis() {
   const cid = $("dv_client").value; if (!cid) { alert("Choisissez un client."); return; }
-  const lignes = dLignes.filter(l=>l.d.trim()); if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
+  const lignesPieces = dLignes.filter(l=>l.d.trim());
+  const lignesMO = dLignesMO.filter(l=>l.d.trim());
+  const lignes = [...lignesPieces.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
+  if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
+  
   const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
   const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","devis").single();
   const num = (cpt.valeur||0)+1, numero = "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  
   const { error } = await supa.from("devis").insert({
     numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom, 
-    vehicule: $("dv_veh").value.trim(), immat: $("dv_immat").value.trim(), 
-    kilometrage: +$("dv_km").value || 0, motif: $("dv_motif").value.trim(), 
+    vehicule: dMemo.veh, immat: dMemo.immat, 
+    kilometrage: +dMemo.km || 0, motif: $("dv_motif").value.trim(), 
     delai: $("dv_delai").value.trim(), paiement: $("dv_paiement").value, 
     garantie: $("dv_garantie").value.trim(), acompte: +$("dv_acompte").value || 0,
-    lignes: toutesLesLignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id
+    lignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id
   });
   if (error) { alert("Erreur : "+error.message); return; }
   await supa.from("compteurs").update({valeur: num}).eq("cle","devis"); 
   await jlog("Création devis", numero, ""); 
-  dLignes = [{d:"",q:1,p:0}]; dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
+  dLignes = [{d:"",q:1,p:0}]; dLignesMO = [{d:"",q:1,p:0}]; 
+  dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
   await loadAllData();
 }
 
@@ -693,8 +721,9 @@ function preparerFactureDepuisDevis(idDevis) {
   const d = data.devis.find(x => x.id === idDevis);
   if (!d) return;
   fMemo = { client: d.client_id, veh: d.vehicule, immat: d.immat, acompte: d.acompte || "", paiement: d.paiement || "" };
-  fLignes = d.lignes && d.lignes.length ? d.lignes.map(l => ({...l})) : [{d:"",q:1,p:0}];
-  tab = "Factures"; render();
+  fLignes = d.lignes && d.lignes.length ? d.lignes.filter(l => l.t !== "Main d'œuvre").map(l => ({...l, t: "Pièce"})) : [{d:"",q:1,p:0}];
+  fLignesMO = d.lignes && d.lignes.length ? d.lignes.filter(l => l.t === "Main d'œuvre").map(l => ({...l})) : [{d:"",q:1,p:0}];
+  tab = "🧾 Factures"; render();
 }
 
 /* --- FACTURES --- */
@@ -703,8 +732,12 @@ let fLignes = [{d:"",q:1,p:0}];
 let fLignesMO = [{d:"",q:1,p:0}];
 function factTotHT(){ 
   const htPieces = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
-  const htMO = fLignesMO.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
+  const htMO = fLignesMO.reduce((a,x)=>a+(+x.p||0),0);
   return htPieces + htMO; 
+}
+function updateFactTotals() {
+  const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
+  if ($("fc_tot_ttc")) $("fc_tot_ttc").textContent = f(ttc);
 }
 
 function remplirVehiculeFacture(clientId) {
@@ -712,7 +745,7 @@ function remplirVehiculeFacture(clientId) {
   const v = data.vehicules.find(x => x.client_id === clientId);
   if (v) { fMemo.veh = v.marque + " " + v.modele; fMemo.immat = v.immat; }
   else { fMemo.veh = ""; fMemo.immat = ""; }
-  fMemo.client = clientId; render();
+  fMemo.client = clientId; renderFactures(document.getElementById('app'));
 }
 
 function choisirArticleStock(index, stockId) {
@@ -737,12 +770,8 @@ function renderFactures(A) {
       </select>
       
       <div style="display:flex; gap:8px; margin-bottom:8px">
-        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">
-          🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}
-        </div>
-        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">
-          🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}
-        </div>
+        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}</div>
+        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}</div>
       </div>
 
       <div style="display:flex; gap:15px; margin-top:10px">
@@ -755,11 +784,10 @@ function renderFactures(A) {
             <tbody>
               ${fLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
                 <td style="padding:5px;">
-                  <input value="${e(l.d)}" oninput="fLignes[${i}].d=this.value" placeholder="Pièce..." style="margin-bottom:2px; font-size:13px;">
-                  <select onchange="choisirArticleStock(${i}, this.value)" style="font-size:11px; padding:2px; width:100%;">
-                    <option value="">📦 Stock</option>
-                    ${data.stock.map(s => `<option value="${s.id}">${e(s.nom)} (${s.qte})</option>`).join("")}
-                  </select>
+                  <input list="stock_list_fc_${i}" value="${e(l.d)}" oninput="rechercherPieceFacture(${i}, this.value)" placeholder="Taper ou choisir..." style="margin:0; font-size:13px; width:100%">
+                  <datalist id="stock_list_fc_${i}">
+                    ${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}
+                  </datalist>
                 </td>
                 <td style="padding:5px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
                 <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
@@ -770,14 +798,11 @@ function renderFactures(A) {
           <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Pièce</button>
         </div>
 
-                <div style="flex:1">
+        <div style="flex:1">
           <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
           <table style="width:100%; border-collapse:collapse; margin-top:5px;">
             <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
-              <th style="padding:5px; font-size:12px;">Désignation</th>
-              <th style="padding:5px; width:70px; font-size:12px;">Temps</th>
-              <th style="padding:5px; width:100px; font-size:12px;">Coût (GNF)</th>
-              <th style="padding:5px; width:30px;"></th>
+              <th style="padding:5px; font-size:12px;">Désignation</th><th style="padding:5px; width:70px; font-size:12px;">Temps</th><th style="padding:5px; width:100px; font-size:12px;">Coût (GNF)</th><th style="padding:5px; width:30px;"></th>
             </tr></thead>
             <tbody>
               ${fLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
@@ -803,37 +828,45 @@ function renderFactures(A) {
         </select>
       </div>
 
-      <p style="margin-top:12px"><b style="font-size:18px">Total TTC : ${f(ttc)}</b></p>
+      <p style="margin-top:12px"><b style="font-size:18px">Total TTC : <span id="fc_tot_ttc">${f(ttc)}</span></b></p>
       <button class="p" onclick="saveFactureDirecte()">Créer la facture</button></div>` : ""}
       
     <div class="card"><input placeholder="🔍 Rechercher" value="${e(q)}" oninput="q=this.value;render()"></div>
-    ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br><span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
+    ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> 
+      <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br>
+      <span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
       <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
       <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}`;
 }
+
+function rechercherPieceFacture(index, valeur) {
+  fLignes[index].d = valeur;
+  const article = data.stock.find(s => s.nom.toLowerCase() === valeur.toLowerCase());
+  if (article) {
+    fLignes[index].p = article.prix;
+    fLignes[index].stock_id = article.id;
+    renderFactures(document.getElementById('app'));
+  }
+}
+
 async function saveFactureDirecte() {
-    const cid = $("fc_client").value;
-  const veh = fMemo.veh;
-  const immat = fMemo.immat;
+  const cid = $("fc_client").value, veh = fMemo.veh, immat = fMemo.immat;
   const acompte = +$("fc_acompte").value || 0;
   const paiement = $("fc_paiement").value || "";
   
   if (!cid || !veh || !immat) { alert("Tous les champs sont obligatoires."); return; }
   const lignes = fLignes.filter(l => l.d.trim() !== ""); 
-const lignesMO = fLignesMO.filter(l => l.d.trim() !== "");
-// On fusionne les pièces (avec leur stock_id) et la main d'œuvre
-const toutesLesLignes = [...lignes.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
-if (!toutesLesLignes.length) { alert("Ajoutez au moins une ligne."); return; }
-if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
-  for (let l of lignes) { if (!l.p || l.p <= 0) { alert("Prix obligatoire."); return; } }
+  const lignesMO = fLignesMO.filter(l => l.d.trim() !== "");
+  const toutesLesLignes = [...lignes.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
+  if (!toutesLesLignes.length) { alert("Ajoutez au moins une ligne."); return; }
   
-  const ht = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0), tv = +(data.params.tva_taux||18), tva = ht * tv / 100, ttc = ht + tva;
+  const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht * tv / 100, ttc = ht + tva;
   const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
   const num = (cpt.valeur||0)+1, numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
   
   const { error } = await supa.from("factures").insert({
     numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom, vehicule: veh, immat: immat, 
-    lignes, total_ht: ht, tva, total_ttc: ttc, acompte: acompte, paiement: paiement, 
+    lignes: toutesLesLignes, total_ht: ht, tva, total_ttc: ttc, acompte: acompte, paiement: paiement, 
     statut: "En attente", created_by: session.user.id
   });
   
@@ -848,7 +881,7 @@ if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
   }
   
   fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
-  fLignes = [{d:"",q:1,p:0}];
+  fLignes = [{d:"",q:1,p:0}]; fLignesMO = [{d:"",q:1,p:0}];
   await loadAllData();
   alert("✅ Facture créée !");
 }
@@ -868,31 +901,26 @@ function printDoc(type, numero, doc) {
   let totalPieces = 0, totalMainOeuvre = 0;
   let lignesPieces = [], lignesMainOeuvre = [];
 
-  // On trie les lignes
   lignes.forEach(l => {
-   const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
-    const estPiece = (l.t === "Pièce") || (l.d && (l.d.toLowerCase().includes("filtre") || l.d.toLowerCase().includes("huile") || l.d.toLowerCase().includes("pièce") || l.d.toLowerCase().includes("pneu") || l.d.toLowerCase().includes("plaquette")));
+    const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
+    const estPiece = (l.t === "Pièce") || (!l.t && l.d && (l.d.toLowerCase().includes("filtre") || l.d.toLowerCase().includes("huile") || l.d.toLowerCase().includes("pièce") || l.d.toLowerCase().includes("pneu") || l.d.toLowerCase().includes("plaquette")));
     
     if (estPiece) {
       totalPieces += montant;
-      lignesPieces.push(l);
+      lignesPieces.push({...l, montant});
     } else {
       totalMainOeuvre += montant;
-      lignesMainOeuvre.push(l);
+      lignesMainOeuvre.push({...l, montant});
     }
   });
 
-  const tablePieces = `
-    <table><thead><tr><th>Désignation (Pièces)</th><th>Qté</th><th>PU HT</th><th>Montant</th></tr></thead><tbody>
-      ${lignesPieces.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f((+l.q||0)*(+l.p||0))}</td></tr>`).join("")}
-    </tbody></table>
-  `;
+  const tablePieces = `<table><thead><tr><th>Désignation (Pièces)</th><th>Qté</th><th>PU HT</th><th>Montant</th></tr></thead><tbody>
+    ${lignesPieces.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f(l.montant)}</td></tr>`).join("")}
+  </tbody></table>`;
 
-  const tableMainOeuvre = `
-    <table><thead><tr><th>Désignation (Main d'œuvre)</th><th>Qté</th><th>PU HT</th><th>Montant</th></tr></thead><tbody>
-      ${lignesMainOeuvre.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f((+l.q||0)*(+l.p||0))}</td></tr>`).join("")}
-    </tbody></table>
-  `;
+  const tableMainOeuvre = `<table><thead><tr><th>Désignation (Main d'œuvre)</th><th>Temps</th><th>Montant</th></tr></thead><tbody>
+    ${lignesMainOeuvre.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.temps||'—')}</td><td>${f(l.montant)}</td></tr>`).join("")}
+  </tbody></table>`;
 
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title><style>
     body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; max-width: 800px; margin: auto; background: #fff; }
@@ -909,10 +937,8 @@ function printDoc(type, numero, doc) {
   </style></head><body>
     <div class="header"><div class="header-left"><h1>${e(p.nom||"VOTRE GARAGE")}</h1><p>Mécanique • Diagnostic • Pièces</p><p>Adresse : ${e(p.adresse || '___')}</p><p>Tél : ${e(p.telephone || '___')} • Email : ${e(p.email || '___')}</p><p>RCCM : ${e(p.rccm || '___')} • NIF : ${e(p.nif || '___')}</p></div>
       <div class="header-right"><h2>${type}</h2><p>N° : ${e(numero)}</p><p>Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}</p><p>Valable jusqu'au : ${(() => { let d = new Date(); d.setMonth(d.getMonth()+1); return d.toLocaleDateString('fr-FR'); })()}</p><p>Devise : GNF</p></div></div>
-    
     <div class="section-title">1. INFOS CLIENT ET VÉHICULE</div><div class="grid-2"><div><p><b>CLIENT</b></p><p>Nom : <b>${e(doc.client_nom)}</b></p><p>Tél : ${e(client.tel || '___')}</p><p>Adresse : ${e(client.adr || '___')}</p></div>
       <div><p><b>VÉHICULE</b></p><p>Modèle : <b>${e(doc.vehicule || '___')}</b></p><p>Immat : <b>${e(doc.immat || '___')}</b></p><p>Km : <b>${doc.kilometrage ? doc.kilometrage + ' km' : '___'}</b></p></div></div>
-    
     <div class="section-title">2. OBJET</div><div style="border: 1px solid #ccc; padding: 10px;"><p>${e(doc.motif || "___")}</p></div>
     
     ${lignesPieces.length > 0 ? `<div class="section-title">3. PIÈCES DÉTACHÉES</div>${tablePieces}` : ""}
@@ -950,7 +976,6 @@ function renderStock(A) {
 async function addStock() { const nom = $("st_nom").value.trim(); if (!nom) return; await supa.from("stock").insert({nom, categorie: $("st_cat").value, qte:+$("st_qte").value||0, seuil_alerte:+$("st_min").value||0, prix:+$("st_prix").value||0}); await loadAllData(); }
 async function changeStock(id, delta) { const s = data.stock.find(x=>x.id===id); if (s) { await supa.from("stock").update({qte: (+s.qte||0)+delta}).eq("id", id); await loadAllData(); } }
 async function deleteStock(id) { if (!confirm("Supprimer ?")) return; await supa.from("stock").delete().eq("id", id); await loadAllData(); }
-
 /* --- TECHNICIENS --- */
 function renderTechs(A) {
   A.innerHTML = `<div class="card"><b>➕ Nouveau technicien</b>
@@ -1022,6 +1047,7 @@ async function deleteTech(id) {
   await supa.from("techniciens").delete().eq("id", id);
   await loadAllData();
 }
+
 /* --- GESTION DE PAIE --- */
 async function addEmploye() {
   const nom = $("emp_nom").value.trim(); 
@@ -1057,6 +1083,7 @@ async function sauverPaie(employeId) {
 
 function renderPaie(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
   if (employePaieId) {
     const emp = data.employes.find(x => x.id === employePaieId);
     if (!emp) { employePaieId = null; render(); return; }
@@ -1077,6 +1104,7 @@ function renderPaie(A) {
       <button class="p" onclick="sauverPaie('${emp.id}')">Enregistrer</button></div>`;
     return;
   }
+  
   A.innerHTML = `<div class="card"><b>👥 Registre des salaires</b>
       <div style="display:flex; gap:8px; margin-bottom:8px"><input id="emp_nom" placeholder="Nom complet *" style="flex:1"><input id="emp_poste" placeholder="Poste *" style="flex:1"></div>
       <div style="display:flex; gap:8px; margin-bottom:8px"><input id="emp_salaire" type="number" placeholder="Salaire (GNF)" style="flex:1"><input id="emp_tel" placeholder="Téléphone" style="flex:1"><input id="emp_date" type="date" style="flex:1"></div>
@@ -1085,8 +1113,15 @@ function renderPaie(A) {
       ${data.employes.map(emp => `<tr><td><b>${e(emp.nom)}</b></td><td>${e(emp.poste)}</td><td style="text-align:right">${f(emp.salaire_base)}</td><td style="text-align:center"><button class="s" onclick="employePaieId='${emp.id}';render()">Faire la paie</button></td></tr>`).join("") || '<tr><td colspan="4" style="text-align:center">Aucun employé.</td></tr>'}
     </tbody></table></div>
     <div class="card"><b>📜 Historique</b><table><thead><tr><th>Employé</th><th>Mois</th><th style="text-align:right">Net à payer</th><th style="text-align:center">Action</th></tr></thead><tbody>
-      ${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => { const emp = data.employes.find(x => x.id === paie.employe_id); return `<tr><td>${e(emp ? emp.nom : "Inconnu")}</td><td>${e(paie.mois)}</td><td style="text-align:right"><b>${f(paie.solde)}</b></td><td style="text-align:center"><button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️ Bulletin</button></td></tr>`; }).join("") || '<tr><td colspan="4" style="text-align:center">Aucune paie.</td></tr>'}
+      ${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => { const emp = data.employes.find(x => x.id === paie.employe_id); return `<tr><td>${e(emp ? emp.nom : "Inconnu")}</td><td>${e(paie.mois)}</td><td style="text-align:right"><b>${f(paie.solde)}</b></td><td style="text-align:center"><button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️ Bulletin</button>${profil.role === 'PDG' ? `<button class="s" style="color:var(--r)" onclick="deletePaie('${paie.id}')">🗑️</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="4" style="text-align:center">Aucune paie.</td></tr>'}
     </tbody></table></div>`;
+}
+
+async function deletePaie(id) {
+  if (profil.role !== "PDG") return;
+  if (!confirm("Supprimer ce bulletin de paie ?")) return;
+  await supa.from("paie").delete().eq("id", id);
+  await loadAllData();
 }
 
 function printBulletinPaie(paieId) {
@@ -1169,76 +1204,22 @@ async function deleteCommande(id) { if (!confirm("Supprimer ?")) return; await s
 
 function renderFournisseurs(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
-  
   const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
-
-  A.innerHTML = `
-    <div class="grid">
-      <div class="card" style="border-top:4px solid var(--r)">
-        <div class="m">Dettes fournisseurs</div>
-        <div class="k" style="color:var(--r)">${f(dette)}</div>
-      </div>
-    </div>
-
+  A.innerHTML = `<div class="grid"><div class="card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
     <div class="card"><b>🏭 Nouveau fournisseur</b>
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="f_nom" placeholder="Nom *" style="flex:2">
-        <input id="f_contact" placeholder="Contact" style="flex:1">
-        <input id="f_tel" placeholder="Téléphone" style="flex:1">
-      </div>
-      <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px">
-      <button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button>
-    </div>
-
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="f_nom" placeholder="Nom *" style="flex:2"><input id="f_contact" placeholder="Contact" style="flex:1"><input id="f_tel" placeholder="Téléphone" style="flex:1"></div>
+      <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px"><button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button></div>
     <div class="card"><b>📦 Nouvelle commande</b>
       <select id="c_fournisseur"><option value="">Choisir un fournisseur *</option>${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}</select>
       <input id="c_desc" placeholder="Description (ex: 10 filtres...)">
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="c_montant" type="number" placeholder="Montant total" style="flex:1">
-        <input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1">
-        <input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1">
-      </div>
-      <button class="p" onclick="addCommande()">Enregistrer la commande</button>
-    </div>
-
-    <div class="card"><b>📜 Historique des commandes</b>
-      <div style="overflow-x:auto">
-        <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut / Reste</th><th>Action</th></tr></thead><tbody>
-          ${(data.commandes || []).map(c => {
-            const reste = (+c.montant||0) - (+c.montant_paye||0);
-            let statutTxt = reste <= 0 ? "Soldé" : (c.montant_paye > 0 ? "Reste à payer" : "Impayé");
-            let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)");
-            return `
-              <tr>
-                <td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td>
-                <td><b>${e(c.fournisseur_nom)}</b></td>
-                <td>${e(c.description)}</td>
-                <td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td>
-                <td>
-                  <span class="tag" style="background:${statutBg}; color:#fff;">${statutTxt}</span><br>
-                  <span class="m" style="color:${reste > 0 ? 'var(--r)' : 'inherit'}">Reste : ${f(reste)}</span>
-                </td>
-                <td>
-                  ${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer le solde</button>` : ""}
-                  <button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>
-                </td>
-              </tr>
-            `;
-          }).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px;">Aucune commande enregistrée.</td></tr>'}
-        </tbody></table>
-      </div>
-    </div>
-
-    <div class="card"><b>🏭 Liste des fournisseurs</b>
-      ${data.fournisseurs.map(f => `
-        <div class="row" style="border-top:1px solid var(--b)">
-          <span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span>
-          <button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>
-        </div>
-      `).join("") || '<div class="m">Aucun fournisseur enregistré.</div>'}
-    </div>
-  `;
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="c_montant" type="number" placeholder="Montant total" style="flex:1"><input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1"><input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1"></div>
+      <button class="p" onclick="addCommande()">Enregistrer la commande</button></div>
+    <div class="card"><b>📜 Historique</b><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
+      ${(data.commandes || []).map(c => { const reste = (+c.montant||0) - (+c.montant_paye||0); let statutTxt = reste <= 0 ? "Soldé" : (c.montant_paye > 0 ? "Reste à payer" : "Impayé"); let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)"); return `<tr><td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td><td><b>${e(c.fournisseur_nom)}</b></td><td>${e(c.description)}</td><td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td><td><span class="tag" style="background:${statutBg};color:#fff">${statutTxt}</span><br><span class="m">Reste : ${f(reste)}</span></td><td>${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer</button>` : ""}<button class="s" onclick="deleteCommande('${c.id}')">🗑️</button></td></tr>`; }).join("") || '<tr><td colspan="6" style="text-align:center">Aucune commande.</td></tr>'}
+    </tbody></table></div></div>
+    <div class="card"><b>🏭 Liste des fournisseurs</b>${data.fournisseurs.map(f => `<div class="row"><span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span><button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button></div>`).join("") || '<div class="m">Aucun fournisseur.</div>'}</div>`;
 }
+
 /* --- STATISTIQUES --- */
 function renderStats(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
@@ -1347,7 +1328,7 @@ function renderLogout(A) { A.innerHTML = `<div class="card"><h3>Se déconnecter<
       <p class="m">${e(x.message)}</p>
       <button class="p" onclick="location.reload()">Réessayer</button>
     </div>`); 
-   }
+  }
 })();
 
 supa && supa.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") location.reload(); });
