@@ -154,12 +154,21 @@ async function jlog(action, reference, details) {
 function render() {
   if (!profil) return;
   const R = ROLES[profil.role];
-  if (!R.pages.includes(tab)) tab = "📊 Tableau de bord";
+  
+  // On vérifie si l'onglet actuel existe dans le menu, sinon on revient au tableau de bord
+  if (!R.pages.includes(tab)) {
+    tab = R.pages[0]; 
+  }
+
   $("hd").innerHTML = `<button class="mb" onclick="$('nav').classList.toggle('open')">☰</button><span>SPEED GARAGE PRO</span><small>${e(profil.name||profil.username)} · <span class="tag ${R.cls}">${R.label}</span></small>`;
+  
   $("nav").innerHTML = R.pages.map(t => `<button class="${t===tab?"on":""}" onclick="go('${t.replace(/'/g,"\\'")}')">${t}</button>`).join("");
   
   const A = $("app");
+  
+  // On nettoie le nom de l'onglet pour trouver la bonne fonction (on enlève les emojis)
   const pageClean = tab.replace(/[^\w\s'éèàçùûîô]/g, '').trim();
+
   if (pageClean === "Tableau de bord") renderDashboard(A);
   else if (pageClean === "Planning") renderPlanning(A);
   else if (pageClean === "Rappels") renderRappels(A);
@@ -418,6 +427,8 @@ function renderRappels(A) {
 }
 
 /* --- CLIENTS --- */
+let clientVehiculeId = null;
+
 async function nextRef(type) {
   const prefix = type==="Société" ? "SOC" : "PART";
   const { data: rows } = await supa.from("clients").select("ref").like("ref", prefix+"-%");
@@ -431,8 +442,10 @@ async function addClient() {
   if (!nom) { alert("Le nom est obligatoire."); return; }
   if (!/^\d{9}$/.test(tel)) { alert("Le téléphone doit contenir exactement 9 chiffres."); return; }
   if (!adr) { alert("L'adresse est obligatoire."); return; }
+  
   const ref = await nextRef(type);
   const { data: newClient, error } = await supa.from("clients").insert({ref, type, nom, tel, adr, contact: "", nif: "", created_by: session.user.id}).select().single();
+  
   if (error) { alert("Erreur client : "+error.message); return; }
 
   if ($("cl_add_veh") && $("cl_add_veh").checked) {
@@ -452,8 +465,9 @@ async function deleteClient(id) {
   await supa.from("clients").delete().eq("id", id); await loadAllData();
 }
 
-function ouvrirFicheClient(id) { clientDetailId = id; render(); }
+function ouvrirFicheClient(id) { clientDetailId = id; clientVehiculeId = null; render(); }
 function allerAuRappel(clientId) { clientDetailId = null; tab = "🔔 Rappels"; definirRappel(clientId); }
+function ouvrirAjoutVehicule(clientId) { clientVehiculeId = clientId; render(); }
 
 function renderClients(A) {
   const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
@@ -461,26 +475,56 @@ function renderClients(A) {
   if (clientDetailId) {
     const c = data.clients.find(x => x.id === clientDetailId);
     if (!c) { clientDetailId = null; render(); return; }
-    A.innerHTML = `<div class="card" style="border-top:4px solid var(--r)">
-      <button class="s" onclick="clientDetailId=null; render()">← Retour</button>
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px">
-        <div>
-          <h3 style="margin:0">${e(c.nom)}</h3>
-          <span class="ref">${e(c.ref)}</span>
-          <p class="m" style="margin-top:10px">📞 <a href="tel:${e(c.tel)}" style="color:var(--r)">${e(c.tel)}</a><br>📍 ${e(c.adr)}</p>
-        </div>
-        <div style="display:flex; gap:5px; flex-direction:column">
-          <button class="p" style="margin:0; padding:8px" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
-          <button class="p" style="margin:0; padding:8px; background:#0891b2" onclick="imprimerRecuDepot('${c.id}')">🖨️ Reçu</button>
-          ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
+    
+    A.innerHTML = `
+      <div class="card" style="border-top:4px solid var(--r)">
+        <button class="s" onclick="clientDetailId=null; render()">← Retour</button>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px">
+          <div>
+            <h3 style="margin:0">${e(c.nom)}</h3>
+            <span class="ref">${e(c.ref)}</span>
+            <p class="m" style="margin-top:10px">📞 <a href="tel:${e(c.tel)}" style="color:var(--r)">${e(c.tel)}</a><br>📍 ${e(c.adr)}</p>
+          </div>
+          <div style="display:flex; gap:5px; flex-direction:column">
+            <button class="p" style="margin:0; padding:8px" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
+            <button class="p" style="margin:0; padding:8px; background:#0891b2" onclick="imprimerRecuDepot('${c.id}')">🖨️ Reçu</button>
+            ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
+          </div>
         </div>
       </div>
-    </div>
-    <div class="card"><b>🚗 Véhicules de ce client</b>
-      ${data.vehicules.filter(v => v.client_id === c.id).map(v => `<div class="row" style="border-top:1px solid var(--b)">
-        <span><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
-        ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
-      </div>`).join("") || '<div class="m">Aucun véhicule enregistré.</div>'}</div>`;
+
+      <div class="card"><b>🚗 Véhicules de ce client</b>
+        ${data.vehicules.filter(v => v.client_id === c.id).map(v => `
+          <div class="row" style="border-top:1px solid var(--b)">
+            <span><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
+            ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
+          </div>
+        `).join("") || '<div class="m">Aucun véhicule enregistré.</div>'}
+      </div>
+
+      ${clientVehiculeId === c.id ? `
+        <div class="card" style="border:2px solid var(--r)">
+          <b>➕ Ajouter un véhicule</b>
+          <div style="display:flex; gap:8px; margin-bottom:8px"><input id="v_marque" placeholder="Marque *" style="flex:1"><input id="v_modele" placeholder="Modèle *" style="flex:1"></div>
+          <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px">
+          <div style="display:flex; gap:8px; margin-bottom:8px">
+            <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+            <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+            <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
+          </div>
+          <input id="v_vin" placeholder="VIN / Châssis" style="margin-bottom:8px">
+          <input id="v_km" type="number" placeholder="Kilométrage actuel" style="margin-bottom:8px">
+          <div style="display:flex; gap:8px">
+            <button class="p" onclick="ajouterVehicule()">Enregistrer</button>
+            <button class="s" onclick="clientVehiculeId=null; render()">Annuler</button>
+          </div>
+        </div>
+      ` : `
+        <div class="card" style="text-align:center">
+          <button class="p" onclick="ouvrirAjoutVehicule('${c.id}')">➕ Ajouter un véhicule à ce client</button>
+        </div>
+      `}
+    `;
     return;
   }
   
@@ -530,37 +574,22 @@ function renderClients(A) {
       </div>
     </div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
 }
-
-async function ajouterVehicule(clientId) {
+async function ajouterVehicule() {
+  if (!clientVehiculeId) { alert("Erreur : client non identifié."); return; }
   const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
   const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
+  
   if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
-  const { error } = await supa.from("vehicules").insert({client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id});
+
+  const { error } = await supa.from("vehicules").insert({
+    client_id: clientVehiculeId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
+  });
+  
   if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`); await loadAllData();
-}
-
-async function deleteVehicule(id) {
-  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un véhicule."); return; }
-  if (!confirm("Supprimer ce véhicule ?")) return;
-  await supa.from("vehicules").delete().eq("id", id); await loadAllData();
-}
-
-/* --- VÉHICULES --- */
-let vhDetail = null;
-function renderVehicules(A) {
-  const liste = data.vehicules.filter(v => (v.marque + v.modele + v.immat).toLowerCase().includes(q.toLowerCase()));
-  if (vhDetail) {
-    const v = data.vehicules.find(x => x.id === vhDetail); if (!v) { vhDetail = null; render(); return; }
-    const cl = data.clients.find(c => c.id === v.client_id);
-    const sesFactures = data.factures.filter(f => f.immat === v.immat).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
-    A.innerHTML = `<div class="card"><button class="s" onclick="vhDetail=null;render()">← Retour</button><h3>${e(v.marque)} ${e(v.modele)}</h3>
-      <p class="m">Immat : <b>${e(v.immat)}</b><br>Client : <b>${e(cl ? cl.nom : 'Inconnu')}</b><br>${v.kilometrage ? `Kilométrage : ${v.kilometrage} km<br>` : ""}Carburant : ${e(v.carburant || '—')} · Boîte : ${e(v.boite || '—')}</p></div>
-      <div class="card"><b>Historique</b></div>${sesFactures.map(f => `<div class="card"><b>${e(f.activite || 'Facture')}</b> - ${f(f.total_ttc)}<br><span class="m">${e(f.date_emission)}</span></div>`).join("") || '<div class="card m">Aucune facture.</div>'}`;
-    return;
-  }
-  A.innerHTML = `<div class="card"><input placeholder="🔍 Rechercher un véhicule..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} véhicule(s)</p></div>
-    ${liste.map(v => { const cl = data.clients.find(c => c.id === v.client_id); return `<div class="card" style="cursor:pointer" onclick="vhDetail='${v.id}';render()"><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">👤 ${e(cl ? cl.nom : 'Inconnu')} · ${v.kilometrage ? v.kilometrage + ' km' : ''}</span></div>`; }).join("") || '<div class="card m">Aucun véhicule.</div>'}`;
+  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientVehiculeId}`);
+  
+  clientVehiculeId = null;
+  await loadAllData();
 }
 /* --- DEVIS --- */
 let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
