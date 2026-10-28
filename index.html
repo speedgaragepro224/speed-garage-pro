@@ -6,115 +6,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <style>
-:root{--bg:#f4f4f5;--c:#fff;--t:#18181b;--m:#71717a;--b:#e4e4e7;--r:#dc2626;--ok:#16a34a}
+:root{--bg:#18181b;--c:#3b3b40;--t:#fafafa;--m:#a1a1aa;--b:#52525b;--r:#dc2626;--ok:#22c55e}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111;--c:#1c1c1f;--t:#f4f4f5;--m:#a1a1aa;--b:#33333a}}
 :root[data-theme="dark"]{--bg:#111;--c:#1c1c1f;--t:#f4f4f5;--m:#a1a1aa;--b:#33333a}
-
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-body { 
-  margin: 0; 
-  background: var(--bg); 
-  color: var(--t); 
-  font: 15px system-ui, -apple-system, sans-serif; 
-  overflow-x: hidden; /* Empêche le défilement horizontal */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;
+  background-color:var(--bg);
+  color:var(--t);
+  font: 16px 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500; /* Rend tout le texte légèrement plus épais */
+  overflow-x:hidden;
+  background-image: url('https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
-
-header { 
-  background: #000; color: #fff; padding: 12px 16px; font-weight: 700; 
-  border-bottom: 3px solid var(--r); display: flex; align-items: center; gap: 10px;
-  position: sticky; top: 0; z-index: 50;
-}
-header span { flex: 1; font-size: 16px; }
-header small { font-weight: 400; font-size: 12px; opacity: .85; }
-
-nav { 
-  display: flex; flex-direction: column; gap: 4px; padding: 12px; 
-  width: 250px; flex: none; background: var(--c); border-right: 1px solid var(--b); 
-  min-height: calc(100vh - 60px); overflow-y: auto;
-}
-nav button { 
-  text-align: left; border: 0; background: none; color: var(--m); 
-  padding: 12px; border-radius: 8px; font: inherit; font-size: 16px; 
-  font-weight: 600; cursor: pointer; 
-}
-nav button.on { background: var(--r); color: #fff; }
-nav button:active:not(.on) { background: var(--b); }
-
-.wrap { display: flex; align-items: stretch; min-height: calc(100vh - 60px); }
-main { flex: 1; min-width: 0; padding: 16px; max-width: 1100px; margin: 0 auto; }
-
-.mb { display: none; background: none; border: 0; color: #fff; font-size: 24px; padding: 0; cursor: pointer; }
-
-.card { 
-  background: var(--c); border: 1px solid var(--b); border-radius: 12px; 
-  padding: 16px; margin-bottom: 12px; overflow-x: auto; /* Permet de scroller les tableaux */
-}
-
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-.k { font-size: 24px; font-weight: 700; }
-.m { color: var(--m); font-size: 13px; }
-
-/* Champs plus gros pour le tactile */
-input, select, textarea { 
-  width: 100%; padding: 12px; margin: 6px 0; border: 1px solid var(--b); 
-  border-radius: 8px; background: var(--bg); color: var(--t); font: inherit; font-size: 16px;
-}
-input:focus, select:focus, textarea:focus { outline: 2px solid var(--r); border-color: transparent; }
-
-button.p { 
-  background: var(--r); color: #fff; border: 0; border-radius: 8px; 
-  padding: 14px 20px; font: inherit; font-weight: 600; font-size: 16px; 
-  margin-top: 8px; cursor: pointer; width: 100%; /* Bouton pleine largeur sur mobile */
-}
-button.p:active { opacity: 0.8; }
-
-button.s { 
-  background: none; border: 1px solid var(--b); color: var(--t); 
-  border-radius: 6px; padding: 8px 12px; font: inherit; font-size: 14px; 
-  cursor: pointer; margin: 4px; 
-}
-
-.row { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 12px 0; border-top: 1px solid var(--b); flex-wrap: wrap; }
-.tag { font-size: 12px; padding: 4px 10px; border-radius: 99px; background: var(--b); display: inline-block; }
-.ref { font-family: monospace; font-size: 12px; background: var(--b); padding: 3px 8px; border-radius: 5px; }
-
-#lock { position: fixed; inset: 0; z-index: 100; background: var(--bg); overflow: auto; }
-
-/* TABLEAUX RESPONSIVES */
-table { width: 100%; border-collapse: collapse; margin: 8px 0; min-width: 500px; /* Force le scroll si trop petit */ }
-th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--b); font-size: 14px; }
-th { background: var(--bg); font-weight: 600; color: var(--m); font-size: 12px; text-transform: uppercase; }
-tr:hover { background: var(--bg); }
-
-.loading { text-align: center; padding: 40px; color: var(--m); }
-
-/* ========================================= */
-/* OPTIMISATION POUR MOBILES (Android/iPhone) */
-/* ========================================= */
-@media (max-width: 768px) {
-  .mb { display: inline-block; }
-  
-  nav { 
-    position: fixed; left: 0; top: 0; bottom: 0; z-index: 60; 
-    width: 260px; transform: translateX(-100%); transition: transform .2s; 
-    box-shadow: 4px 0 20px rgba(0,0,0,0.5); padding-top: 20px;
-  }
-  nav.open { transform: none; }
-  
-  main { padding: 12px; }
-  
-  /* Les formulaires passent en une seule colonne */
-  div[style*="display:flex"] { flex-direction: column !important; gap: 8px !important; }
-  
-  .grid { grid-template-columns: 1fr 1fr; } /* 2 colonnes pour les stats */
-  
-  /* Les tableaux défilent horizontalement au lieu de casser la page */
-  .card { padding: 12px; }
-  
-  /* On cache la barre de défilement pour faire plus propre */
-  .card::-webkit-scrollbar { display: none; }
-}
+header{background:#000;color:#fff;padding:12px 16px;font-weight:700;border-bottom:3px solid var(--r);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+header span{flex:1;font-size:16px}
+header small{font-weight:400;font-size:12px;opacity:.85}
+nav{display:flex;flex-direction:column;gap:4px;padding:12px;width:250px;flex:none;background:var(--c);border-right:1px solid var(--b);min-height:calc(100vh - 60px);overflow-y:auto}
+nav button{text-align:left;border:0;background:none;color:var(--m);padding:12px;border-radius:8px;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+nav button.on{background:var(--r);color:#fff}
+nav button:active:not(.on){background:var(--b)}
+.wrap{display:flex;align-items:stretch;min-height:calc(100vh - 60px)}
+main{flex:1;min-width:0;padding:16px;max-width:900px;margin:0 auto}
+.mb{display:none;background:none;border:0;color:#fff;font-size:24px;padding:0;cursor:pointer}
+@media (max-width:768px){.mb{display:inline-block}nav{position:fixed;left:0;top:0;bottom:0;z-index:60;width:260px;transform:translateX(-100%);transition:transform .2s;box-shadow:4px 0 20px rgba(0,0,0,0.5);padding-top:20px}nav.open{transform:none}main{padding:12px}.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:12px;overflow-x:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.k{font-size:28px;font-weight:800;letter-spacing:-0.5px}
+.m{color:var(--m);font-size:13px}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);font:inherit;font-size:16px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--r);border-color:transparent}
+button.p{background:var(--r);color:#fff;border:0;border-radius:12px;padding:14px 20px;font:inherit;font-weight:800;font-size:16px;margin-top:8px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.5px;box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);}
+button.p:active{opacity:0.8}
+button.s{background:none;border:1px solid var(--b);color:var(--t);border-radius:6px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;margin:4px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--b);flex-wrap:wrap}
+.tag{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--b);display:inline-block}
+.ref{font-family:monospace;font-size:12px;background:var(--b);padding:3px 8px;border-radius:5px}
+#lock{position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto}
+table{width:100%;border-collapse:collapse;margin:8px 0;min-width:500px}
+th,td{padding:12px 8px;text-align:left;border-bottom:1px solid var(--b);font-size:14px}
+th{background:var(--bg);font-weight:600;color:var(--m);font-size:12px;text-transform:uppercase}
+tr:hover{background:var(--bg)}
+.loading{text-align:center;padding:40px;color:var(--m)}
 </style>
 </head>
 <body>
@@ -145,10 +81,10 @@ let jourSelectionne = null;
 const ROLES = {
   PDG: {label:"PDG", cls:"pdg", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","👔 Personnel","💰 Gestion de paie","💸 Dépenses","🏭 Fournisseurs","🔍 Journal d'audit","📈 Statistiques","⚙️ Paramètres","🚪 Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
-      SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","💸 Dépenses","🏭 Fournisseurs","⚙️ Paramètres","🚪 Se déconnecter"],
+  SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","💸 Dépenses","🏭 Fournisseurs","⚙️ Paramètres","🚪 Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
-  MARKETING: {label:"Marketing", cls:"mkt", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","🏭 Fournisseurs","⚙️ Paramètres","🚪 Se déconnecter"],
-    can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}}
+  MARKETING: {label:"Marketing", cls:"mkt", pages:["📊 Tableau de bord","👥 Clients","🚗 Véhicules","⚙️ Paramètres","🚪 Se déconnecter"],
+    can:{editClients:false,editDevis:false,editFactures:false,editStock:false,deleteAny:false,viewAudit:false,exportData:true}}
 };
 
 function showLock(html){ $("lock").style.display="block"; $("hd").style.display="none"; $("wrap").style.display="none"; $("lock").innerHTML=html; }
@@ -183,6 +119,7 @@ function showLogin(msg) {
     </div>
   `);
 }
+
 async function doLogin() {
   const email = $("lu").value.trim().toLowerCase(), pw = $("lp").value, m = $("lm");
   m.textContent = "Connexion…";
@@ -254,7 +191,7 @@ function render() {
   else if (pageClean === "Factures") renderFactures(A);
   else if (pageClean === "Stock") renderStock(A);
   else if (pageClean === "Techniciens") renderTechs(A);
-else if (pageClean === "Personnel") renderPersonnel(A);
+  else if (pageClean === "Personnel") renderPersonnel(A);
   else if (pageClean === "Gestion de paie") renderPaie(A);
   else if (pageClean === "Dépenses") renderDepenses(A);
   else if (pageClean === "Fournisseurs") renderFournisseurs(A);
@@ -289,17 +226,17 @@ function renderDashboard(A) {
 
     <div class="card">
       <b>⚡ Actions Rapides</b>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
-        <button class="p" style="margin:0" onclick="go('👥 Clients')">➕ Nouveau Client</button>
-        <button class="p" style="margin:0; background:#0891b2" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
-        <button class="p" style="margin:0; background:#7c3aed" onclick="go('📅 Planning')">📅 Prendre RDV</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; justify-content:flex-start">
+        <button class="p" style="margin:0; width:auto" onclick="go('👥 Clients')">➕ Nouveau Client</button>
+        <button class="p" style="margin:0; width:auto; background:#0891b2" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
+        <button class="p" style="margin:0; width:auto; background:#7c3aed" onclick="go('📅 Planning')">📅 Prendre RDV</button>
       </div>
     </div>
 
     ${stockBas > 0 ? `
-    <div class="card" style="border-left:4px solid var(--r); background:#fef2f2">
-      <b style="color:var(--r)">⚠️ Alerte Stock</b>
-      <p class="m">Vous avez ${stockBas} article(s) en rupture ou stock bas. <a href="#" onclick="go('📦 Stock'); return false;" style="color:var(--r); font-weight:bold;">Voir le stock →</a></p>
+       <div class="card" style="border-left:4px solid var(--r); background:var(--c);">
+      <b style="color:#fca5a5">⚠️ Alerte Stock</b>
+      <p class="m" style="color:var(--t)">Vous avez ${stockBas} article(s) en rupture ou stock bas. <a href="#" onclick="go('📦 Stock'); return false;" style="color:var(--r); font-weight:bold;">Voir le stock →</a></p>
     </div>` : ""}
 
     <div class="card">
@@ -490,16 +427,27 @@ function renderRappels(A) {
         else if (diffJours <= 30) { estBientot = true; motifAlerte.push("Date bientôt"); }
       }
 
-      return `<div class="card" style="border-left: 4px solid ${estDepasse ? 'var(--r)' : (estBientot ? '#f59e0b' : 'var(--ok)')}">
-        <div class="row" style="border-top:0"><div style="flex:1">
-        <b>${e(c.nom)}</b> 
-        ${estDepasse ? `<span class="tag" style="background:var(--r);color:#fff">⚠️ À RAPPELER (${motifAlerte.join(", ")})</span>` : 
-          (estBientot ? `<span class="tag" style="background:#f59e0b;color:#fff">⏳ BIENTÔT (${motifAlerte.join(", ")})</span>` : '')}
-        <br>
-        <span class="m">🚗 ${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}<br>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')}</b><br>🎯 Rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') : '—'} km</b></span>
-      </div><div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end">
-        ${peutEditer ? `<button class="s" onclick="definirRappel('${c.id}')">✏️ Modifier</button>` : ''}
-      </div></div></div>`;
+      return `
+        <div class="card" style="border-left: 5px solid ${estDepasse ? 'var(--r)' : (estBientot ? '#f59e0b' : 'var(--ok)')}; padding: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px">
+            <div style="flex:1; min-width:200px">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap">
+                <h3 style="margin:0; font-size:18px;">${e(c.nom)}</h3>
+                ${estDepasse ? `<span class="tag" style="background:var(--r); color:#fff; font-weight:bold; padding:4px 10px;">⚠️ À RAPPELER</span>` : 
+                  (estBientot ? `<span class="tag" style="background:#f59e0b; color:#fff; font-weight:bold; padding:4px 10px;">⏳ BIENTÔT</span>` : '')}
+              </div>
+              <div class="m" style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
+                <span>🚗 <b>${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}</b></span>
+                <span>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')} km</b></span>
+                <span>🎯 Seuil de rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') + ' km' : '—'}</b></span>
+                ${motifAlerte.length > 0 ? `<span style="color:${estDepasse ? 'var(--r)' : '#f59e0b'};">ℹ️ Motif : ${motifAlerte.join(", ")}</span>` : ''}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center;">
+              ${peutEditer ? `<button class="p" style="margin:0; background:var(--c); color:var(--t); border:1px solid var(--b); padding:8px 12px;" onclick="definirRappel('${c.id}')">✏️ Modifier</button>` : ''}
+            </div>
+          </div>
+        </div>`;
     }).join("") || '<div class="card m">Aucun rappel défini.</div>'}`;
 }
 
@@ -539,6 +487,169 @@ async function deleteClient(id) {
   if (!confirm("Supprimer ce client et tous ses devis/factures ?")) return;
   await supa.from("clients").delete().eq("id", id); await loadAllData();
 }
+
+function ouvrirFicheClient(id) { clientDetailId = id; clientVehiculeId = null; render(); }
+function allerAuRappel(clientId) { clientDetailId = null; tab = "🔔 Rappels"; definirRappel(clientId); }
+function ouvrirAjoutVehicule(id) { clientVehiculeId = id; render(); }
+
+function renderClients(A) {
+  const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
+  
+  if (clientDetailId) {
+    const c = data.clients.find(x => x.id === clientDetailId);
+    if (!c) { clientDetailId = null; render(); return; }
+    
+    A.innerHTML = `
+      <div class="card" style="border-top:4px solid var(--r)">
+        <button class="s" onclick="clientDetailId=null; render()">← Retour</button>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px">
+          <div>
+            <h3 style="margin:0">${e(c.nom)}</h3>
+            <span class="ref">${e(c.ref)}</span>
+            <p class="m" style="margin-top:10px">📞 <a href="tel:${e(c.tel)}" style="color:var(--r)">${e(c.tel)}</a><br>📍 ${e(c.adr)}</p>
+          </div>
+          <div style="display:flex; gap:5px; flex-direction:column">
+            <button class="p" style="margin:0; padding:8px" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
+            <button class="p" style="margin:0; padding:8px; background:#0891b2" onclick="imprimerRecuDepot('${c.id}')">🖨️ Reçu</button>
+            ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
+          </div>
+        </div>
+      </div>
+
+      <div class="card"><b>🚗 Véhicules de ce client</b>
+        ${data.vehicules.filter(v => v.client_id === c.id).map(v => `
+          <div class="row" style="border-top:1px solid var(--b)">
+            <span><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
+            ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
+          </div>
+        `).join("") || '<div class="m">Aucun véhicule enregistré.</div>'}
+      </div>
+
+      <div class="card" style="border:2px solid var(--b)">
+        <b>➕ Ajouter un véhicule à ce client</b>
+        <div style="display:flex; gap:8px; margin-bottom:8px; margin-top:8px">
+         <input list="list_marques" id="v_marque" placeholder="Marque *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+<datalist id="list_marques">
+  <option value="Toyota"><option value="Nissan"><option value="Hyundai"><option value="Kia"><option value="Renault"><option value="Peugeot"><option value="Mercedes-Benz"><option value="Mitsubishi"><option value="Lexus"><option value="Honda"><option value="Mazda"><option value="Ford"><option value="Chevrolet"><option value="Suzuki"><option value="Isuzu">
+</datalist>
+         <input list="list_modeles" id="v_modele" placeholder="Modèle *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+<datalist id="list_modeles">
+  <option value="Hilux"><option value="Corolla"><option value="RAV4"><option value="Land Cruiser"><option value="Land Cruiser Prado"><option value="Highlander"><option value="4Runner"><option value="Pick-Up"><option value="Avensis"><option value="Yaris">
+  <option value="Patrol"><option value="X-Trail"><option value="Navara"><option value="Pathfinder"><option value="Qashqai">
+  <option value="Tucson"><option value="Santa Fe"><option value="Elantra"><option value="Accent"><option value="H1">
+  <option value="Rio"><option value="Sportage"><option value="Sorento"><option value="Picanto"><option value="Cerato">
+  <option value="Duster"><option value="Logan"><option value="Sandero"><option value="Kangoo"><option value="Clio">
+  <option value="406"><option value="307"><option value="308"><option value="Partner"><option value="3008">
+  <option value="Classe C"><option value="Classe E"><option value="Classe ML / GLE"><option value="Sprinter"><option value="Classe G">
+  <option value="Pajero"><option value="L200"><option value="Outlander"><option value="Montero">
+  <option value="LX"><option value="GX"><option value="RX"><option value="LS">
+  <option value="CR-V"><option value="Civic"><option value="Mazda 3"><option value="BT-50"><option value="Ranger"><option value="Everest"><option value="Captiva"><option value="Vitara"><option value="D-Max">
+</datalist>
+        </div>
+        <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <div style="display:flex; gap:8px; margin-bottom:8px">
+          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
+        </div>
+        <input id="v_vin" placeholder="VIN / Châssis" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <input id="v_km" type="number" placeholder="Kilométrage actuel" style="margin-bottom:8px">
+        <button class="p" onclick="ajouterVehicule('${c.id}')">Enregistrer ce véhicule</button>
+      </div>
+    `;
+    return;
+  }
+  
+  const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
+  A.innerHTML = `
+    ${peutEditer?`<div class="card"><b>➕ Nouveau client</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <select id="cl_type" onchange="document.getElementById('cl_soc').style.display=this.value==='Société'?'block':'none'" style="flex:1"><option>Particulier</option><option>Société</option></select>
+        <input id="cl_nom" placeholder="Nom / Raison sociale *" style="flex:2">
+      </div>
+      <div id="cl_soc" style="display:none; margin-bottom:8px">
+        <input id="cl_contact" placeholder="Contact *">
+        <input id="cl_nif" placeholder="NIF *">
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9" style="flex:1">
+        <input id="cl_adr" placeholder="Adresse *" style="flex:2">
+      </div>
+      
+      <div style="margin-bottom:8px">
+        <label style="font-size:13px"><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto; margin-right:8px"> Ajouter un véhicule en même temps</label>
+      </div>
+      
+      <div id="veh_form" style="display:none; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:8px">
+        <div style="display:flex; gap:8px; margin-bottom:8px">
+          <input list="list_marques" id="v_marque" placeholder="Marque *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+<datalist id="list_marques">
+  <option value="Toyota"><option value="Nissan"><option value="Hyundai"><option value="Kia"><option value="Renault"><option value="Peugeot"><option value="Mercedes-Benz"><option value="Mitsubishi"><option value="Lexus"><option value="Honda"><option value="Mazda"><option value="Ford"><option value="Chevrolet"><option value="Suzuki"><option value="Isuzu">
+</datalist>
+         <input list="list_modeles" id="v_modele" placeholder="Modèle *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+<datalist id="list_modeles">
+  <option value="Hilux"><option value="Corolla"><option value="RAV4"><option value="Land Cruiser"><option value="Land Cruiser Prado"><option value="Highlander"><option value="4Runner"><option value="Pick-Up"><option value="Avensis"><option value="Yaris">
+  <option value="Patrol"><option value="X-Trail"><option value="Navara"><option value="Pathfinder"><option value="Qashqai">
+  <option value="Tucson"><option value="Santa Fe"><option value="Elantra"><option value="Accent"><option value="H1">
+  <option value="Rio"><option value="Sportage"><option value="Sorento"><option value="Picanto"><option value="Cerato">
+  <option value="Duster"><option value="Logan"><option value="Sandero"><option value="Kangoo"><option value="Clio">
+  <option value="406"><option value="307"><option value="308"><option value="Partner"><option value="3008">
+  <option value="Classe C"><option value="Classe E"><option value="Classe ML / GLE"><option value="Sprinter"><option value="Classe G">
+  <option value="Pajero"><option value="L200"><option value="Outlander"><option value="Montero">
+  <option value="LX"><option value="GX"><option value="RX"><option value="LS">
+  <option value="CR-V"><option value="Civic"><option value="Mazda 3"><option value="BT-50"><option value="Ranger"><option value="Everest"><option value="Captiva"><option value="Vitara"><option value="D-Max">
+</datalist>
+        </div>
+        <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <div style="display:flex; gap:8px">
+          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
+        </div>
+        <input id="v_vin" placeholder="VIN / Châssis" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <input id="v_km" type="number" placeholder="Kilométrage actuel">
+      </div>
+      <button class="p" onclick="addClient()">Ajouter le client</button></div>`
+      :`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}
+      
+    <div class="card"><input placeholder="🔍 Rechercher un client..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} client(s)</p></div>
+    
+    ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
+      <div class="row" style="border-top:0; padding:0">
+        <div style="flex:1">
+          <b style="font-size:16px">${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br>
+          <span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span>
+        </div>
+        <div style="font-size:20px; color:var(--r)">→</div>
+      </div>
+    </div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
+}
+
+async function ajouterVehicule(clientId) {
+  if (!clientId) { alert("Erreur : client non identifié."); return; }
+  const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
+  const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
+  
+  if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
+
+  const { error } = await supa.from("vehicules").insert({
+    client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
+  });
+  
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`);
+  
+  clientVehiculeId = null; // On ferme le formulaire
+  await loadAllData();
+  alert("✅ Véhicule ajouté avec succès !");
+}
+
+async function deleteVehicule(id) {
+  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un véhicule."); return; }
+  if (!confirm("Supprimer ce véhicule ?")) return;
+  await supa.from("vehicules").delete().eq("id", id); await loadAllData();
+}
+
 function imprimerRecuDepot(clientId) {
   const cl = data.clients.find(c => c.id === clientId);
   if (!cl) return;
@@ -633,194 +744,6 @@ function imprimerRecuDepot(clientId) {
   </body></html>`);
   w.document.close();
 }
-function ouvrirFicheClient(id) {
-  clientDetailId = id;
-  render();
-}
-function allerAuRappel(clientId) {
-  clientDetailId = null;
-  tab = "🔔 Rappels";
-  definirRappel(clientId);
-}
-function renderClients(A) {
-  const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
-  
-  if (clientDetailId) {
-    const c = data.clients.find(x => x.id === clientDetailId);
-    if (!c) { clientDetailId = null; render(); return; }
-    
-    A.innerHTML = `
-      <div class="card" style="border-top:4px solid var(--r)">
-        <button class="s" onclick="clientDetailId=null; render()">← Retour</button>
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px">
-          <div>
-            <h3 style="margin:0">${e(c.nom)}</h3>
-            <span class="ref">${e(c.ref)}</span>
-            <p class="m" style="margin-top:10px">📞 <a href="tel:${e(c.tel)}" style="color:var(--r)">${e(c.tel)}</a><br>📍 ${e(c.adr)}</p>
-          </div>
-          <div style="display:flex; gap:5px; flex-direction:column">
-            <button class="p" style="margin:0; padding:8px" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
-            <button class="p" style="margin:0; padding:8px; background:#0891b2" onclick="imprimerRecuDepot('${c.id}')">🖨️ Reçu</button>
-            ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
-          </div>
-        </div>
-      </div>
-
-      <div class="card"><b>🚗 Véhicules de ce client</b>
-        ${data.vehicules.filter(v => v.client_id === c.id).map(v => `
-          <div class="row" style="border-top:1px solid var(--b)">
-            <span><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
-            ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
-          </div>
-        `).join("") || '<div class="m">Aucun véhicule enregistré.</div>'}
-      </div>
-
-      <div class="card" style="border:2px solid var(--b)">
-        <b>➕ Ajouter un véhicule à ce client</b>
-        <div style="display:flex; gap:8px; margin-bottom:8px; margin-top:8px">
-          <input id="v_marque" placeholder="Marque *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-          <input id="v_modele" placeholder="Modèle *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-        </div>
-        <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-        <div style="display:flex; gap:8px; margin-bottom:8px">
-          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
-          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
-          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
-        </div>
-        <input id="v_vin" placeholder="VIN / Châssis" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-        <input id="v_km" type="number" placeholder="Kilométrage actuel" style="margin-bottom:8px">
-        <button class="p" onclick="ajouterVehicule('${c.id}')">Enregistrer ce véhicule</button>
-      </div>
-    `;
-    return;
-  }
-  
-  const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
-  A.innerHTML = `
-    ${peutEditer?`<div class="card"><b>➕ Nouveau client</b>
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <select id="cl_type" onchange="document.getElementById('cl_soc').style.display=this.value==='Société'?'block':'none'" style="flex:1"><option>Particulier</option><option>Société</option></select>
-        <input id="cl_nom" placeholder="Nom / Raison sociale *" style="flex:2">
-      </div>
-      <div id="cl_soc" style="display:none; margin-bottom:8px">
-        <input id="cl_contact" placeholder="Contact *">
-        <input id="cl_nif" placeholder="NIF *">
-      </div>
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9" style="flex:1">
-        <input id="cl_adr" placeholder="Adresse *" style="flex:2">
-      </div>
-      
-      <div style="margin-bottom:8px">
-        <label style="font-size:13px"><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto; margin-right:8px"> Ajouter un véhicule en même temps</label>
-      </div>
-      
-      <div id="veh_form" style="display:none; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:8px">
-        <div style="display:flex; gap:8px; margin-bottom:8px">
-          <input id="v_marque" placeholder="Marque *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-          <input id="v_modele" placeholder="Modèle *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-        </div>
-        <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-        <div style="display:flex; gap:8px">
-          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
-          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
-          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
-        </div>
-        <input id="v_vin" placeholder="VIN / Châssis" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
-        <input id="v_km" type="number" placeholder="Kilométrage actuel">
-      </div>
-      <button class="p" onclick="addClient()">Ajouter le client</button></div>`
-      :`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}
-      
-    <div class="card"><input placeholder="🔍 Rechercher un client..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} client(s)</p></div>
-    
-    ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
-      <div class="row" style="border-top:0; padding:0">
-        <div style="flex:1">
-          <b style="font-size:16px">${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br>
-          <span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span>
-        </div>
-        <div style="font-size:20px; color:var(--r)">→</div>
-      </div>
-    </div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
-}
-
-async function ajouterVehicule(clientId) {
-  if (!clientId) { alert("Erreur : client non identifié."); return; }
-  const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
-  const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
-  
-  if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
-
-  const { error } = await supa.from("vehicules").insert({
-    client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
-  });
-  
-  if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`);
-  
-  clientVehiculeId = null; // On ferme le formulaire
-  await loadAllData();
-  alert("✅ Véhicule ajouté avec succès !");
-}
-
-async function ajouterVehicule(clientId) {
-  if (!clientId) { alert("Erreur : client non identifié."); return; }
-  const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
-  const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
-  
-  if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
-
-  const { error } = await supa.from("vehicules").insert({
-    client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
-  });
-  
-  if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`);
-  
-  await loadAllData();
-  alert("✅ Véhicule ajouté avec succès !");
-}
-async function ajouterVehicule(clientId) {
-  if (!clientId) { alert("Erreur : client non identifié."); return; }
-  const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
-  const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
-  
-  if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
-
-  const { error } = await supa.from("vehicules").insert({
-    client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
-  });
-  
-  if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`);
-  
-  afficherFormVeh = false; // On ferme le formulaire
-  await loadAllData();
-}
-async function ajouterVehicule() {
-  if (!clientVehiculeId) { alert("Erreur : client non identifié."); return; }
-  const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
-  const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
-  
-  if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
-
-  const { error } = await supa.from("vehicules").insert({
-    client_id: clientVehiculeId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
-  });
-  
-  if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientVehiculeId}`);
-  
-  clientVehiculeId = null; // On ferme le formulaire
-  await loadAllData();
-}
-
-async function deleteVehicule(id) {
-  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un véhicule."); return; }
-  if (!confirm("Supprimer ce véhicule ?")) return;
-  await supa.from("vehicules").delete().eq("id", id); await loadAllData();
-}
 
 /* --- VÉHICULES --- */
 let vhDetail = null;
@@ -835,8 +758,36 @@ function renderVehicules(A) {
       <div class="card"><b>Historique</b></div>${sesFactures.map(f => `<div class="card"><b>${e(f.activite || 'Facture')}</b> - ${f(f.total_ttc)}<br><span class="m">${e(f.date_emission)}</span></div>`).join("") || '<div class="card m">Aucune facture.</div>'}`;
     return;
   }
-  A.innerHTML = `<div class="card"><input placeholder="🔍 Rechercher un véhicule..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} véhicule(s)</p></div>
-    ${liste.map(v => { const cl = data.clients.find(c => c.id === v.client_id); return `<div class="card" style="cursor:pointer" onclick="vhDetail='${v.id}';render()"><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">👤 ${e(cl ? cl.nom : 'Inconnu')} · ${v.kilometrage ? v.kilometrage + ' km' : ''}</span></div>`; }).join("") || '<div class="card m">Aucun véhicule.</div>'}`;
+  
+  A.innerHTML = `
+    <div class="card">
+      <input placeholder="🔍 Rechercher un véhicule (marque, immat, client...)" value="${e(q)}" oninput="q=this.value;render()">
+      <p class="m" style="margin-top:8px">${liste.length} véhicule(s) trouvé(s)</p>
+    </div>
+    
+    ${liste.map(v => { 
+      const cl = data.clients.find(c => c.id === v.client_id); 
+      return `
+        <div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px;" onclick="vhDetail='${v.id}';render()">
+          <div style="display:flex; align-items:center; gap:15px;">
+            <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;">🚗</div>
+            <div>
+              <div style="font-size:16px; font-weight:bold; margin-bottom:4px;">
+                ${e(v.marque)} ${e(v.modele)} 
+                <span class="ref" style="margin-left:8px;">${e(v.immat)}</span>
+              </div>
+              <div class="m" style="display:flex; gap:15px;">
+                <span>👤 ${e(cl ? cl.nom : 'Inconnu')}</span>
+                <span>📏 ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : 'Kilométrage inconnu'}</span>
+                <span>⛽ ${e(v.carburant || '—')}</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:20px; color:var(--r);">→</div>
+        </div>
+      `; 
+    }).join("") || '<div class="card m">Aucun véhicule enregistré.</div>'}
+  `;
 }
 
 /* --- DEVIS --- */
@@ -888,12 +839,12 @@ function renderDevis(A) {
           ${data.clients.map(c=>`<option value="${c.id}" ${c.id===dMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
         </select>
         ${selectedClient ? `<div style="font-size:13px; margin-bottom:8px">📞 Téléphone : <b>${e(selectedClient.tel)}</b></div>` : ""}
-        <div style="background:#fff; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #ccc">
+        <div style="background:var(--bg); padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid var(--b)">
           <div style="display:flex; gap:8px">
-            <div style="flex:1; padding:8px; border-bottom:1px solid #eee">🚗 <b>Véhicule :</b> ${e(dMemo.veh || "Non renseigné")}</div>
-            <div style="flex:1; padding:8px; border-bottom:1px solid #eee">🔢 <b>Immatriculation :</b> ${e(dMemo.immat || "Non renseignée")}</div>
+            <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)">🚗 <b>Véhicule :</b> ${e(dMemo.veh || "Non renseigné")}</div>
+            <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)">🔢 <b>Immatriculation :</b> ${e(dMemo.immat || "Non renseignée")}</div>
           </div>
-          <div style="padding:8px; border-bottom:1px solid #eee">📏 <b>Kilométrage :</b> ${e(dMemo.km || "0")} km</div>
+          <div style="padding:8px; border-bottom:1px solid var(--b); color:var(--t)">📏 <b>Kilométrage :</b> ${e(dMemo.km || "0")} km</div>
         </div>
       </div>
 
@@ -914,47 +865,41 @@ function renderDevis(A) {
         <input id="dv_acompte" type="number" placeholder="Acompte (GNF)" style="flex:1" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value">
       </div>
       
-      <div style="display:flex; gap:15px; margin-top:10px">
-        <div style="flex:1">
-          <b style="font-size:14px; color:var(--r)">📦 Pièces détachées</b>
-          <table style="width:100%; border-collapse:collapse; margin-top:5px;">
-            <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
-              <th style="padding:5px; font-size:12px;">Désignation</th><th style="padding:5px; width:50px; font-size:12px;">Qté</th><th style="padding:5px; width:80px; font-size:12px;">P.U</th><th style="padding:5px; width:30px;"></th>
-            </tr></thead>
-            <tbody>
-              ${dLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
-                <td style="padding:5px;">
-                  <input list="stock_list_dv_${i}" value="${e(l.d)}" oninput="rechercherPieceDevis(${i}, this.value)" placeholder="Taper ou choisir..." style="margin:0; font-size:13px; width:100%">
-                  <datalist id="stock_list_dv_${i}">
-                    ${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}
-                  </datalist>
-                </td>
-                <td style="padding:5px;"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
-                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
-                <td style="padding:5px; text-align:center;"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
-              </tr>`).join("")}
-            </tbody>
-          </table>
-          <button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Pièce</button>
-        </div>
+            <div style="margin-bottom:15px">
+        <b style="font-size:14px; color:var(--r)">📦 Pièces détachées</b>
+        <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+          <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:8px; font-size:12px;">Désignation</th><th style="padding:8px; width:80px; font-size:12px;">Qté</th><th style="padding:8px; width:120px; font-size:12px;">P.U</th><th style="padding:8px; width:40px;"></th>
+          </tr></thead>
+          <tbody>
+            ${dLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:8px;">
+                <input list="stock_list_dv_${i}" value="${e(l.d)}" oninput="rechercherPieceDevis(${i}, this.value)" placeholder="Taper ou choisir..." style="margin:0; font-size:13px; width:100%">
+                <datalist id="stock_list_dv_${i}">
+                  ${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}
+                </datalist>
+              </td>
+              <td style="padding:8px;"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px; text-align:center;"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+        <button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Pièce</button>
+      </div>
 
-        <div style="flex:1">
-          <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
-          <table style="width:100%; border-collapse:collapse; margin-top:5px;">
-            <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
-             <th style="padding:5px; font-size:12px;">Main d'œuvre</th><th style="padding:5px; width:100px; font-size:12px;">Temps</th><th style="padding:5px; width:150px; font-size:12px;">Coût (GNF)</th>
-            </tr></thead>
-            <tbody>
-              ${dLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
-                <td style="padding:5px;"><input value="${e(l.d)}" oninput="dLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" style="font-size:13px;"></td>
-                <td style="padding:5px;"><input value="${e(l.temps||'')}" oninput="dLignesMO[${i}].temps=this.value" placeholder="ex: 2h" style="width:100%; font-size:13px;"></td>
-                <td style="padding:5px;"><input type="number" value="${l.p||""}" oninput="dLignesMO[${i}].p=+this.value; updateDevisTotals()" placeholder="0" style="width:100%; font-size:13px;"></td>
-                <td style="padding:5px; text-align:center;"><button class="s" onclick="dLignesMO.splice(${i},1);if(!dLignesMO.length)dLignesMO=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
-              </tr>`).join("")}
-            </tbody>
-          </table>
-          
-        </div>
+      <div style="margin-bottom:15px">
+                <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+          <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:8px; font-size:12px;">Main d'œuvre</th><th style="padding:8px; width:150px; font-size:12px;">Coût (GNF)</th>
+          </tr></thead>
+          <tbody>
+            ${dLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:8px;"><input value="${e(l.d)}" oninput="dLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" style="font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignesMO[${i}].p=+this.value; updateDevisTotals()" placeholder="0" style="width:100%; font-size:13px;"></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
       </div>
       
       <p style="margin-top:12px"><b>Total HT :</b> <span id="dv_tot_ht">${f(devisTotHT())}</span><br>
@@ -1087,15 +1032,13 @@ function renderFactures(A) {
 
       <!-- BLOC MAIN D'OEUVRE -->
       <div style="margin-bottom:15px">
-        <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
-        <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+                <table style="width:100%; border-collapse:collapse; margin-top:5px;">
           <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
-            <th style="padding:8px; font-size:12px;">Main d'œuvre</th><th style="padding:8px; width:100px; font-size:12px;">Temps</th><th style="padding:8px; width:150px; font-size:12px;">Coût (GNF)</th>
+            <th style="padding:8px; font-size:12px;">Main d'œuvre</th><th style="padding:8px; width:150px; font-size:12px;">Coût (GNF)</th>
           </tr></thead>
           <tbody>
             ${fLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
               <td style="padding:8px;"><input value="${e(l.d)}" oninput="fLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" style="font-size:13px;"></td>
-              <td style="padding:8px;"><input value="${e(l.temps||'')}" oninput="fLignesMO[${i}].temps=this.value" placeholder="ex: 2h" style="width:100%; font-size:13px;"></td>
               <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; renderFactures(document.getElementById('app'))" placeholder="0" style="width:100%; font-size:13px;"></td>
             </tr>`).join("")}
           </tbody>
@@ -1127,6 +1070,7 @@ function renderFactures(A) {
       <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
       <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}`;
 }
+
 async function saveFactureDirecte() {
   const cid = $("fc_client").value, veh = fMemo.veh, immat = fMemo.immat;
   const acompte = +$("fc_acompte").value || 0;
@@ -1173,88 +1117,249 @@ function printDevis(id) { const d = data.devis.find(x=>x.id===id); if (d) printD
 function printFacture(id) { const fa = data.factures.find(x=>x.id===id); if (fa) printDoc("FACTURE", fa.numero, fa); }
 
 function printDoc(type, numero, doc) {
-  const p = data.params, tv = +(p.tva_taux||18), lignes = doc.lignes && doc.lignes.length ? doc.lignes : [{d:doc.activite||"Prestation", q:1, p:doc.total_ht||0}], client = data.clients.find(c=>c.id===doc.client_id) || {};
+  const p = data.params;
+  const tv = +(p.tva_taux || 18);
+  const lignes = doc.lignes && doc.lignes.length ? doc.lignes : [{d: doc.activite || "Prestation", q: 1, p: doc.total_ht || 0}];
+  const client = data.clients.find(c => c.id === doc.client_id) || {};
+  const v = data.vehicules.find(veh => veh.immat === doc.immat) || {};
+
   const w = window.open("", "_blank");
   
-  let totalPieces = 0, totalMainOeuvre = 0;
-  let lignesPieces = [], lignesMainOeuvre = [];
-
-  lignes.forEach(l => {
+  const lignesHtml = lignes.map(l => {
     const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
-    const estPiece = (l.t === "Pièce") || (!l.t && l.d && (l.d.toLowerCase().includes("filtre") || l.d.toLowerCase().includes("huile") || l.d.toLowerCase().includes("pièce") || l.d.toLowerCase().includes("pneu") || l.d.toLowerCase().includes("plaquette")));
-    
-    if (estPiece) {
-      totalPieces += montant;
-      lignesPieces.push({...l, montant});
-    } else {
-      totalMainOeuvre += montant;
-      lignesMainOeuvre.push({...l, montant});
-    }
-  });
+    return `
+      <tr>
+        <td style="border: 1px solid #000; padding: 6px;">${e(l.d)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:center;">${e(l.q || 1)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(l.p)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(l.p)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(montant)}</td>
+      </tr>
+    `;
+  }).join("");
 
-  const tablePieces = `<table><thead><tr><th>Désignation (Pièces)</th><th>Qté</th><th>PU HT</th><th>Montant</th></tr></thead><tbody>
-    ${lignesPieces.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.q)}</td><td>${f(l.p)}</td><td>${f(l.montant)}</td></tr>`).join("")}
-  </tbody></table>`;
+  const lignesVides = Array(Math.max(0, 8 - lignes.length)).fill(`
+    <tr>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+    </tr>
+  `).join("");
 
-  const tableMainOeuvre = `<table><thead><tr><th>Désignation (Main d'œuvre)</th><th>Temps</th><th>Montant</th></tr></thead><tbody>
-    ${lignesMainOeuvre.map(l => `<tr><td>${e(l.d)}</td><td style="text-align:center">${e(l.temps||'—')}</td><td>${f(l.montant)}</td></tr>`).join("")}
-  </tbody></table>`;
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title>
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; background: #fff; }
+      .container { max-width: 800px; margin: 0 auto; }
+      .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+      .header-left h1 { font-size: 22px; color: #666; margin: 0; }
+      .header-right { background: #eee; padding: 10px; width: 280px; font-size: 11px; }
+      .header-right p { margin: 2px 0; }
+      .title-bar { border: 2px solid #000; padding: 5px 10px; font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+      .vehicule-bar { border: 1px solid #000; display: flex; margin-bottom: 20px; }
+      .vehicule-bar div { border-right: 1px solid #000; padding: 5px 10px; flex: 1; font-size: 11px; }
+      .vehicule-bar div:last-child { border-right: none; }
+      .vehicule-bar span { font-weight: bold; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+      th { border: 1px solid #000; background: #eee; padding: 6px; font-size: 11px; text-transform: uppercase; }
+      .totaux { width: 300px; margin-left: auto; border-collapse: collapse; }
+      .totaux td { border: 1px solid #000; padding: 6px; font-weight: bold; }
+      .footer { margin-top: 40px; display: flex; justify-content: flex-end; }
+      .cachet { border: 1px solid #000; width: 250px; height: 100px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-size: 10px; }
+      .bottom-line { border-top: 1px solid #000; margin-top: 40px; text-align: center; padding-top: 5px; font-size: 10px; color: #555; }
+      @media print { button { display: none; } body { padding: 0; } }
+    </style></head><body>
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background-image: url('https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.05; z-index: -1;"></div>
+    <div class="container">
+      <div class="header">
+                <div class="header-left">
+          <img src="https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg" alt="Logo" style="max-height: 70px; border-radius: 8px; margin-bottom: 8px; display: block;">
+          <p><b style="font-size: 16px;">${e(p.nom || "SPEED GARAGE PRO")}</b></p>
+          <p>${e(p.adresse || "Adresse non renseignée")}</p>
+          <p>Tél : ${e(p.telephone || "—")}</p>
+          <p>NIF : ${e(p.nif || "—")} · RCCM : ${e(p.rccm || "—")}</p>
+        </div>
+        <div class="header-right">
+          <p><b>Client :</b> ${e(doc.client_nom)}</p>
+          <p><b>Adresse :</b> ${e(client.adr || "—")}</p>
+          <p><b>Tel :</b> ${e(client.tel || "—")}</p>
+        </div>
+      </div>
 
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title><style>
-    body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; max-width: 800px; margin: auto; background: #fff; }
-    .header { display: flex; justify-content: space-between; border-bottom: 3px solid #c59b27; padding-bottom: 10px; margin-bottom: 20px; }
-    .header-left h1 { font-size: 22px; margin: 0; color: #1a2a3a; } .header-left p { margin: 2px 0; color: #555; }
-    .header-right { text-align: right; } .header-right h2 { font-size: 26px; margin: 0; color: #1a2a3a; } .header-right p { margin: 3px 0; font-size: 11px; }
-    .section-title { background: #1a2a3a; color: #fff; padding: 6px 10px; font-size: 12px; font-weight: bold; margin-top: 15px; margin-bottom: 10px; }
-    .grid-2 { display: flex; border: 1px solid #ccc; } .grid-2 > div { flex: 1; padding: 10px; } .grid-2 > div:first-child { border-right: 1px solid #ccc; } .grid-2 p { margin: 4px 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; } th { background: #1a2a3a; color: #fff; padding: 6px; font-size: 11px; text-align: left; border: 1px solid #1a2a3a; } td { padding: 6px; border: 1px solid #ccc; }
-    .totaux { width: 60%; margin-left: auto; border: 1px solid #ccc; } .totaux td { padding: 6px 10px; border-bottom: 1px solid #eee; } .totaux tr:last-child td { font-weight: bold; font-size: 14px; background: #f0f0f0; border-top: 2px solid #1a2a3a; }
-    .legal { font-size: 10px; color: #555; border: 1px solid #ccc; padding: 10px; margin-top: 15px; background: #fafafa; }
-    .signatures { display: flex; margin-top: 20px; border: 1px solid #ccc; } .signatures > div { flex: 1; padding: 10px; min-height: 80px; } .signatures > div:first-child { border-right: 1px solid #ccc; }
-    @media print { .no-print { display: none; } body { padding: 0; } }
-  </style></head><body>
-    <div class="header"><div class="header-left"><h1>${e(p.nom||"VOTRE GARAGE")}</h1><p>Mécanique • Diagnostic • Pièces</p><p>Adresse : ${e(p.adresse || '___')}</p><p>Tél : ${e(p.telephone || '___')} • Email : ${e(p.email || '___')}</p><p>RCCM : ${e(p.rccm || '___')} • NIF : ${e(p.nif || '___')}</p></div>
-      <div class="header-right"><h2>${type}</h2><p>N° : ${e(numero)}</p><p>Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}</p><p>Valable jusqu'au : ${(() => { let d = new Date(); d.setMonth(d.getMonth()+1); return d.toLocaleDateString('fr-FR'); })()}</p><p>Devise : GNF</p></div></div>
-    <div class="section-title">1. INFOS CLIENT ET VÉHICULE</div><div class="grid-2"><div><p><b>CLIENT</b></p><p>Nom : <b>${e(doc.client_nom)}</b></p><p>Tél : ${e(client.tel || '___')}</p><p>Adresse : ${e(client.adr || '___')}</p></div>
-      <div><p><b>VÉHICULE</b></p><p>Modèle : <b>${e(doc.vehicule || '___')}</b></p><p>Immat : <b>${e(doc.immat || '___')}</b></p><p>Km : <b>${doc.kilometrage ? doc.kilometrage + ' km' : '___'}</b></p></div></div>
-    <div class="section-title">2. OBJET</div><div style="border: 1px solid #ccc; padding: 10px;"><p>${e(doc.motif || "___")}</p></div>
-    
-    ${lignesPieces.length > 0 ? `<div class="section-title">3. PIÈCES DÉTACHÉES</div>${tablePieces}` : ""}
-    ${lignesMainOeuvre.length > 0 ? `<div class="section-title">4. MAIN D'ŒUVRE</div>${tableMainOeuvre}` : ""}
+      <div class="title-bar">${type} N° : ${e(numero)}</div>
+      <div style="border: 1px solid #000; border-top: none; padding: 5px 10px; font-size: 11px; margin-bottom: 20px;">
+        Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}
+      </div>
 
-    <table class="totaux">
-      ${lignesPieces.length > 0 ? `<tr><td>Total Pièces (HT)</td><td style="text-align:right">${f(totalPieces)}</td></tr>` : ""}
-      ${lignesMainOeuvre.length > 0 ? `<tr><td>Total Main d'œuvre (HT)</td><td style="text-align:right">${f(totalMainOeuvre)}</td></tr>` : ""}
-      <tr><td>Total HT</td><td style="text-align:right">${f(totalPieces + totalMainOeuvre)}</td></tr>
-      <tr><td>TVA ${tv}%</td><td style="text-align:right">${f(doc.tva)}</td></tr>
-      <tr><td>TOTAL GÉNÉRAL À PAYER (GNF)</td><td style="text-align:right">${f(doc.total_ttc)}</td></tr>
-      <tr><td>Acompte versé</td><td style="text-align:right">${f(doc.acompte || 0)}</td></tr>
-      <tr><td>Solde restant</td><td style="text-align:right">${f(doc.total_ttc - (doc.acompte || 0))}</td></tr>
-    </table>
+      <div class="vehicule-bar">
+        <div><span>Marque :</span> ${e(v.marque || doc.vehicule || "—")}</div>
+        <div><span>Modèle :</span> ${e(v.modele || "—")}</div>
+        <div><span>Type :</span> ${e(v.carburant || "—")}</div>
+        <div><span>N° Série :</span> ${e(v.vin || doc.immat || "—")}</div>
+      </div>
 
-    <div class="section-title">5. CONDITIONS</div><div style="border: 1px solid #ccc; padding: 10px;"><p>Délai : <b>${e(doc.delai || "___")}</b></p><p>Paiement : <b>${e(doc.paiement || "___")}</b></p><p>Garantie : <b>${e(doc.garantie || "___")}</b></p></div>
-    <div class="legal">Les travaux seront réalisés après acceptation. Toute prestation supplémentaire fera l'objet d'un accord.</div>
-    <div class="signatures"><div><p><b>POUR LE GARAGE</b></p><p>Date : ____ / ____ / ________</p><p>Signature / cachet :</p></div><div><p><b>ACCEPTATION CLIENT</b></p><p>Mention : « Bon pour accord »</p><p>Date : ____ / ____ / ________</p><p>Signature :</p></div></div>
-    <p style="text-align:center; margin-top:20px;" class="no-print"><button onclick="window.print()" style="padding:10px 20px;cursor:pointer;background:#1a2a3a;color:#fff;border:none;border-radius:5px;font-weight:bold;">🖨️ Imprimer</button></p>
-  </body></html>`); w.document.close();
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40%;">Main d'œuvre / Pièces</th>
+            <th style="width: 10%;">Qté</th>
+            <th style="width: 15%;">P.U Vente</th>
+            <th style="width: 15%;">P.U Net</th>
+            <th style="width: 20%;">Montant</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lignesHtml}
+          ${lignesVides}
+        </tbody>
+      </table>
+
+      <table class="totaux">
+        <tr><td>Total HT</td><td style="text-align:right;">${f(doc.total_ht)}</td></tr>
+        <tr><td>Total TVA</td><td style="text-align:right;">${f(doc.tva)}</td></tr>
+        <tr><td>Total TTC</td><td style="text-align:right;">${f(doc.total_ttc)}</td></tr>
+      </table>
+
+      <div class="footer">
+        <div class="cachet">
+          Cachet et Signature
+        </div>
+      </div>
+
+      <div class="bottom-line">
+        ${e(p.adresse || "Adresse")} · ${e(p.telephone || "Tel")}
+      </div>
+    </div>
+
+    <p style="text-align:center; margin-top:20px;" class="no-print">
+      <button onclick="window.print()" style="padding:10px 20px; cursor:pointer; background:#000; color:#fff; border:none;">🖨️ Imprimer</button>
+    </p>
+  </body></html>`);
+  w.document.close();
 }
 
 /* --- STOCK --- */
-function renderStock(A) {
-  const categories = {};
-  data.stock.forEach(s => { const cat = s.categorie || "Divers"; if (!categories[cat]) categories[cat] = []; categories[cat].push(s); });
-  A.innerHTML = `<div class="card"><b>➕ Nouvel article</b>
-      <select id="st_cat"><option value="Filtres">Filtres</option><option value="Lubrifiants">Lubrifiants</option><option value="Freinage">Freinage</option><option value="Suspension">Suspension</option><option value="Pneumatiques">Pneumatiques</option><option value="Moteur">Moteur</option><option value="Carrosserie">Carrosserie</option><option value="Divers">Divers</option></select>
-      <input id="st_nom" placeholder="Désignation"><input id="st_qte" type="number" placeholder="Quantité"><input id="st_min" type="number" placeholder="Seuil d'alerte"><input id="st_prix" type="number" placeholder="Prix (GNF)">
-      <button class="p" onclick="addStock()">Ajouter</button></div>
-    ${Object.keys(categories).sort().map(cat => `<div class="card" style="background:var(--bg); margin-bottom:8px; padding:10px"><b>📦 ${cat}</b></div>
-      ${categories[cat].map(s=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(s.nom)}</b> ${+s.qte<=+s.seuil_alerte?'<span class="tag" style="background:var(--r);color:#fff">⚠️ Bas</span>':""}<br><span class="m">Qté : ${s.qte} · Seuil : ${s.seuil_alerte} · ${f(s.prix)}</span></div>
-      <div><button class="s" onclick="changeStock('${s.id}',-1)">−</button><button class="s" onclick="changeStock('${s.id}',1)">+</button><button class="s" onclick="deleteStock('${s.id}')">🗑️</button></div></div></div>`).join("")}`).join("") || '<div class="card m">Stock vide.</div>'}`;
-}
-async function addStock() { const nom = $("st_nom").value.trim(); if (!nom) return; await supa.from("stock").insert({nom, categorie: $("st_cat").value, qte:+$("st_qte").value||0, seuil_alerte:+$("st_min").value||0, prix:+$("st_prix").value||0}); await loadAllData(); }
-async function changeStock(id, delta) { const s = data.stock.find(x=>x.id===id); if (s) { await supa.from("stock").update({qte: (+s.qte||0)+delta}).eq("id", id); await loadAllData(); } }
-async function deleteStock(id) { if (!confirm("Supprimer ?")) return; await supa.from("stock").delete().eq("id", id); await loadAllData(); }
+let stockCategories = {
+  "Lubrifiants": ["Huiles", "Liquides"],
+  "Filtres": ["Filtre à huile", "Filtre à air", "Filtre à carburant", "Filtre habitacle", "Autres"],
+  "Allumage": ["Bougies", "Préchauffage", "Nettoyants"],
+  "Freinage": ["Plaquettes", "Disques", "Mâchoires", "Liquide", "Accessoires"],
+  "Courroies": ["Distribution", "Accessoires", "Galets"],
+  "Électricité": ["Fusibles", "Ampoules", "Cosses", "Connecteurs"],
+  "Entretien": ["Nettoyage", "Protection", "Graisses"],
+  "Pneumatiques": ["Valves", "Masses", "Réparation"],
+  "Climatisation": ["Gaz", "Huiles", "Outils"],
+  "Visserie": ["Vis", "Écrous", "Rondelles", "Rivets", "Clips"],
+  "Joints": ["Moteur", "Étanchéité", "Filetage"],
+  "Carrosserie": ["Abrasifs", "Mastics", "Peintures", "Masquage"],
+  "Atelier": ["Protection", "Nettoyage", "Divers"],
+  "Diagnostic": ["Outils", "Piles", "Sprays"],
+  "Diesel": ["Additifs", "Nettoyants"]
+};
 
+let currentStockCat = "";
+let currentStockSubCat = "";
+
+function filterStockCat() {
+  currentStockCat = $("st_cat").value;
+  currentStockSubCat = "";
+  renderStock(document.getElementById('app'));
+}
+
+function filterStockSubCat() {
+  currentStockSubCat = $("st_subcat").value;
+  renderStock(document.getElementById('app'));
+}
+
+function renderStock(A) {
+  const filtered = data.stock.filter(s => {
+    if (currentStockCat && s.categorie !== currentStockCat) return false;
+    if (currentStockSubCat && s.sous_categorie !== currentStockSubCat) return false;
+    return true;
+  });
+
+  const subCats = currentStockCat ? stockCategories[currentStockCat] || [] : [];
+
+  A.innerHTML = `
+    <div class="card"><b>➕ Nouvel article</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <select id="st_cat" onchange="filterStockCat()" style="flex:1">
+          <option value="">Toutes les catégories</option>
+          ${Object.keys(stockCategories).sort().map(c => `<option value="${c}" ${c === currentStockCat ? 'selected' : ''}>${c}</option>`).join("")}
+        </select>
+        <select id="st_subcat" onchange="filterStockSubCat()" style="flex:1" ${!currentStockCat ? 'disabled' : ''}>
+          <option value="">Toutes les sous-catégories</option>
+          ${subCats.map(sc => `<option value="${sc}" ${sc === currentStockSubCat ? 'selected' : ''}>${sc}</option>`).join("")}
+        </select>
+      </div>
+      <input id="st_nom" placeholder="Désignation précise">
+      <div style="display:flex; gap:8px">
+        <input id="st_qte" type="number" placeholder="Quantité" style="flex:1">
+        <input id="st_min" type="number" placeholder="Seuil d'alerte" style="flex:1">
+        <input id="st_prix" type="number" placeholder="Prix unitaire (GNF)" style="flex:2">
+      </div>
+      <button class="p" onclick="addStock()">Ajouter l'article</button>
+    </div>
+
+    <div class="card"><input placeholder="🔍 Rechercher un article..." value="${e(q)}" oninput="q=this.value;render()"></div>
+
+    ${Object.keys(stockCategories).filter(c => !currentStockCat || c === currentStockCat).sort().map(cat => {
+      const articlesCat = filtered.filter(s => s.categorie === cat);
+      if (articlesCat.length === 0) return "";
+      
+      return `
+        <div class="card" style="background:var(--bg); margin-bottom:8px; padding:10px"><b>📦 ${cat}</b></div>
+        ${articlesCat.map(s => `
+          <div class="card"><div class="row" style="border-top:0">
+            <div style="flex:1">
+              <b>${e(s.nom)}</b> 
+              ${s.sous_categorie ? `<span class="tag" style="margin-left:5px">${e(s.sous_categorie)}</span>` : ""}
+              ${+s.qte<=+s.seuil_alerte?'<span class="tag" style="background:var(--r);color:#fff">⚠️ Bas</span>':""}
+              <br><span class="m">Qté : ${s.qte} · Seuil : ${s.seuil_alerte} · ${f(s.prix)}</span>
+            </div>
+            <div>
+              <button class="s" onclick="changeStock('${s.id}',-1)">−</button>
+              <button class="s" onclick="changeStock('${s.id}',1)">+</button>
+              <button class="s" onclick="deleteStock('${s.id}')">🗑️</button>
+            </div>
+          </div></div>
+        `).join("")}
+      `;
+    }).join("") || '<div class="card m">Aucun article trouvé.</div>'}
+  `;
+}
+
+async function addStock() {
+  const nom = $("st_nom").value.trim();
+  const cat = $("st_cat").value;
+  const subcat = $("st_subcat") ? $("st_subcat").value : "";
+  const qte = +$("st_qte").value || 0;
+  const min = +$("st_min").value || 0;
+  const prix = +$("st_prix").value || 0;
+
+  if (!nom || !cat) { alert("La désignation et la catégorie sont obligatoires."); return; }
+
+  await supa.from("stock").insert({
+    nom, categorie: cat, sous_categorie: subcat, qte, seuil_alerte: min, prix
+  });
+  await jlog("Ajout stock", `[${cat}] ${nom}`, "");
+  await loadAllData();
+}
+
+async function changeStock(id, delta) { 
+  const s = data.stock.find(x=>x.id===id); 
+  if (s) { 
+    await supa.from("stock").update({qte: (+s.qte||0)+delta}).eq("id", id); 
+    await loadAllData(); 
+  } 
+}
+
+async function deleteStock(id) { 
+  if (!confirm("Supprimer ?")) return; 
+  await supa.from("stock").delete().eq("id", id); 
+  await loadAllData(); 
+}
 /* --- TECHNICIENS --- */
 function renderTechs(A) {
   A.innerHTML = `<div class="card"><b>➕ Nouveau technicien</b>
@@ -1326,8 +1431,8 @@ async function deleteTech(id) {
   if (!confirm("Supprimer ce technicien ?")) return;
   await supa.from("techniciens").delete().eq("id", id);
   await loadAllData();
-
 }
+
 /* --- PERSONNEL --- */
 async function addPersonnel() {
   const nom = $("p_nom").value.trim();
@@ -1399,7 +1504,7 @@ function renderPersonnel(A) {
               <td style="padding:10px;">${e(emp.type_contrat || '—')}</td>
               <td style="padding:10px; text-align:right; font-family:monospace;">${f(emp.salaire_base)}</td>
               <td style="padding:10px; text-align:center;">
-                <button class="s" onclick="deleteEmploye('${emp.id}')">🗑️</button>
+                ${profil.role === 'PDG' ? `<button class="s" onclick="deleteEmploye('${emp.id}')">🗑️</button>` : ""}
               </td>
             </tr>
           `).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px;">Aucun employé enregistré.</td></tr>'}
@@ -1415,6 +1520,7 @@ async function deleteEmploye(id) {
   await supa.from("employes").delete().eq("id", id);
   await loadAllData();
 }
+
 /* --- GESTION DE PAIE --- */
 async function addEmploye() {
   const nom = $("emp_nom").value.trim(); 
@@ -1525,7 +1631,7 @@ async function addDepense() {
 async function deleteDepense(id) { if (!confirm("Supprimer ?")) return; await supa.from("depenses").delete().eq("id", id); await loadAllData(); }
 
 function renderDepenses(A) {
-  // if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; } //
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
   const total = data.depenses.reduce((a,d) => a + (+d.montant||0), 0);
   A.innerHTML = `<div class="card"><b>➕ Enregistrer une dépense</b>
       <select id="dep_cat"><option value="Achat pièces">Achat de pièces</option><option value="Salaires">Salaires</option><option value="Loyer">Loyer</option><option value="Électricité">Électricité</option><option value="Eau">Eau</option><option value="Carburant">Carburant</option><option value="Entretien">Entretien</option><option value="Fournitures">Fournitures</option><option value="Frais de déplacement">Frais de déplacement</option><option value="Appel téléphonique">Appel téléphonique</option><option value="Connexion internet">Connexion Internet</option><option value="Divers">Divers</option></select>
@@ -1536,7 +1642,7 @@ function renderDepenses(A) {
       <button class="p" onclick="addDepense()">Ajouter la dépense</button></div>
     <div class="card" style="background:var(--bg); border-left:4px solid var(--r)"><b style="font-size:18px">Total des dépenses : ${f(total)}</b></div>
     <div class="card"><b>📜 Historique</b><table><thead><tr><th>Date</th><th>Catégorie</th><th>Description</th><th>Montant</th><th></th></tr></thead><tbody>
-      ${data.depenses.map(d => `<tr><td>${new Date(d.date_depense).toLocaleDateString('fr-FR')}</td><td><span class="tag">${e(d.categorie)}</span></td><td>${e(d.description)}${d.salarie_nom ? `<br><span class="m">👤 ${e(d.salarie_prenom)} ${e(d.salarie_nom)} (${e(d.salarie_fonction)})</span>` : ""}</td><td><b>${f(d.montant)}</b></td><td>${profil.role === 'PDG' ? `<button class="s" onclick="deleteDepense('${d.id}')">🗑️</button>` : ""}</td></tr>`).join("") || '<tr><td colspan="5" style="text-align:center">Aucune dépense.</td></tr>'}
+      ${data.depenses.map(d => `<tr><td>${new Date(d.date_depense).toLocaleDateString('fr-FR')}</td><td><span class="tag">${e(d.categorie)}</span></td><td>${e(d.description)}${d.salarie_nom ? `<br><span class="m">👤 ${e(d.salarie_prenom)} ${e(d.salarie_nom)} (${e(d.salarie_fonction)})</span>` : ""}</td><td><b>${f(d.montant)}</b></td><td><button class="s" onclick="deleteDepense('${d.id}')">🗑️</button></td></tr>`).join("") || '<tr><td colspan="5" style="text-align:center">Aucune dépense.</td></tr>'}
     </tbody></table></div>`;
 }
 
@@ -1547,19 +1653,18 @@ async function addFournisseur() {
   if (error) { alert("Erreur : " + error.message); return; }
   await jlog("Ajout fournisseur", nom, ""); await loadAllData();
 }
-function selectionnerFournisseur(id) {
-  const select = document.getElementById("c_fournisseur");
-  if (select) {
-    select.value = id;
-    select.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    select.focus();
-  }
-}
-async function deleteFournisseur(id) {
-  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un fournisseur."); return; }
-  if (!confirm("Supprimer ce fournisseur et toutes ses commandes ?")) return;
-  await supa.from("fournisseurs").delete().eq("id", id);
-  await loadAllData();
+async function deleteFournisseur(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ce fournisseur ?")) return; await supa.from("fournisseurs").delete().eq("id", id); await loadAllData(); }
+async function addCommande() {
+  const fid = $("c_fournisseur").value, desc = $("c_desc").value.trim(), montant = parseFloat($("c_montant").value) || 0, montantPaye = parseFloat($("c_montant_paye").value) || 0;
+  const dateVal = $("c_date").value || new Date().toISOString().slice(0,10);
+  if (!fid || !desc || montant <= 0) { alert("Veuillez remplir correctement."); return; }
+  const fournisseur = data.fournisseurs.find(x => x.id === fid);
+  const statut = montantPaye >= montant ? "Payé" : (montantPaye > 0 ? "Partiel" : "Commandé");
+  const { error } = await supa.from("commandes").insert({ fournisseur_id: fid, fournisseur_nom: fournisseur.nom, description: desc, montant, montant_paye: montantPaye, statut, date_commande: dateVal });
+  if (error) { alert("Erreur Supabase : " + error.message); return; }
+  await jlog("Nouvelle commande", desc, `${fournisseur.nom} - ${f(montant)}`);
+  $("c_fournisseur").value = ""; $("c_desc").value = ""; $("c_montant").value = ""; $("c_montant_paye").value = ""; 
+  await loadAllData(); alert("Commande enregistrée !");
 }
 async function payerSolde(id) {
   const c = data.commandes.find(x => x.id === id); if (!c) return;
@@ -1568,73 +1673,24 @@ async function payerSolde(id) {
   await supa.from("commandes").update({ montant_paye: c.montant, statut: "Payé" }).eq("id", id);
   await jlog("Paiement fournisseur", c.fournisseur_nom, `Solde : ${f(reste)}`); await loadAllData();
 }
-async function deleteCommande(id) { if (!confirm("Supprimer ?")) return; await supa.from("commandes").delete().eq("id", id); await loadAllData(); }
+async function deleteCommande(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ?")) return; await supa.from("commandes").delete().eq("id", id); await loadAllData(); }
 
 function renderFournisseurs(A) {
- // if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }//
-  
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
   const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
-
-  A.innerHTML = `
-    <div class="grid">
-      <div class="card" style="border-top:4px solid var(--r)">
-        <div class="m">Dettes fournisseurs</div>
-        <div class="k" style="color:var(--r)">${f(dette)}</div>
-      </div>
-    </div>
-
+  A.innerHTML = `<div class="grid"><div class="card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
     <div class="card"><b>🏭 Nouveau fournisseur</b>
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="f_nom" placeholder="Nom *" style="flex:2">
-        <input id="f_contact" placeholder="Contact" style="flex:1">
-        <input id="f_tel" placeholder="Téléphone" style="flex:1">
-      </div>
-      <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px">
-      <button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button>
-    </div>
-
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="f_nom" placeholder="Nom *" style="flex:2"><input id="f_contact" placeholder="Contact" style="flex:1"><input id="f_tel" placeholder="Téléphone" style="flex:1"></div>
+      <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px"><button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button></div>
     <div class="card"><b>📦 Nouvelle commande</b>
       <select id="c_fournisseur"><option value="">Choisir un fournisseur *</option>${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}</select>
       <input id="c_desc" placeholder="Description (ex: 10 filtres...)">
-      <div style="display:flex; gap:8px; margin-bottom:8px">
-        <input id="c_montant" type="number" placeholder="Montant total" style="flex:1">
-        <input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1">
-        <input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1">
-      </div>
-      <button class="p" onclick="addCommande()">Enregistrer la commande</button>
-    </div>
-
-    <div class="card"><b>📜 Historique des commandes</b>
-      <div style="overflow-x:auto">
-        <table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
-          ${(data.commandes || []).map(c => { 
-            const reste = (+c.montant||0) - (+c.montant_paye||0); 
-            let statutTxt = reste <= 0 ? "Soldé" : (c.montant_paye > 0 ? "Reste à payer" : "Impayé"); 
-            let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)"); 
-            return `<tr><td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td><td><b>${e(c.fournisseur_nom)}</b></td><td>${e(c.description)}</td><td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td><td><span class="tag" style="background:${statutBg};color:#fff">${statutTxt}</span><br><span class="m">Reste : ${f(reste)}</span></td><td>${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer</button>` : ""}<button class="s" onclick="deleteCommande('${c.id}')">🗑️</button></td></tr>`; 
-          }).join("") || '<tr><td colspan="6" style="text-align:center">Aucune commande.</td></tr>'}
-        </tbody></table>
-      </div>
-    </div>
-
-    <div class="card"><b>🏭 Liste des fournisseurs</b>
-      ${data.fournisseurs.map(f => `
-        <div class="row" style="cursor:pointer" onclick="selectionnerFournisseur('${f.id}')">
-          <span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span>
-          ${profil.role === 'PDG' ? `<button class="s" onclick="event.stopPropagation(); deleteFournisseur('${f.id}')">🗑️</button>` : ""}
-        </div>
-      `).join("") || '<div class="m">Aucun fournisseur.</div>'}
-    </div>
-  `;
-}
-
-function selectionnerFournisseur(id) {
-  const select = document.getElementById("c_fournisseur");
-  if (select) {
-    select.value = id;
-    select.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    select.focus();
-  }
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="c_montant" type="number" placeholder="Montant total" style="flex:1"><input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1"><input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1"></div>
+      <button class="p" onclick="addCommande()">Enregistrer la commande</button></div>
+    <div class="card"><b>📜 Historique</b><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
+      ${(data.commandes || []).map(c => { const reste = (+c.montant||0) - (+c.montant_paye||0); let statutTxt = reste <= 0 ? "Soldé" : (c.montant_paye > 0 ? "Reste à payer" : "Impayé"); let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)"); return `<tr><td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td><td><b>${e(c.fournisseur_nom)}</b></td><td>${e(c.description)}</td><td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td><td><span class="tag" style="background:${statutBg};color:#fff">${statutTxt}</span><br><span class="m">Reste : ${f(reste)}</span></td><td>${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer</button>` : ""}${profil.role === 'PDG' ? `<button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="6" style="text-align:center">Aucune commande.</td></tr>'}
+    </tbody></table></div></div>
+    <div class="card"><b>🏭 Liste des fournisseurs</b>${data.fournisseurs.map(f => `<div class="row"><span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>` : ""}</div>`).join("") || '<div class="m">Aucun fournisseur.</div>'}</div>`;
 }
 
 /* --- STATISTIQUES --- */
