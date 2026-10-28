@@ -24,8 +24,7 @@ body{
 }
 header{background:#000;color:#fff;padding:12px 16px;font-weight:700;border-bottom:3px solid var(--r);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
 header span{flex:1;font-size:16px}
-header small{font-weight:400;font-size:12px;opacity:.85}
-nav{display:flex;flex-direction:column;gap:4px;padding:12px;width:250px;flex:none;background:var(--c);border-right:1px solid var(--b);min-height:calc(100vh - 60px);overflow-y:auto}
+header small{font-weight:400;font-size:12px;opacity:.85}nav{display:flex;flex-direction:column;gap:4px;padding:12px;width:250px;flex:none;background:var(--c);border-right:1px solid var(--b);height:calc(100vh - 60px);position:sticky;top:60px;overflow-y:auto}
 nav button{text-align:left;border:0;background:none;color:var(--m);padding:12px;border-radius:8px;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
 nav button.on{background:var(--r);color:#fff}
 nav button:active:not(.on){background:var(--b)}
@@ -1631,7 +1630,7 @@ async function addDepense() {
 async function deleteDepense(id) { if (!confirm("Supprimer ?")) return; await supa.from("depenses").delete().eq("id", id); await loadAllData(); }
 
 function renderDepenses(A) {
-  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  //if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }//
   const total = data.depenses.reduce((a,d) => a + (+d.montant||0), 0);
   A.innerHTML = `<div class="card"><b>➕ Enregistrer une dépense</b>
       <select id="dep_cat"><option value="Achat pièces">Achat de pièces</option><option value="Salaires">Salaires</option><option value="Loyer">Loyer</option><option value="Électricité">Électricité</option><option value="Eau">Eau</option><option value="Carburant">Carburant</option><option value="Entretien">Entretien</option><option value="Fournitures">Fournitures</option><option value="Frais de déplacement">Frais de déplacement</option><option value="Appel téléphonique">Appel téléphonique</option><option value="Connexion internet">Connexion Internet</option><option value="Divers">Divers</option></select>
@@ -1676,7 +1675,7 @@ async function payerSolde(id) {
 async function deleteCommande(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ?")) return; await supa.from("commandes").delete().eq("id", id); await loadAllData(); }
 
 function renderFournisseurs(A) {
-  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  //if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }//
   const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
   A.innerHTML = `<div class="grid"><div class="card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
     <div class="card"><b>🏭 Nouveau fournisseur</b>
@@ -1692,7 +1691,75 @@ function renderFournisseurs(A) {
     </tbody></table></div></div>
     <div class="card"><b>🏭 Liste des fournisseurs</b>${data.fournisseurs.map(f => `<div class="row"><span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>` : ""}</div>`).join("") || '<div class="m">Aucun fournisseur.</div>'}</div>`;
 }
+function renderAudit(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
+  const J = [...(data.journal||[])].sort((a,b) => a.created_at < b.created_at ? 1 : -1).slice(0, 300);
+  
+  A.innerHTML = `
+    <div class="card">
+      <b>🔒 Journal d'audit</b>
+      <p class="m">Les 300 dernières actions (visible uniquement par le PDG).</p>
+      <button class="s" onclick="exportAudit()">📥 Exporter en CSV</button>
+      <button class="s" onclick="supprimerJournal()" style="color:var(--r); border-color:var(--r); margin-left:8px;">🗑️ Vider le journal</button>
+    </div>
+    ${J.map(x => `
+      <div class="card" style="padding:12px; border-left: 3px solid var(--r)">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:5px">
+          <b style="font-size:16px">${e(x.action)}</b>
+          <span class="tag" style="background:var(--b); color:var(--t)">${e(x.role||'—')}</span>
+        </div>
+        <div class="m" style="margin-top:5px">
+          <span>Réf : <b>${e(x.reference)}</b></span><br>
+          <span>Par : <b>${e(x.utilisateur_nom)}</b> le ${new Date(x.created_at).toLocaleString('fr-FR')}</span>
+          ${x.details ? `<br><span style="color:var(--r)">Détails : ${e(String(x.details).slice(0,300))}</span>` : ""}
+        </div>
+      </div>
+    `).join("") || '<div class="card m">Aucune entrée dans le journal.</div>'}
+  `;
+}
+async function supprimerJournal() {
+  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer le journal."); return; }
+  if (!confirm("⚠️ ATTENTION : Voulez-vous vraiment supprimer TOUT l'historique du journal d'audit ? Cette action est irréversible.")) return;
+  
+  // On supprime toutes les lignes de la table journal
+  const { error } = await supa.from("journal").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  
+  if (error) { alert("Erreur : " + error.message); return; }
+  
+  // On enregistre une nouvelle ligne pour dire que le journal a été vidé (optionnel mais bien pour l'audit)
+  await jlog("Journal vidé", "Par " + profil.username, "");
+  
+  await loadAllData();
+  alert("✅ Le journal d'audit a été vidé avec succès !");
+}
+function exportAudit() {
+  if (!data.journal || data.journal.length === 0) { alert("Aucune donnée à exporter."); return; }
+  
+  const J = [...data.journal].sort((a,b) => a.created_at < b.created_at ? 1 : -1);
+  
+  // Création du contenu CSV
+  let csv = "Date;Utilisateur;Role;Action;Reference;Details\n";
+  J.forEach(x => {
+    const ligne = [
+      new Date(x.created_at).toLocaleString('fr-FR'),
+      x.utilisateur_nom || "",
+      x.role || "",
+      x.action || "",
+      x.reference || "",
+      x.details || ""
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(";");
+    csv += ligne + "\n";
+  });
 
+  // Téléchargement
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "journal-audit-" + new Date().toISOString().slice(0,10) + ".csv";
+  a.click();
+}
 /* --- STATISTIQUES --- */
 function renderStats(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
