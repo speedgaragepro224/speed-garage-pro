@@ -1718,27 +1718,25 @@ function renderAudit(A) {
     `).join("") || '<div class="card m">Aucune entrée dans le journal.</div>'}
   `;
 }
+
 async function supprimerJournal() {
   if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer le journal."); return; }
   if (!confirm("⚠️ ATTENTION : Voulez-vous vraiment supprimer TOUT l'historique du journal d'audit ? Cette action est irréversible.")) return;
   
-  // On supprime toutes les lignes de la table journal
-  const { error } = await supa.from("journal").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  const { error } = await supa.rpc("vider_journal");
   
   if (error) { alert("Erreur : " + error.message); return; }
   
-  // On enregistre une nouvelle ligne pour dire que le journal a été vidé (optionnel mais bien pour l'audit)
   await jlog("Journal vidé", "Par " + profil.username, "");
-  
   await loadAllData();
-  alert("✅ Le journal d'audit a été vidé avec succès !");
+  alert("✅ Le journal d'audit a été entièrement vidé !");
 }
+
 function exportAudit() {
   if (!data.journal || data.journal.length === 0) { alert("Aucune donnée à exporter."); return; }
   
   const J = [...data.journal].sort((a,b) => a.created_at < b.created_at ? 1 : -1);
   
-  // Création du contenu CSV
   let csv = "Date;Utilisateur;Role;Action;Reference;Details\n";
   J.forEach(x => {
     const ligne = [
@@ -1752,7 +1750,6 @@ function exportAudit() {
     csv += ligne + "\n";
   });
 
-  // Téléchargement
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
