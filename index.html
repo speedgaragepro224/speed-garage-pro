@@ -6,58 +6,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <style>
-:root{--bg:#18181b;--c:#27272a;--t:#fafafa;--m:#a1a1aa;--b:#3f3f46;--r:#dc2626;--ok:#22c55e}
+:root {
+  --bg: #111111;
+  --c: #1e1e1e;
+  --t: #ededed;
+  --m: #a1a1aa;
+  --b: #333333;
+  --r: #e50914;
+  --ok: #10b981;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
   margin:0;background-color:var(--bg);color:var(--t);
-  font: 16px 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;font-weight: 500;overflow-x:hidden;
-  background-image: url('https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg');
-  background-size: cover;background-position: center;background-attachment: fixed;
+  font: 15px 'Segoe UI', system-ui, sans-serif;overflow-x:hidden;
 }
-header{background:#000;color:#fff;padding:12px 16px;font-weight:700;border-bottom:3px solid var(--r);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
-header span{flex:1;font-size:16px}
+header{background:#111111;color:var(--t);padding:16px 24px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
+header span{flex:1;font-size:16px;font-weight:700}
 header small{font-weight:400;font-size:12px;opacity:.85}
-nav{display:flex;flex-direction:column;gap:4px;padding:12px;width:250px;flex:none;background:var(--c);border-right:1px solid var(--b);height:calc(100vh - 60px);position:sticky;top:60px;overflow-y:auto}
-nav button{text-align:left;border:0;background:none;color:var(--m);padding:12px;border-radius:8px;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
-nav button.on{background:var(--r);color:#fff}
+nav{display:flex;flex-direction:column;gap:4px;padding:16px 8px;width:240px;flex:none;background:#171717;border-right:1px solid var(--b);height:100vh;position:sticky;top:0;overflow-y:auto}
+nav button{text-align:left;border:0;background:none;color:var(--m);padding:12px 16px;border-radius:6px;font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background 0.2s}
+nav button.on{background:#262626;color:#fff;font-weight:600}
 nav button:active:not(.on){background:var(--b)}
 .wrap{display:flex;align-items:stretch;min-height:calc(100vh - 60px)}
 main{flex:1;min-width:0;padding:16px;width:100%;max-width:100%;margin:0}
 .mb{display:none;background:none;border:0;color:#fff;font-size:24px;padding:0;cursor:pointer}
 @media (max-width:768px){.mb{display:inline-block}nav{position:fixed;left:0;top:0;bottom:0;z-index:60;width:260px;transform:translateX(-100%);transition:transform .2s;box-shadow:4px 0 20px rgba(0,0,0,0.5);padding-top:20px}nav.open{transform:none}main{padding:12px}.grid{grid-template-columns:1fr 1fr}}
-.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:12px;overflow-x:auto}
+.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.2);overflow-x:auto}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-.k{font-size:28px;font-weight:800;letter-spacing:-0.5px}
+.k{font-size:24px;font-weight:700}
 .m{color:var(--m);font-size:13px}
-input,select,textarea{width:100%;padding:12px;margin:6px 0;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);font:inherit;font-size:16px}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--r);border-color:transparent}
-button.p{background:var(--r);color:#fff;border:0;border-radius:12px;padding:14px 20px;font:inherit;font-weight:800;font-size:16px;margin-top:8px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.5px;box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);}
-button.p:active{opacity:0.8}
-button.s{background:none;border:1px solid var(--b);color:var(--t);border-radius:6px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;margin:4px}
+input,select,textarea{width:100%;padding:10px;margin:4px 0;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);font:inherit;font-size:15px}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--r);border-color:transparent}
+button.p{background:var(--r);color:#fff;border:0;border-radius:8px;padding:10px 16px;font:inherit;font-weight:700;font-size:13px;margin-top:8px;cursor:pointer;width:auto;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 4px 12px rgba(229,9,20,0.3);transition:all 0.2s ease}
+button.p:hover{background:#b80710;box-shadow:0 6px 16px rgba(229,9,20,0.4)}
+button.s{background:none;border:1px solid var(--b);color:var(--t);border-radius:6px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;margin:2px}
+button.s:hover{background:#21262d}
 .row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--b);flex-wrap:wrap}
 .tag{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--b);display:inline-block}
 .ref{font-family:monospace;font-size:12px;background:var(--b);padding:3px 8px;border-radius:5px}
 #lock{position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto}
 table{width:100%;border-collapse:collapse;margin:8px 0;min-width:500px}
 th,td{padding:12px 8px;text-align:left;border-bottom:1px solid var(--b);font-size:14px}
-th{background:var(--bg);font-weight:600;color:var(--m);font-size:12px;text-transform:uppercase}
-tr:hover{background:var(--bg)}
+th{background:#111;font-weight:600;color:var(--m);font-size:12px;text-transform:uppercase}
+tr:hover{background:#1a1a24}
 .loading{text-align:center;padding:40px;color:var(--m)}
 
-/* ===== CALENDRIER STYLE CAPTURE ===== */
+/* CALENDRIER */
 .calendar-container { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .calendar-title { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
-.calendar-nav-btn { background: #2a2a32; border: 1px solid #3a3a45; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.calendar-nav-btn { background: #2a2a32; border: 1px solid #3a3a45; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
 .calendar-nav-btn:hover { background: #3a3a45; border-color: #4a4a55; }
 .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 8px; }
 .calendar-weekday { text-align: center; font-size: 13px; font-weight: 600; color: #8a8a95; padding: 8px 0; }
 .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.calendar-day { aspect-ratio: 1; width: 100%; padding: 6px 8px; background: #14141a; border: 1px solid #2a2a32; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; }
+.calendar-day { height: 60px; padding: 6px 8px; background: #14141a; border: 1px solid #2a2a32; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; }
 .calendar-day:hover { background: #1a1a22; border-color: #3a3a45; }
 .calendar-day-number { font-size: 15px; font-weight: 700; color: #ffffff; line-height: 1; }
-.calendar-day-empty { background: transparent; border: none; cursor: default; aspect-ratio: 1; }
-.calendar-day-empty:hover { background: transparent; border: none; }
+.calendar-day-empty { background: transparent; border: none; cursor: default; height: 60px; }
 .calendar-day.today { background: #dc2626; border-color: #dc2626; }
 .calendar-day.today .calendar-day-number { color: #ffffff; font-weight: 800; }
 .calendar-day.selected { background: #2563eb; border-color: #2563eb; }
@@ -69,21 +75,20 @@ tr:hover{background:var(--bg)}
 .calendar-day.today .rdv-count { color: #ffffff; }
 .calendar-day.today .rdv-dot { background: #ffffff; }
 
-/* ===== FORMULAIRE RDV STYLE CAPTURE ===== */
+/* FORMULAIRE RDV & LISTE */
 .rdv-form { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .rdv-form-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px; }
 .rdv-form-title::before { content: '＋'; font-size: 22px; font-weight: 700; color: #8a8a95; }
 .form-field { margin-bottom: 14px; }
-.form-input-dark { width: 100%; padding: 14px 16px; background: #14141a; border: 1px solid #2a2a32; border-radius: 8px; color: #ffffff; font: inherit; font-size: 14px; transition: all 0.2s ease; }
+.form-input-dark { width: 100%; padding: 12px 14px; background: #14141a; border: 1px solid #2a2a32; border-radius: 8px; color: #ffffff; font: inherit; font-size: 14px; transition: all 0.2s ease; }
 .form-input-dark:focus { outline: none; border-color: #dc2626; background: #1a1a22; }
 .form-input-dark::placeholder { color: #6a6a75; }
 select.form-input-dark { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236a6a75' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
 .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .form-row-date { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
-.btn-submit-rdv { background: #dc2626; color: #ffffff; border: none; border-radius: 8px; padding: 14px 24px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; margin-top: 8px; transition: all 0.2s ease; }
+.btn-submit-rdv { background: #dc2626; color: #ffffff; border: none; border-radius: 8px; padding: 14px 24px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; width: auto; margin-top: 8px; transition: all 0.2s ease; }
 .btn-submit-rdv:hover { background: #ef4444; }
 
-/* ===== LISTE RDV ===== */
 .rdv-list { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 20px; }
 .rdv-list-title { font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
 .rdv-item { display: flex; align-items: flex-start; gap: 16px; padding: 14px; margin-bottom: 10px; background: #14141a; border: 1px solid #2a2a32; border-left: 4px solid #dc2626; border-radius: 8px; transition: all 0.15s ease; }
@@ -103,7 +108,7 @@ select.form-input-dark { appearance: none; background-image: url("data:image/svg
 
 @media (max-width: 768px) {
   .form-row-2, .form-row-date { grid-template-columns: 1fr; }
-  .calendar-day { min-height: 45px; padding: 6px 8px; }
+  .calendar-day { height: 50px; padding: 6px 8px; }
   .calendar-day-number { font-size: 13px; }
 }
 </style>
@@ -146,10 +151,8 @@ function showLock(html){ $("lock").style.display="block"; $("hd").style.display=
 
 function showLogin(msg) {
   showLock(`
-    <div style="position: fixed; inset: 0; z-index: -1; background-image: url('https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg'); background-size: cover; background-position: center; opacity: 0.15;"></div>
     <div style="max-width:400px;margin:8vh auto;padding:24px; position:relative; background:var(--c); border-radius:12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border:1px solid var(--b)">
       <div style="text-align:center">
-        <img src="https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
         <h2 style="margin:0; color:var(--t)">SPEED GARAGE PRO</h2>
         <div style="border-top:2px solid var(--r);margin:15px 0;"></div>
       </div>
@@ -162,7 +165,7 @@ function showLogin(msg) {
         </select>
         <label class="m">Mot de passe</label>
         <input id="lp" type="password" style="width:100%; padding:12px; margin:4px 0; border:1px solid var(--b); border-radius:8px; background:var(--bg); color:var(--t); font:inherit;" onkeydown="if(event.key==='Enter')doLogin()">
-        <button class="p" style="width:100%; padding:14px; margin-top:15px; font-size:16px;" onclick="doLogin()">SE CONNECTER</button>
+        <button class="p" style="width:100%; padding:14px; margin-top:15px; font-size:14px;" onclick="doLogin()">SE CONNECTER</button>
         <p id="lm" class="m" style="color:var(--r);margin-top:10px; text-align:center;">${msg||""}</p>
       </div>
       <p class="m" style="text-align:center; margin-top:20px; font-size:12px;">NIF 931828172 · RCCM GN.TCC.2026.B.13913</p>
@@ -277,9 +280,9 @@ function renderDashboard(A) {
     <div class="card">
       <b>⚡ Actions Rapides</b>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; justify-content:flex-start">
-        <button class="p" style="margin:0; width:auto" onclick="go('👥 Clients')">➕ Nouveau Client</button>
-        <button class="p" style="margin:0; width:auto; background:#0891b2" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
-        <button class="p" style="margin:0; width:auto; background:#7c3aed" onclick="go('📅 Planning')">📅 Prendre RDV</button>
+        <button class="p" style="margin:0" onclick="go('👥 Clients')">➕ Nouveau Client</button>
+        <button class="p" style="margin:0; background:#0891b2" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
+        <button class="p" style="margin:0; background:#7c3aed" onclick="go('📅 Planning')">📅 Prendre RDV</button>
       </div>
     </div>
 
@@ -461,3 +464,1432 @@ function renderPlanning(A) {
 
 /* --- RAPPELS --- */
 async function definirRappel(clientId) { clientRappelId = clientId; render(); }
+
+async function sauverRappel() {
+  const km = +$("rap_km").value || 0;
+  const dateVal = $("rap_date").value || null;
+  
+  const cl = data.clients.find(c => c.id === clientRappelId);
+  const vehicule = data.vehicules.find(v => v.client_id === clientRappelId);
+  const veh = vehicule ? `${vehicule.marque} ${vehicule.modele} (${vehicule.immat})` : "";
+  
+  await supa.from("clients").update({
+    prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh
+  }).eq("id", clientRappelId);
+  
+  await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
+  clientRappelId = null; await loadAllData();
+}
+
+function renderRappels(A) {
+  const peutEditer = ROLES[profil.role].can.editClients;
+  const aRappeler = data.clients.filter(c => (c.prochain_km > 0) || c.prochaine_date);
+  let formHtml = "";
+  
+  if (clientRappelId) {
+    const cl = data.clients.find(c => c.id === clientRappelId);
+    if (cl) {
+      const v = data.vehicules.find(x => x.client_id === cl.id);
+      formHtml = `<div class="card" style="border:2px solid var(--r)">
+        <b>🔔 Définir le rappel pour ${e(cl.nom)}</b>
+        <div style="background:var(--bg); padding:10px; border-radius:8px; margin:10px 0; font-size:13px">
+          <b>Informations client :</b><br>📞 Téléphone : <b>${e(cl.tel || "Non renseigné")}</b>
+        </div>
+        ${v ? `
+          <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px">
+            <b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)} (${e(v.immat)})<br>
+            <b>VIN :</b> ${e(v.vin || "Non renseigné")}<br>
+            <b>Dernier km :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + " km" : "Non renseigné"}
+          </div>
+        ` : `<div class="m" style="margin-bottom:10px">Aucun véhicule enregistré.</div>`}
+        <label class="m">Prochain entretien km (ex: 65000)</label>
+        <input id="rap_km" type="number" value="${cl.prochain_km || ''}">
+        <label class="m">Date de rappel</label>
+        <input id="rap_date" type="date" value="${cl.prochaine_date || (() => { let d = new Date(); d.setMonth(d.getMonth() + 6); return d.toISOString().slice(0,10); })()}">
+        <div style="display:flex; gap:8px; margin-top:10px">
+          <button class="p" onclick="sauverRappel()">Enregistrer</button>
+          <button class="s" onclick="clientRappelId=null; render()">Annuler</button>
+        </div>
+      </div>`;
+    }
+  }
+  
+  A.innerHTML = `${formHtml}<div class="card"><b>🔔 Prochains entretiens</b></div>
+    ${aRappeler.map(c => {
+      let dernierKm = 0;
+      const vehiculeClient = data.vehicules.find(v => v.client_id === c.id);
+      if (vehiculeClient && vehiculeClient.kilometrage) dernierKm = vehiculeClient.kilometrage;
+      
+      let estDepasse = false, estBientot = false, motifAlerte = [];
+      if (c.prochain_km > 0 && dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push("Km dépassé"); }
+      else if (c.prochain_km > 0 && (c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push("Km bientôt"); }
+      if (c.prochaine_date) {
+        const dateRappel = new Date(c.prochaine_date).getTime();
+        const aujourdhui = new Date().setHours(0,0,0,0);
+        const diffJours = Math.ceil((dateRappel - aujourdhui) / (1000 * 60 * 60 * 24));
+        if (diffJours < 0) { estDepasse = true; motifAlerte.push("Date dépassée"); }
+        else if (diffJours <= 30) { estBientot = true; motifAlerte.push("Date bientôt"); }
+      }
+
+      return `
+        <div class="card" style="border-left: 5px solid ${estDepasse ? 'var(--r)' : (estBientot ? '#f59e0b' : 'var(--ok)')}; padding: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px">
+            <div style="flex:1; min-width:200px">
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap">
+                <h3 style="margin:0; font-size:18px;">${e(c.nom)}</h3>
+                ${estDepasse ? `<span class="tag" style="background:var(--r); color:#fff; font-weight:bold; padding:4px 10px;">⚠️ À RAPPELER</span>` : 
+                  (estBientot ? `<span class="tag" style="background:#f59e0b; color:#fff; font-weight:bold; padding:4px 10px;">⏳ BIENTÔT</span>` : '')}
+              </div>
+              <div class="m" style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
+                <span>🚗 <b>${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}</b></span>
+                <span>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')} km</b></span>
+                <span>🎯 Seuil de rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') + ' km' : '—'}</b></span>
+                ${motifAlerte.length > 0 ? `<span style="color:${estDepasse ? 'var(--r)' : '#f59e0b'};">ℹ️ Motif : ${motifAlerte.join(", ")}</span>` : ''}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center;">
+              ${peutEditer ? `<button class="p" style="margin:0; background:var(--c); color:var(--t); border:1px solid var(--b); padding:8px 12px;" onclick="definirRappel('${c.id}')">✏️ Modifier</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join("") || '<div class="card m">Aucun rappel défini.</div>'}`;
+}
+
+/* --- CLIENTS --- */
+let clientVehiculeId = null;
+
+async function nextRef(type) {
+  const prefix = type==="Société" ? "SOC" : "PART";
+  const { data: rows } = await supa.from("clients").select("ref").like("ref", prefix+"-%");
+  const max = (rows||[]).map(r => +(r.ref.split("-")[1]||0)).length ? Math.max(...(rows||[]).map(r => +(r.ref.split("-")[1]||0))) : 0;
+  return prefix + "-" + String(max+1).padStart(4,"0");
+}
+
+async function addClient() {
+  if (!ROLES[profil.role].can.editClients) { alert("Non autorisé."); return; }
+  const type = $("cl_type").value, nom = $("cl_nom").value.trim(), tel = $("cl_tel").value.trim(), adr = $("cl_adr").value.trim();
+  if (!nom) { alert("Le nom est obligatoire."); return; }
+  if (!/^\d{9}$/.test(tel)) { alert("Le téléphone doit contenir exactement 9 chiffres."); return; }
+  if (!adr) { alert("L'adresse est obligatoire."); return; }
+  const ref = await nextRef(type);
+  const { data: newClient, error } = await supa.from("clients").insert({ref, type, nom, tel, adr, contact: "", nif: "", created_by: session.user.id}).select().single();
+  if (error) { alert("Erreur client : "+error.message); return; }
+
+  if ($("cl_add_veh") && $("cl_add_veh").checked) {
+    const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
+    const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
+    if (marque && modele && immat) {
+      await supa.from("vehicules").insert({ client_id: newClient.id, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id });
+    }
+  }
+  await jlog("Création client", `${ref} — ${nom}`, `Type: ${type}`);
+  await loadAllData();
+}
+
+async function deleteClient(id) {
+  if (!ROLES[profil.role].can.deleteAny) { alert("Seul le PDG peut supprimer."); return; }
+  if (!confirm("Supprimer ce client et tous ses devis/factures ?")) return;
+  await supa.from("clients").delete().eq("id", id); await loadAllData();
+}
+
+function ouvrirFicheClient(id) { clientDetailId = id; clientVehiculeId = null; render(); }
+function allerAuRappel(clientId) { clientDetailId = null; tab = "🔔 Rappels"; definirRappel(clientId); }
+function ouvrirAjoutVehicule(id) { clientVehiculeId = id; render(); }
+
+function renderClients(A) {
+  const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
+  
+  if (clientDetailId) {
+    const c = data.clients.find(x => x.id === clientDetailId);
+    if (!c) { clientDetailId = null; render(); return; }
+    
+    A.innerHTML = `
+      <div class="card" style="border-top:4px solid var(--r)">
+        <button class="s" onclick="clientDetailId=null; render()">← Retour</button>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px">
+          <div>
+            <h3 style="margin:0">${e(c.nom)}</h3>
+            <span class="ref">${e(c.ref)}</span>
+            <p class="m" style="margin-top:10px">📞 <a href="tel:${e(c.tel)}" style="color:var(--r)">${e(c.tel)}</a><br>📍 ${e(c.adr)}</p>
+          </div>
+          <div style="display:flex; gap:5px; flex-direction:column">
+            <button class="p" style="margin:0; padding:8px" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button>
+            <button class="p" style="margin:0; padding:8px; background:#0891b2" onclick="imprimerRecuDepot('${c.id}')">🖨️ Reçu</button>
+            ${peutSuppr ? `<button class="s" style="color:var(--r)" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}
+          </div>
+        </div>
+      </div>
+
+      <div class="card"><b>🚗 Véhicules de ce client</b>
+        ${data.vehicules.filter(v => v.client_id === c.id).map(v => `
+          <div class="row" style="border-top:1px solid var(--b)">
+            <span><b>${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>
+            ${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')">🗑️</button>` : ""}
+          </div>
+        `).join("") || '<div class="m">Aucun véhicule enregistré.</div>'}
+      </div>
+
+      <div class="card" style="border:2px solid var(--b)">
+        <b>➕ Ajouter un véhicule à ce client</b>
+        <div style="display:flex; gap:8px; margin-bottom:8px; margin-top:8px">
+          <input id="v_marque" placeholder="Marque *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+          <input id="v_modele" placeholder="Modèle *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        </div>
+        <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <div style="display:flex; gap:8px; margin-bottom:8px">
+          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
+        </div>
+        <input id="v_vin" placeholder="VIN / Châssis" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <input id="v_km" type="number" placeholder="Kilométrage actuel" style="margin-bottom:8px">
+        <button class="p" onclick="ajouterVehicule('${c.id}')">Enregistrer ce véhicule</button>
+      </div>
+    `;
+    return;
+  }
+  
+  const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
+  A.innerHTML = `
+    ${peutEditer?`<div class="card"><b>➕ Nouveau client</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <select id="cl_type" onchange="document.getElementById('cl_soc').style.display=this.value==='Société'?'block':'none'" style="flex:1"><option>Particulier</option><option>Société</option></select>
+        <input id="cl_nom" placeholder="Nom / Raison sociale *" style="flex:2">
+      </div>
+      <div id="cl_soc" style="display:none; margin-bottom:8px">
+        <input id="cl_contact" placeholder="Contact *">
+        <input id="cl_nif" placeholder="NIF *">
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9" style="flex:1">
+        <input id="cl_adr" placeholder="Adresse *" style="flex:2">
+      </div>
+      
+      <div style="margin-bottom:8px">
+        <label style="font-size:13px"><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto; margin-right:8px"> Ajouter un véhicule en même temps</label>
+      </div>
+      
+      <div id="veh_form" style="display:none; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:8px">
+        <div style="display:flex; gap:8px; margin-bottom:8px">
+          <input id="v_marque" placeholder="Marque *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+          <input id="v_modele" placeholder="Modèle *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        </div>
+        <input id="v_immat" placeholder="Immatriculation *" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <div style="display:flex; gap:8px">
+          <select id="v_carb" style="flex:1"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select>
+          <select id="v_boite" style="flex:1"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select>
+          <input id="v_portes" type="number" placeholder="Portes" style="flex:1">
+        </div>
+        <input id="v_vin" placeholder="VIN / Châssis" style="margin-bottom:8px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
+        <input id="v_km" type="number" placeholder="Kilométrage actuel">
+      </div>
+      <button class="p" onclick="addClient()">Ajouter le client</button></div>`
+      :`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}
+      
+    <div class="card"><input placeholder="🔍 Rechercher un client..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} client(s)</p></div>
+    
+    ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
+      <div class="row" style="border-top:0; padding:0">
+        <div style="flex:1">
+          <b style="font-size:16px">${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br>
+          <span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span>
+        </div>
+        <div style="font-size:20px; color:var(--r)">→</div>
+      </div>
+    </div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
+}
+
+async function ajouterVehicule(clientId) {
+  if (!clientId) { alert("Erreur : client non identifié."); return; }
+  const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
+  const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
+  
+  if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
+
+  const { error } = await supa.from("vehicules").insert({
+    client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
+  });
+  
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`);
+  
+  clientVehiculeId = null; // On ferme le formulaire
+  await loadAllData();
+  alert("✅ Véhicule ajouté avec succès !");
+}
+
+async function deleteVehicule(id) {
+  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un véhicule."); return; }
+  if (!confirm("Supprimer ce véhicule ?")) return;
+  await supa.from("vehicules").delete().eq("id", id); await loadAllData();
+}
+
+function imprimerRecuDepot(clientId) {
+  const cl = data.clients.find(c => c.id === clientId);
+  if (!cl) return;
+  const sesVehicules = data.vehicules.filter(v => v.client_id === cl.id);
+  
+  if (sesVehicules.length === 0) {
+    alert("Ce client n'a pas de véhicule enregistré. Ajoutez d'abord un véhicule.");
+    return;
+  }
+  
+  const motif = prompt("Motif du dépôt (ex: Vidange, Diagnostic, Réparation) :", "Entretien");
+  if (motif === null) return;
+  
+  const w = window.open("", "_blank");
+  const p = data.params;
+
+  let tableauVehicules = sesVehicules.map(v => `
+    <tr>
+      <td><b>${e(v.marque)} ${e(v.modele)}</b></td>
+      <td>${e(v.immat)}</td>
+      <td>${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : "—"}</td>
+      <td>${e(v.carburant || "—")}</td>
+    </tr>
+  `).join("");
+
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reçu de dépôt - ${cl.nom}</title>
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; max-width: 700px; margin: auto; }
+      .header { display: flex; justify-content: space-between; border-bottom: 3px solid #1a2a3a; padding-bottom: 10px; margin-bottom: 20px; }
+      .header h1 { font-size: 20px; margin: 0; color: #1a2a3a; }
+      .header p { margin: 2px 0; font-size: 11px; }
+      .title { text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; text-transform: uppercase; }
+      .box { border: 1px solid #000; padding: 15px; margin-bottom: 15px; }
+      .box h3 { margin-top: 0; font-size: 14px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+      .info { display: flex; justify-content: space-between; }
+      .info div { width: 48%; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+      th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+      th { background: #eee; font-size: 11px; text-transform: uppercase; }
+      .signatures { display: flex; justify-content: space-between; margin-top: 40px; }
+      .signatures div { width: 40%; border-top: 1px solid #000; text-align: center; padding-top: 5px; }
+      @media print { button { display: none; } body { padding: 0; } }
+    </style></head><body>
+    
+    <div class="header">
+      <div>
+        <h1>${e(p.nom || "SPEED GARAGE PRO")}</h1>
+        <p>NIF : ${e(p.nif || "931828172")} · RCCM : ${e(p.rccm || "GN.TCC.2026.B.13913")}</p>
+        <p>${e(p.adresse || "")} ${e(p.telephone ? "· Tél : " + p.telephone : "")}</p>
+      </div>
+      <div style="text-align:right">
+        <h2>REÇU DE DÉPÔT</h2>
+        <p>Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR').slice(0,5)}</p>
+      </div>
+    </div>
+
+    <div class="title">Fiche d'intervention</div>
+
+    <div class="box">
+      <h3>Informations Client</h3>
+      <div class="info">
+        <div><p><b>Nom :</b> ${e(cl.nom)}</p></div>
+        <div><p><b>Téléphone :</b> ${e(cl.tel || "—")}</p></div>
+      </div>
+      <p><b>Adresse :</b> ${e(cl.adr || "—")}</p>
+    </div>
+
+    <div class="box">
+      <h3>Véhicules déposés</h3>
+      <table>
+        <thead>
+          <tr><th>Véhicule</th><th>Immatriculation</th><th>Kilométrage</th><th>Carburant</th></tr>
+        </thead>
+        <tbody>
+          ${tableauVehicules}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <h3>Motif du dépôt</h3>
+      <p style="font-size: 14px; font-weight: bold;">${e(motif || "Entretien général")}</p>
+    </div>
+
+    <div class="signatures">
+      <div>Signature du Client<br><span style="font-size:10px; color:#555;">(Bon pour accord)</span></div>
+      <div>Cachet du Garage</div>
+    </div>
+    
+    <p style="text-align:center; margin-top:40px;"><button onclick="window.print()" style="padding:10px 20px; cursor:pointer;">🖨️ Imprimer le Reçu</button></p>
+  </body></html>`);
+  w.document.close();
+}
+
+/* --- VÉHICULES --- */
+let vhDetail = null;
+function renderVehicules(A) {
+  const liste = data.vehicules.filter(v => (v.marque + v.modele + v.immat).toLowerCase().includes(q.toLowerCase()));
+  if (vhDetail) {
+    const v = data.vehicules.find(x => x.id === vhDetail); if (!v) { vhDetail = null; render(); return; }
+    const cl = data.clients.find(c => c.id === v.client_id);
+    const sesFactures = data.factures.filter(f => f.immat === v.immat).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
+    A.innerHTML = `<div class="card"><button class="s" onclick="vhDetail=null;render()">← Retour</button><h3>${e(v.marque)} ${e(v.modele)}</h3>
+      <p class="m">Immat : <b>${e(v.immat)}</b><br>Client : <b>${e(cl ? cl.nom : 'Inconnu')}</b><br>${v.kilometrage ? `Kilométrage : ${v.kilometrage} km<br>` : ""}Carburant : ${e(v.carburant || '—')} · Boîte : ${e(v.boite || '—')}</p></div>
+      <div class="card"><b>Historique</b></div>${sesFactures.map(f => `<div class="card"><b>${e(f.activite || 'Facture')}</b> - ${f(f.total_ttc)}<br><span class="m">${e(f.date_emission)}</span></div>`).join("") || '<div class="card m">Aucune facture.</div>'}`;
+    return;
+  }
+  
+  A.innerHTML = `
+    <div class="card">
+      <input placeholder="🔍 Rechercher un véhicule (marque, immat, client...)" value="${e(q)}" oninput="q=this.value;render()">
+      <p class="m" style="margin-top:8px">${liste.length} véhicule(s) trouvé(s)</p>
+    </div>
+    
+    ${liste.map(v => { 
+      const cl = data.clients.find(c => c.id === v.client_id); 
+      return `
+        <div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px;" onclick="vhDetail='${v.id}';render()">
+          <div style="display:flex; align-items:center; gap:15px;">
+            <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;">🚗</div>
+            <div>
+              <div style="font-size:16px; font-weight:bold; margin-bottom:4px;">
+                ${e(v.marque)} ${e(v.modele)} 
+                <span class="ref" style="margin-left:8px;">${e(v.immat)}</span>
+              </div>
+              <div class="m" style="display:flex; gap:15px;">
+                <span>👤 ${e(cl ? cl.nom : 'Inconnu')}</span>
+                <span>📏 ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : 'Kilométrage inconnu'}</span>
+                <span>⛽ ${e(v.carburant || '—')}</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:20px; color:var(--r);">→</div>
+        </div>
+      `; 
+    }).join("") || '<div class="card m">Aucun véhicule enregistré.</div>'}
+  `;
+}
+
+/* --- DEVIS --- */
+let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
+let dLignes = [{d:"",q:1,p:0}];
+let dLignesMO = [{d:"",q:1,p:0}];
+
+function devisTotHT(){ 
+  const htPieces = dLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
+  const htMO = dLignesMO.reduce((a,x)=>a+(+x.p||0),0);
+  return htPieces + htMO; 
+}
+
+function updateDevisTotals() {
+  const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
+  if ($("dv_tot_ht")) $("dv_tot_ht").textContent = f(ht);
+  if ($("dv_tot_tva")) $("dv_tot_tva").textContent = f(tva);
+  if ($("dv_tot_ttc")) $("dv_tot_ttc").textContent = f(ttc);
+}
+
+function remplirVehiculeDevis(clientId) {
+  if (!clientId) return;
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  if (v) { dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; dMemo.km = v.kilometrage || ""; }
+  else { dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; }
+  dMemo.client = clientId;
+  renderDevis(document.getElementById('app'));
+}
+
+function rechercherPieceDevis(index, valeur) {
+  dLignes[index].d = valeur;
+  const article = data.stock.find(s => s.nom.toLowerCase() === valeur.toLowerCase());
+  if (article) {
+    dLignes[index].p = article.prix;
+    dLignes[index].stock_id = article.id;
+    renderDevis(document.getElementById('app'));
+  }
+}
+
+function renderDevis(A) {
+  const R = ROLES[profil.role], peutEditer = R.can.editDevis, tv = +(data.params.tva_taux||18);
+  const selectedClient = data.clients.find(c => c.id === dMemo.client);
+
+  A.innerHTML = `${peutEditer?`<div class="card"><b>➕ Nouveau devis</b>
+      <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:15px; border:2px solid var(--r)">
+        <b>Informations Client & Véhicule</b>
+        <select id="dv_client" onchange="remplirVehiculeDevis(this.value)" style="margin-top:8px; margin-bottom:8px">
+          <option value="">Choisir un client…</option>
+          ${data.clients.map(c=>`<option value="${c.id}" ${c.id===dMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
+        </select>
+        ${selectedClient ? `<div style="font-size:13px; margin-bottom:8px">📞 Téléphone : <b>${e(selectedClient.tel)}</b></div>` : ""}
+        <div style="background:var(--bg); padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid var(--b)">
+          <div style="display:flex; gap:8px">
+            <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)">🚗 <b>Véhicule :</b> ${e(dMemo.veh || "Non renseigné")}</div>
+            <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)">🔢 <b>Immatriculation :</b> ${e(dMemo.immat || "Non renseignée")}</div>
+          </div>
+          <div style="padding:8px; border-bottom:1px solid var(--b); color:var(--t)">📏 <b>Kilométrage :</b> ${e(dMemo.km || "0")} km</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <textarea id="dv_motif" placeholder="Motif de la demande / diagnostic" style="height:60px; flex:2" oninput="dMemo.motif=this.value">${e(dMemo.motif)}</textarea>
+        <input id="dv_delai" placeholder="Délai d'exécution (ex: 2 jours)" style="flex:1" value="${e(dMemo.delai)}" oninput="dMemo.delai=this.value">
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <select id="dv_paiement" onchange="dMemo.paiement=this.value" style="flex:1">
+          <option value="">Mode de paiement…</option>
+          <option value="Espèces" ${dMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option>
+          <option value="Orange Money" ${dMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option>
+          <option value="Virement Bancaire" ${dMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
+          <option value="Chèque" ${dMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
+        </select>
+        <input id="dv_garantie" placeholder="Garantie (ex: 3 mois)" style="flex:1" value="${e(dMemo.garantie)}" oninput="dMemo.garantie=this.value">
+        <input id="dv_acompte" type="number" placeholder="Acompte (GNF)" style="flex:1" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value">
+      </div>
+      
+      <div style="margin-bottom:15px">
+        <b style="font-size:14px; color:var(--r)">📦 Pièces détachées</b>
+        <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+          <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:8px; font-size:12px;">Désignation</th><th style="padding:8px; width:80px; font-size:12px;">Qté</th><th style="padding:8px; width:120px; font-size:12px;">P.U</th><th style="padding:8px; width:40px;"></th>
+          </tr></thead>
+          <tbody>
+            ${dLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:8px;">
+                <input list="stock_list_dv_${i}" value="${e(l.d)}" oninput="rechercherPieceDevis(${i}, this.value)" placeholder="Taper ou choisir..." style="margin:0; font-size:13px; width:100%">
+                <datalist id="stock_list_dv_${i}">
+                  ${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}
+                </datalist>
+              </td>
+              <td style="padding:8px;"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px; text-align:center;"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))">✕</button></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+        <button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))">+ Pièce</button>
+      </div>
+
+      <div style="margin-bottom:15px">
+        <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
+        <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+          <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:8px; font-size:12px;">Main d'œuvre</th><th style="padding:8px; width:150px; font-size:12px;">Coût (GNF)</th>
+          </tr></thead>
+          <tbody>
+            ${dLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:8px;"><input value="${e(l.d)}" oninput="dLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" style="font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignesMO[${i}].p=+this.value; updateDevisTotals()" placeholder="0" style="width:100%; font-size:13px;"></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+      
+      <p style="margin-top:12px"><b>Total HT :</b> <span id="dv_tot_ht">${f(devisTotHT())}</span><br>
+      <b>TVA ${tv}% :</b> <span id="dv_tot_tva">${f(devisTotHT()*tv/100)}</span><br>
+      <b style="font-size:18px">Total TTC : <span id="dv_tot_ttc">${f(devisTotHT()*(1+tv/100))}</span></b></p>
+      <button class="p" onclick="saveDevis()">Enregistrer le devis</button></div>`:""}
+      
+    <div class="card"><b>Devis enregistrés</b></div>
+    ${data.devis.map(d=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(d.numero)}</b> <span class="tag">${e(d.statut)}</span><br><span class="m">${e(d.client_nom)} — ${e(d.vehicule)} ${e(d.immat)}<br>${e(d.date_emission)}</span><br><b>${f(d.total_ttc)}</b> TTC</div>
+      <div><button class="s" onclick="printDevis('${d.id}')">🖨️</button>${peutEditer?`<button class="s" onclick="preparerFactureDepuisDevis('${d.id}')">→ Facture</button>`:""}</div></div></div>`).join("")||'<div class="card m">Aucun devis.</div>'}`;
+}
+
+async function saveDevis() {
+  const cid = $("dv_client").value; if (!cid) { alert("Choisissez un client."); return; }
+  const lignesPieces = dLignes.filter(l=>l.d.trim());
+  const lignesMO = dLignesMO.filter(l=>l.d.trim());
+  const lignes = [...lignesPieces.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
+  if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
+  
+  const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
+  const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","devis").single();
+  const num = (cpt.valeur||0)+1, numero = "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  
+  const { error } = await supa.from("devis").insert({
+    numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom, 
+    vehicule: dMemo.veh, immat: dMemo.immat, 
+    kilometrage: +dMemo.km || 0, motif: $("dv_motif").value.trim(), 
+    delai: $("dv_delai").value.trim(), paiement: $("dv_paiement").value, 
+    garantie: $("dv_garantie").value.trim(), acompte: +$("dv_acompte").value || 0,
+    lignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id
+  });
+  if (error) { alert("Erreur : "+error.message); return; }
+  await supa.from("compteurs").update({valeur: num}).eq("cle","devis"); 
+  await jlog("Création devis", numero, ""); 
+  dLignes = [{d:"",q:1,p:0}]; dLignesMO = [{d:"",q:1,p:0}]; 
+  dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
+  await loadAllData();
+}
+
+function preparerFactureDepuisDevis(idDevis) {
+  const d = data.devis.find(x => x.id === idDevis);
+  if (!d) return;
+  fMemo = { client: d.client_id, veh: d.vehicule, immat: d.immat, acompte: d.acompte || "", paiement: d.paiement || "" };
+  fLignes = d.lignes && d.lignes.length ? d.lignes.filter(l => l.t !== "Main d'œuvre").map(l => ({...l, t: "Pièce"})) : [{d:"",q:1,p:0}];
+  fLignesMO = d.lignes && d.lignes.length ? d.lignes.filter(l => l.t === "Main d'œuvre").map(l => ({...l})) : [{d:"",q:1,p:0}];
+  tab = "🧾 Factures"; render();
+}
+
+/* --- FACTURES --- */
+let fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
+let fLignes = [{d:"",q:1,p:0}];
+let fLignesMO = [{d:"",q:1,p:0}];
+function factTotHT(){ 
+  const htPieces = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
+  const htMO = fLignesMO.reduce((a,x)=>a+(+x.p||0),0);
+  return htPieces + htMO; 
+}
+function updateFactTotals() {
+  const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
+  if ($("fc_tot_ttc")) $("fc_tot_ttc").textContent = f(ttc);
+}
+
+function remplirVehiculeFacture(clientId) {
+  if (!clientId) return;
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  if (v) { fMemo.veh = v.marque + " " + v.modele; fMemo.immat = v.immat; }
+  else { fMemo.veh = ""; fMemo.immat = ""; }
+  fMemo.client = clientId; renderFactures(document.getElementById('app'));
+}
+
+function choisirArticleStock(index, stockId) {
+  if (!stockId) return;
+  const article = data.stock.find(s => s.id === stockId);
+  if (article) {
+    fLignes[index].d = article.nom;
+    fLignes[index].p = article.prix;
+    fLignes[index].stock_id = article.id;
+    renderFactures(document.getElementById('app'));
+  }
+}
+
+function rechercherPieceFacture(index, valeur) {
+  fLignes[index].d = valeur;
+  const article = data.stock.find(s => s.nom.toLowerCase() === valeur.toLowerCase());
+  if (article) {
+    fLignes[index].p = article.prix;
+    fLignes[index].stock_id = article.id;
+    renderFactures(document.getElementById('app'));
+  }
+}
+
+function renderFactures(A) {
+  const peutEditer = ROLES[profil.role].can.editFactures, tv = +(data.params.tva_taux||18);
+  const ht = factTotHT(), ttc = ht + (ht*tv/100);
+
+  A.innerHTML = `${peutEditer ? `<div class="card"><b>➕ Créer une facture directe</b>
+      <select id="fc_client" onchange="remplirVehiculeFacture(this.value)">
+        <option value="">Client… *</option>
+        ${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
+      </select>
+      
+      <div style="display:flex; gap:8px; margin-bottom:15px">
+        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}</div>
+        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}</div>
+      </div>
+
+      <!-- BLOC PIECES -->
+      <div style="margin-bottom:15px">
+        <b style="font-size:14px; color:var(--r)">📦 Pièces détachées</b>
+        <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+          <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:8px; font-size:12px;">Désignation</th><th style="padding:8px; width:80px; font-size:12px;">Qté</th><th style="padding:8px; width:120px; font-size:12px;">P.U</th><th style="padding:8px; width:40px;"></th>
+          </tr></thead>
+          <tbody>
+            ${fLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:8px;">
+                <input list="stock_list_fc_${i}" value="${e(l.d)}" oninput="rechercherPieceFacture(${i}, this.value)" placeholder="Taper ou choisir..." style="margin:0; font-size:13px; width:100%">
+                <datalist id="stock_list_fc_${i}">
+                  ${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}
+                </datalist>
+              </td>
+              <td style="padding:8px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px; text-align:center;"><button class="s" onclick="fLignes.splice(${i},1);if(!fLignes.length)fLignes=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+        <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Pièce</button>
+      </div>
+
+      <!-- BLOC MAIN D'OEUVRE -->
+      <div style="margin-bottom:15px">
+        <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
+        <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+          <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:8px; font-size:12px;">Main d'œuvre</th><th style="padding:8px; width:150px; font-size:12px;">Coût (GNF)</th>
+          </tr></thead>
+          <tbody>
+            ${fLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:8px;"><input value="${e(l.d)}" oninput="fLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" style="font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; renderFactures(document.getElementById('app'))" placeholder="0" style="width:100%; font-size:13px;"></td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- BLOC PAIEMENT -->
+      <div style="display:flex; gap:10px; margin-top:20px; margin-bottom:15px; border-top:1px solid var(--b); padding-top:15px">
+        <input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" style="flex:1; margin:0" value="${e(fMemo.acompte)}">
+        <select id="fc_paiement" style="flex:1; margin:0">
+          <option value="">Mode de paiement…</option>
+          <option value="Espèces" ${fMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option>
+          <option value="Orange Money" ${fMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option>
+          <option value="Virement Bancaire" ${fMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option>
+          <option value="Chèque" ${fMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option>
+        </select>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; background:var(--bg); padding:15px; border-radius:8px">
+        <b style="font-size:20px">Total TTC : <span id="fc_tot_ttc">${f(ttc)}</span></b>
+        <button class="p" style="margin:0" onclick="saveFactureDirecte()">Créer la facture</button>
+      </div>
+    </div>` : ""}
+      
+    <div class="card"><input placeholder="🔍 Rechercher une facture..." value="${e(q)}" oninput="q=this.value;render()"></div>
+    ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> 
+      <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br>
+      <span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
+      <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}`;
+}
+
+async function saveFactureDirecte() {
+  const cid = $("fc_client").value, veh = fMemo.veh, immat = fMemo.immat;
+  const acompte = +$("fc_acompte").value || 0;
+  const paiement = $("fc_paiement").value || "";
+  
+  if (!cid || !veh || !immat) { alert("Tous les champs sont obligatoires."); return; }
+  const lignes = fLignes.filter(l => l.d.trim() !== ""); 
+  const lignesMO = fLignesMO.filter(l => l.d.trim() !== "");
+  const toutesLesLignes = [...lignes.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
+  if (!toutesLesLignes.length) { alert("Ajoutez au moins une ligne."); return; }
+  
+  const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht * tv / 100, ttc = ht + tva;
+  const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
+  const num = (cpt.valeur||0)+1, numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  
+  const { error } = await supa.from("factures").insert({
+    numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom, vehicule: veh, immat: immat, 
+    lignes: toutesLesLignes, total_ht: ht, tva, total_ttc: ttc, acompte: acompte, paiement: paiement, 
+    statut: "En attente", created_by: session.user.id
+  });
+  
+  if (error) { alert("Erreur : "+error.message); return; }
+  await supa.from("compteurs").update({valeur: num}).eq("cle","facture");
+  
+  for (const ligne of lignes) {
+    if (ligne.stock_id) {
+      const art = data.stock.find(s => s.id === ligne.stock_id);
+      if (art) await supa.from("stock").update({ qte: (+art.qte || 0) - (+ligne.q || 0) }).eq("id", art.id);
+    }
+  }
+  
+  fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
+  fLignes = [{d:"",q:1,p:0}]; fLignesMO = [{d:"",q:1,p:0}];
+  await loadAllData();
+  alert("✅ Facture créée !");
+}
+
+async function updateStatut(id, st) { await supa.from("factures").update({statut:st}).eq("id", id); await loadAllData(); }
+async function deleteFacture(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer cette facture ?")) return; await supa.from("factures").delete().eq("id", id); await loadAllData(); }
+async function deleteDevis(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ce devis ?")) return; await supa.from("devis").delete().eq("id", id); await loadAllData(); }
+
+/* --- IMPRESSION --- */
+function printDevis(id) { const d = data.devis.find(x=>x.id===id); if (d) printDoc("DEVIS", d.numero, d); }
+function printFacture(id) { const fa = data.factures.find(x=>x.id===id); if (fa) printDoc("FACTURE", fa.numero, fa); }
+
+function printDoc(type, numero, doc) {
+  const p = data.params;
+  const tv = +(p.tva_taux || 18);
+  const lignes = doc.lignes && doc.lignes.length ? doc.lignes : [{d: doc.activite || "Prestation", q: 1, p: doc.total_ht || 0}];
+  const client = data.clients.find(c => c.id === doc.client_id) || {};
+  const v = data.vehicules.find(veh => veh.immat === doc.immat) || {};
+
+  const w = window.open("", "_blank");
+  
+  const lignesHtml = lignes.map(l => {
+    const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
+    return `
+      <tr>
+        <td style="border: 1px solid #000; padding: 6px;">${e(l.d)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:center;">${e(l.q || 1)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(l.p)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(l.p)}</td>
+        <td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(montant)}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const lignesVides = Array(Math.max(0, 8 - lignes.length)).fill(`
+    <tr>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+      <td style="border: 1px solid #000; padding: 6px;">&nbsp;</td>
+    </tr>
+  `).join("");
+
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title>
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 12px; color: #000; padding: 20px; background: #fff; }
+      .container { max-width: 800px; margin: 0 auto; }
+      .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+      .header-left h1 { font-size: 22px; color: #666; margin: 0; }
+      .header-right { background: #eee; padding: 10px; width: 280px; font-size: 11px; }
+      .header-right p { margin: 2px 0; }
+      .title-bar { border: 2px solid #000; padding: 5px 10px; font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+      .vehicule-bar { border: 1px solid #000; display: flex; margin-bottom: 20px; }
+      .vehicule-bar div { border-right: 1px solid #000; padding: 5px 10px; flex: 1; font-size: 11px; }
+      .vehicule-bar div:last-child { border-right: none; }
+      .vehicule-bar span { font-weight: bold; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+      th { border: 1px solid #000; background: #eee; padding: 6px; font-size: 11px; text-transform: uppercase; }
+      .totaux { width: 300px; margin-left: auto; border-collapse: collapse; }
+      .totaux td { border: 1px solid #000; padding: 6px; font-weight: bold; }
+      .footer { margin-top: 40px; display: flex; justify-content: flex-end; }
+      .cachet { border: 1px solid #000; width: 250px; height: 100px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; font-size: 10px; }
+      .bottom-line { border-top: 1px solid #000; margin-top: 40px; text-align: center; padding-top: 5px; font-size: 10px; color: #555; }
+      @media print { button { display: none; } body { padding: 0; } }
+    </style></head><body>
+    
+    <div class="container">
+      <div class="header">
+        <div class="header-left">
+          <p><b style="font-size: 18px;">${e(p.nom || "SPEED GARAGE PRO")}</b></p>
+          <p>${e(p.adresse || "Adresse non renseignée")}</p>
+          <p>Tél : ${e(p.telephone || "—")}</p>
+          <p>NIF : ${e(p.nif || "—")} · RCCM : ${e(p.rccm || "—")}</p>
+        </div>
+        <div class="header-right">
+          <p><b>Client :</b> ${e(doc.client_nom)}</p>
+          <p><b>Adresse :</b> ${e(client.adr || "—")}</p>
+          <p><b>Tel :</b> ${e(client.tel || "—")}</p>
+        </div>
+      </div>
+
+      <div class="title-bar">${type} N° : ${e(numero)}</div>
+      <div style="border: 1px solid #000; border-top: none; padding: 5px 10px; font-size: 11px; margin-bottom: 20px;">
+        Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}
+      </div>
+
+      <div class="vehicule-bar">
+        <div><span>Marque :</span> ${e(v.marque || doc.vehicule || "—")}</div>
+        <div><span>Modèle :</span> ${e(v.modele || "—")}</div>
+        <div><span>Type :</span> ${e(v.carburant || "—")}</div>
+        <div><span>N° Série :</span> ${e(v.vin || doc.immat || "—")}</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40%;">Main d'œuvre / Pièces</th>
+            <th style="width: 10%;">Qté</th>
+            <th style="width: 15%;">P.U Vente</th>
+            <th style="width: 15%;">P.U Net</th>
+            <th style="width: 20%;">Montant</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lignesHtml}
+          ${lignesVides}
+        </tbody>
+      </table>
+
+      <table class="totaux">
+        <tr><td>Total HT</td><td style="text-align:right;">${f(doc.total_ht)}</td></tr>
+        <tr><td>Total TVA</td><td style="text-align:right;">${f(doc.tva)}</td></tr>
+        <tr><td>Total TTC</td><td style="text-align:right;">${f(doc.total_ttc)}</td></tr>
+      </table>
+
+      <div class="footer">
+        <div class="cachet">
+          Cachet et Signature
+        </div>
+      </div>
+
+      <div class="bottom-line">
+        ${e(p.adresse || "Adresse")} · ${e(p.telephone || "Tel")}
+      </div>
+    </div>
+
+    <p style="text-align:center; margin-top:20px;" class="no-print">
+      <button onclick="window.print()" style="padding:10px 20px; cursor:pointer; background:#000; color:#fff; border:none;">🖨️ Imprimer</button>
+    </p>
+  </body></html>`);
+  w.document.close();
+}
+
+/* --- STOCK --- */
+let stockCategories = {
+  "Lubrifiants": ["Huiles", "Liquides"],
+  "Filtres": ["Filtre à huile", "Filtre à air", "Filtre à carburant", "Filtre habitacle", "Autres"],
+  "Allumage": ["Bougies", "Préchauffage", "Nettoyants"],
+  "Freinage": ["Plaquettes", "Disques", "Mâchoires", "Liquide", "Accessoires"],
+  "Courroies": ["Distribution", "Accessoires", "Galets"],
+  "Électricité": ["Fusibles", "Ampoules", "Cosses", "Connecteurs"],
+  "Entretien": ["Nettoyage", "Protection", "Graisses"],
+  "Pneumatiques": ["Valves", "Masses", "Réparation"],
+  "Climatisation": ["Gaz", "Huiles", "Outils"],
+  "Visserie": ["Vis", "Écrous", "Rondelles", "Rivets", "Clips"],
+  "Joints": ["Moteur", "Étanchéité", "Filetage"],
+  "Carrosserie": ["Abrasifs", "Mastics", "Peintures", "Masquage"],
+  "Atelier": ["Protection", "Nettoyage", "Divers"],
+  "Diagnostic": ["Outils", "Piles", "Sprays"],
+  "Diesel": ["Additifs", "Nettoyants"]
+};
+
+let currentStockCat = "";
+let currentStockSubCat = "";
+
+function filterStockCat() {
+  currentStockCat = $("st_cat").value;
+  currentStockSubCat = "";
+  renderStock(document.getElementById('app'));
+}
+
+function filterStockSubCat() {
+  currentStockSubCat = $("st_subcat").value;
+  renderStock(document.getElementById('app'));
+}
+
+function renderStock(A) {
+  const filtered = data.stock.filter(s => {
+    if (currentStockCat && s.categorie !== currentStockCat) return false;
+    if (currentStockSubCat && s.sous_categorie !== currentStockSubCat) return false;
+    return true;
+  });
+
+  const subCats = currentStockCat ? stockCategories[currentStockCat] || [] : [];
+
+  A.innerHTML = `
+    <div class="card"><b>➕ Nouvel article</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <select id="st_cat" onchange="filterStockCat()" style="flex:1">
+          <option value="">Toutes les catégories</option>
+          ${Object.keys(stockCategories).sort().map(c => `<option value="${c}" ${c === currentStockCat ? 'selected' : ''}>${c}</option>`).join("")}
+        </select>
+        <select id="st_subcat" onchange="filterStockSubCat()" style="flex:1" ${!currentStockCat ? 'disabled' : ''}>
+          <option value="">Toutes les sous-catégories</option>
+          ${subCats.map(sc => `<option value="${sc}" ${sc === currentStockSubCat ? 'selected' : ''}>${sc}</option>`).join("")}
+        </select>
+      </div>
+      <input id="st_nom" placeholder="Désignation précise">
+      <div style="display:flex; gap:8px">
+        <input id="st_qte" type="number" placeholder="Quantité" style="flex:1">
+        <input id="st_min" type="number" placeholder="Seuil d'alerte" style="flex:1">
+        <input id="st_prix" type="number" placeholder="Prix unitaire (GNF)" style="flex:2">
+      </div>
+      <button class="p" onclick="addStock()">Ajouter l'article</button>
+    </div>
+
+    <div class="card"><input placeholder="🔍 Rechercher un article..." value="${e(q)}" oninput="q=this.value;render()"></div>
+
+    ${Object.keys(stockCategories).filter(c => !currentStockCat || c === currentStockCat).sort().map(cat => {
+      const articlesCat = filtered.filter(s => s.categorie === cat);
+      if (articlesCat.length === 0) return "";
+      
+      return `
+        <div class="card" style="background:var(--bg); margin-bottom:8px; padding:10px"><b>📦 ${cat}</b></div>
+        ${articlesCat.map(s => `
+          <div class="card"><div class="row" style="border-top:0">
+            <div style="flex:1">
+              <b>${e(s.nom)}</b> 
+              ${s.sous_categorie ? `<span class="tag" style="margin-left:5px">${e(s.sous_categorie)}</span>` : ""}
+              ${+s.qte<=+s.seuil_alerte?'<span class="tag" style="background:var(--r);color:#fff">⚠️ Bas</span>':""}
+              <br><span class="m">Qté : ${s.qte} · Seuil : ${s.seuil_alerte} · ${f(s.prix)}</span>
+            </div>
+            <div>
+              <button class="s" onclick="changeStock('${s.id}',-1)">−</button>
+              <button class="s" onclick="changeStock('${s.id}',1)">+</button>
+              <button class="s" onclick="deleteStock('${s.id}')">🗑️</button>
+            </div>
+          </div></div>
+        `).join("")}
+      `;
+    }).join("") || '<div class="card m">Aucun article trouvé.</div>'}
+  `;
+}
+
+async function addStock() {
+  const nom = $("st_nom").value.trim();
+  const cat = $("st_cat").value;
+  const subcat = $("st_subcat") ? $("st_subcat").value : "";
+  const qte = +$("st_qte").value || 0;
+  const min = +$("st_min").value || 0;
+  const prix = +$("st_prix").value || 0;
+
+  if (!nom || !cat) { alert("La désignation et la catégorie sont obligatoires."); return; }
+
+  await supa.from("stock").insert({
+    nom, categorie: cat, sous_categorie: subcat, qte, seuil_alerte: min, prix
+  });
+  await jlog("Ajout stock", `[${cat}] ${nom}`, "");
+  await loadAllData();
+}
+
+async function changeStock(id, delta) { 
+  const s = data.stock.find(x=>x.id===id); 
+  if (s) { 
+    await supa.from("stock").update({qte: (+s.qte||0)+delta}).eq("id", id); 
+    await loadAllData(); 
+  } 
+}
+
+async function deleteStock(id) { 
+  if (!confirm("Supprimer ?")) return; 
+  await supa.from("stock").delete().eq("id", id); 
+  await loadAllData(); 
+}
+
+/* --- TECHNICIENS --- */
+function renderTechs(A) {
+  A.innerHTML = `<div class="card"><b>➕ Nouveau technicien</b>
+    <div style="display:flex; gap:8px; margin-bottom:8px">
+      <input id="tc_prenom" placeholder="Prénom *" style="flex:1">
+      <input id="tc_nom" placeholder="Nom *" style="flex:1">
+    </div>
+    <select id="tc_sp" style="margin-bottom:8px">
+      <option value="">Spécialité *</option>
+      <option value="Mécanicien">Mécanicien</option>
+      <option value="Électricien">Électricien</option>
+      <option value="Peintre">Peintre</option>
+      <option value="Tôlier">Tôlier</option>
+      <option value="Autre">Autre</option>
+    </select>
+    <input id="tc_adr" placeholder="Adresse" style="margin-bottom:8px">
+    <input id="tc_tel" type="tel" placeholder="Téléphone *" style="margin-bottom:8px">
+    <button class="p" onclick="addTech()">Ajouter</button>
+  </div>
+  
+  <div class="card">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--b); text-align:left;">
+          <th style="padding:10px;">Nom & Prénom</th>
+          <th style="padding:10px;">Spécialité</th>
+          <th style="padding:10px;">Téléphone</th>
+          <th style="padding:10px;">Adresse</th>
+          <th style="padding:10px; text-align:center;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.techs.map(t => `
+          <tr style="border-bottom:1px solid var(--b);">
+            <td style="padding:10px;"><b>${e(t.prenom || '')} ${e(t.nom)}</b></td>
+            <td style="padding:10px;">${e(t.specialite || '—')}</td>
+            <td style="padding:10px;">${e(t.telephone || '—')}</td>
+            <td style="padding:10px;">${e(t.adresse || '—')}</td>
+            <td style="padding:10px; text-align:center;">${profil.role === 'PDG' ? `<button class="s" onclick="deleteTech('${t.id}')">🗑️</button>` : ""}</td>
+          </tr>
+        `).join("") || '<tr><td colspan="5" style="text-align:center; padding:20px;">Aucun technicien.</td></tr>'}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+async function addTech() {
+  const prenom = $("tc_prenom").value.trim();
+  const nom = $("tc_nom").value.trim();
+  const sp = $("tc_sp").value;
+  const adr = $("tc_adr").value.trim();
+  const tel = $("tc_tel").value.trim();
+
+  if (!prenom || !nom) { alert("Le prénom et le nom sont obligatoires."); return; }
+  if (!sp) { alert("La spécialité est obligatoire."); return; }
+  if (!tel) { alert("Le téléphone est obligatoire."); return; }
+
+  const { error } = await supa.from("techniciens").insert({
+    prenom, nom, specialite: sp, adresse: adr, telephone: tel
+  });
+
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout technicien", `${prenom} ${nom}`, sp);
+  await loadAllData();
+}
+
+async function deleteTech(id) {
+  if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un technicien."); return; }
+  if (!confirm("Supprimer ce technicien ?")) return;
+  await supa.from("techniciens").delete().eq("id", id);
+  await loadAllData();
+}
+
+/* --- PERSONNEL --- */
+async function addPersonnel() {
+  const nom = $("p_nom").value.trim();
+  const prenom = $("p_prenom").value.trim();
+  const poste = $("p_poste").value.trim();
+  const tel = $("p_tel").value.trim();
+  const adr = $("p_adr").value.trim();
+  const dateEmbauche = $("p_date").value;
+  const typeContrat = $("p_contrat").value;
+  const salaire = +$("p_salaire").value || 0;
+
+  if (!nom || !poste) { alert("Le nom et le poste sont obligatoires."); return; }
+
+  const { error } = await supa.from("employes").insert({
+    nom, prenom, poste, telephone: tel, adresse: adr, date_embauche: dateEmbauche, type_contrat: typeContrat, salaire_base: salaire
+  });
+
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout employé", `${prenom} ${nom}`, poste);
+  await loadAllData();
+  alert("Employé ajouté avec succès !");
+}
+
+function renderPersonnel(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+
+  A.innerHTML = `
+    <div class="card"><b>➕ Nouvel employé</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="p_prenom" placeholder="Prénom *" style="flex:1">
+        <input id="p_nom" placeholder="Nom *" style="flex:1">
+      </div>
+      <input id="p_poste" placeholder="Poste *" style="margin-bottom:8px">
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="p_tel" type="tel" placeholder="Téléphone" style="flex:1">
+        <input id="p_adr" placeholder="Adresse" style="flex:2">
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:8px">
+        <input id="p_date" type="date" style="flex:1">
+        <select id="p_contrat" style="flex:1">
+          <option value="CDI">CDI</option>
+          <option value="CDD">CDD</option>
+          <option value="Stage">Stage</option>
+          <option value="Apprentissage">Apprentissage</option>
+        </select>
+        <input id="p_salaire" type="number" placeholder="Salaire (GNF)" style="flex:1">
+      </div>
+      <button class="p" onclick="addPersonnel()">Ajouter l'employé</button>
+    </div>
+
+    <div class="card">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--b); text-align:left;">
+            <th style="padding:10px;">Nom & Prénom</th>
+            <th style="padding:10px;">Poste</th>
+            <th style="padding:10px;">Téléphone</th>
+            <th style="padding:10px;">Contrat</th>
+            <th style="padding:10px; text-align:right;">Salaire</th>
+            <th style="padding:10px; text-align:center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.employes.map(emp => `
+            <tr style="border-bottom:1px solid var(--b);">
+              <td style="padding:10px;"><b>${e(emp.prenom || '')} ${e(emp.nom)}</b></td>
+              <td style="padding:10px;">${e(emp.poste || '—')}</td>
+              <td style="padding:10px;">${e(emp.telephone || '—')}</td>
+              <td style="padding:10px;">${e(emp.type_contrat || '—')}</td>
+              <td style="padding:10px; text-align:right; font-family:monospace;">${f(emp.salaire_base)}</td>
+              <td style="padding:10px; text-align:center;">
+                ${profil.role === 'PDG' ? `<button class="s" onclick="deleteEmploye('${emp.id}')">🗑️</button>` : ""}
+              </td>
+            </tr>
+          `).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px;">Aucun employé enregistré.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+async function deleteEmploye(id) {
+  if (profil.role !== "PDG") return;
+  if (!confirm("Supprimer cet employé ?")) return;
+  await supa.from("employes").delete().eq("id", id);
+  await loadAllData();
+}
+
+/* --- GESTION DE PAIE --- */
+async function addEmploye() {
+  const nom = $("emp_nom").value.trim(); 
+  const poste = $("emp_poste").value.trim();
+  const salaire = +$("emp_salaire").value || 0;
+  const tel = $("emp_tel").value.trim();
+  const date = $("emp_date").value;
+
+  if (!nom || !poste) { alert("Le nom et le poste sont obligatoires."); return; }
+  
+  const { error } = await supa.from("employes").insert({ 
+    nom, poste, salaire_base: salaire, telephone: tel, date_embauche: date 
+  });
+  
+  if (error) { alert("Erreur : " + error.message); return; }
+  
+  await jlog("Ajout employé", nom, poste); 
+  await loadAllData(); 
+  alert("Employé ajouté avec succès !");
+}
+
+async function sauverPaie(employeId) {
+  const mois = $("paie_mois").value; if (!mois) { alert("Choisissez le mois."); return; }
+  const base = +$("paie_base").value || 0, primes = +$("paie_primes").value || 0, avances = +$("paie_avances").value || 0;
+  const cnss = +$("paie_cnss").value || 0, impot = +$("paie_impot").value || 0;
+  const solde = base + primes - avances - cnss - impot;
+  const { error } = await supa.from("paie").insert({ employe_id: employeId, mois, salaire_base: base, primes, avances, cnss, impot, solde });
+  if (error) { alert("Erreur : " + error.message); return; }
+  const emp = data.employes.find(x => x.id === employeId);
+  await jlog("Paie enregistrée", `${emp.nom} - ${mois}`, `Solde : ${f(solde)}`);
+  employePaieId = null; await loadAllData(); alert("Paie enregistrée !");
+}
+
+function renderPaie(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  
+  if (employePaieId) {
+    const emp = data.employes.find(x => x.id === employePaieId);
+    if (!emp) { employePaieId = null; render(); return; }
+    const base = +$("paie_base")?.value || emp.salaire_base || 0;
+    const primes = +$("paie_primes")?.value || 0, avances = +$("paie_avances")?.value || 0;
+    const cnss = +$("paie_cnss")?.value || 0, impot = +$("paie_impot")?.value || 0;
+    const solde = base + primes - avances - cnss - impot;
+    A.innerHTML = `<div class="card">
+      <button class="s" onclick="employePaieId=null; render()">← Retour</button>
+      <h3>Fiche de paie : ${e(emp.nom)}</h3>
+      <input id="paie_mois" type="month" value="${new Date().toISOString().slice(0,7)}">
+      <label class="m">Salaire de base (GNF)</label><input id="paie_base" type="number" value="${base}" oninput="renderPaie(document.getElementById('app'))">
+      <label class="m">Primes</label><input id="paie_primes" type="number" value="${primes}" oninput="renderPaie(document.getElementById('app'))">
+      <label class="m">Avances</label><input id="paie_avances" type="number" value="${avances}" oninput="renderPaie(document.getElementById('app'))">
+      <label class="m">CNSS</label><input id="paie_cnss" type="number" value="${cnss}" oninput="renderPaie(document.getElementById('app'))">
+      <label class="m">Impôt</label><input id="paie_impot" type="number" value="${impot}" oninput="renderPaie(document.getElementById('app'))">
+      <div style="background:var(--bg); padding:15px; margin-top:15px; border:1px solid var(--r)"><b>Solde à payer : ${f(solde)}</b></div>
+      <button class="p" onclick="sauverPaie('${emp.id}')">Enregistrer</button></div>`;
+    return;
+  }
+  
+  A.innerHTML = `<div class="card"><b>👥 Registre des salaires</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="emp_nom" placeholder="Nom complet *" style="flex:1"><input id="emp_poste" placeholder="Poste *" style="flex:1"></div>
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="emp_salaire" type="number" placeholder="Salaire (GNF)" style="flex:1"><input id="emp_tel" placeholder="Téléphone" style="flex:1"><input id="emp_date" type="date" style="flex:1"></div>
+      <button class="p" onclick="addEmploye()">Ajouter</button></div>
+    <div class="card"><table><thead><tr><th>Nom</th><th>Poste</th><th style="text-align:right">Salaire</th><th style="text-align:center">Action</th></tr></thead><tbody>
+      ${data.employes.map(emp => `<tr><td><b>${e(emp.nom)}</b></td><td>${e(emp.poste)}</td><td style="text-align:right">${f(emp.salaire_base)}</td><td style="text-align:center"><button class="s" onclick="employePaieId='${emp.id}';render()">Faire la paie</button></td></tr>`).join("") || '<tr><td colspan="4" style="text-align:center">Aucun employé.</td></tr>'}
+    </tbody></table></div>
+    <div class="card"><b>📜 Historique</b><table><thead><tr><th>Employé</th><th>Mois</th><th style="text-align:right">Net à payer</th><th style="text-align:center">Action</th></tr></thead><tbody>
+      ${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => { const emp = data.employes.find(x => x.id === paie.employe_id); return `<tr><td>${e(emp ? emp.nom : "Inconnu")}</td><td>${e(paie.mois)}</td><td style="text-align:right"><b>${f(paie.solde)}</b></td><td style="text-align:center"><button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️ Bulletin</button>${profil.role === 'PDG' ? `<button class="s" style="color:var(--r)" onclick="deletePaie('${paie.id}')">🗑️</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="4" style="text-align:center">Aucune paie.</td></tr>'}
+    </tbody></table></div>`;
+}
+
+async function deletePaie(id) {
+  if (profil.role !== "PDG") return;
+  if (!confirm("Supprimer ce bulletin de paie ?")) return;
+  await supa.from("paie").delete().eq("id", id);
+  await loadAllData();
+}
+
+function printBulletinPaie(paieId) {
+  const p = data.paie.find(x => x.id === paieId); if (!p) return;
+  const emp = data.employes.find(x => x.id === p.employe_id); if (!emp) return;
+  const w = window.open("", "_blank");
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Bulletin de paie</title><style>body{font-family:Arial;font-size:12px;padding:20px;max-width:700px;margin:auto}.header{display:flex;justify-content:space-between;border-bottom:3px solid #1a2a3a;padding-bottom:10px;margin-bottom:20px}.header h1{font-size:20px;margin:0}.title{text-align:center;font-size:18px;font-weight:bold;margin:20px 0}.info{display:flex;justify-content:space-between;margin-bottom:20px}.info div{width:48%}table{width:100%;border-collapse:collapse;margin-bottom:20px}th,td{border:1px solid #000;padding:8px;text-align:left}th{background:#eee}.totaux{text-align:right;font-size:15px;font-weight:bold;margin-top:20px;border-top:2px solid #000;padding-top:10px}.signatures{display:flex;justify-content:space-between;margin-top:50px}.signatures div{width:40%;border-top:1px solid #000;text-align:center;padding-top:5px}@media print{button{display:none}}</style></head><body>
+    <div class="header"><div><h1>${e(data.params.nom || "SPEED GARAGE")}</h1><p>NIF : ${e(data.params.nif || "")} · RCCM : ${e(data.params.rccm || "")}</p></div><div style="text-align:right"><h2>BULLETIN DE PAIE</h2><p>Période : ${e(p.mois)}</p></div></div>
+    <div class="info"><div><p><b>Employé :</b> ${e(emp.nom)}</p><p><b>Poste :</b> ${e(emp.poste)}</p></div></div>
+    <table><thead><tr><th>Éléments</th><th style="text-align:right">Montant</th></tr></thead><tbody>
+      <tr><td>Salaire de base</td><td style="text-align:right">${f(p.salaire_base)}</td></tr>
+      <tr><td>Primes</td><td style="text-align:right">${f(p.primes)}</td></tr>
+      <tr><td>Avances</td><td style="text-align:right">- ${f(p.avances)}</td></tr>
+      <tr><td>CNSS</td><td style="text-align:right">- ${f(p.cnss || 0)}</td></tr>
+      <tr><td>Impôt</td><td style="text-align:right">- ${f(p.impot || 0)}</td></tr>
+    </tbody></table>
+    <div class="totaux">NET À PAYER : ${f(p.solde)}</div>
+    <div class="signatures"><div>Signature employeur</div><div>Signature employé</div></div>
+    <p style="text-align:center;margin-top:40px"><button onclick="window.print()">🖨️ Imprimer</button></p></body></html>`); w.document.close();
+}
+
+/* --- DÉPENSES --- */
+async function addDepense() {
+  const cat = $("dep_cat").value, desc = $("dep_desc").value.trim(), montant = +$("dep_montant").value || 0, dateVal = $("dep_date").value || new Date().toISOString().slice(0,10);
+  const salNom = $("dep_sal_nom").value.trim(), salPrenom = $("dep_sal_prenom").value.trim(), salFonction = $("dep_sal_fonction").value.trim();
+  if (!desc || montant <= 0) { alert("Description et montant obligatoires."); return; }
+  const { error } = await supa.from("depenses").insert({ categorie: cat, description: desc, montant, date_depense: dateVal, salarie_nom: salNom, salarie_prenom: salPrenom, salarie_fonction: salFonction, created_by: session.user.id });
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Nouvelle dépense", desc, cat);
+  $("dep_desc").value = ""; $("dep_montant").value = ""; $("dep_sal_nom").value = ""; $("dep_sal_prenom").value = ""; $("dep_sal_fonction").value = "";
+  await loadAllData();
+}
+
+async function deleteDepense(id) { if (!confirm("Supprimer ?")) return; await supa.from("depenses").delete().eq("id", id); await loadAllData(); }
+
+function renderDepenses(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  const total = data.depenses.reduce((a,d) => a + (+d.montant||0), 0);
+  A.innerHTML = `<div class="card"><b>➕ Enregistrer une dépense</b>
+      <select id="dep_cat"><option value="Achat pièces">Achat de pièces</option><option value="Salaires">Salaires</option><option value="Loyer">Loyer</option><option value="Électricité">Électricité</option><option value="Eau">Eau</option><option value="Carburant">Carburant</option><option value="Entretien">Entretien</option><option value="Fournitures">Fournitures</option><option value="Frais de déplacement">Frais de déplacement</option><option value="Appel téléphonique">Appel téléphonique</option><option value="Connexion internet">Connexion Internet</option><option value="Divers">Divers</option></select>
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="dep_sal_nom" placeholder="Nom salarié (si déplacement)" style="flex:1"><input id="dep_sal_prenom" placeholder="Prénom" style="flex:1"><input id="dep_sal_fonction" placeholder="Fonction" style="flex:1"></div>
+      <input id="dep_desc" placeholder="Description / Motif">
+      <input id="dep_montant" type="number" placeholder="Montant (GNF)">
+      <input id="dep_date" type="date" value="${new Date().toISOString().slice(0,10)}">
+      <button class="p" onclick="addDepense()">Ajouter la dépense</button></div>
+    <div class="card" style="background:var(--bg); border-left:4px solid var(--r)"><b style="font-size:18px">Total des dépenses : ${f(total)}</b></div>
+    <div class="card"><b>📜 Historique</b><table><thead><tr><th>Date</th><th>Catégorie</th><th>Description</th><th>Montant</th><th></th></tr></thead><tbody>
+      ${data.depenses.map(d => `<tr><td>${new Date(d.date_depense).toLocaleDateString('fr-FR')}</td><td><span class="tag">${e(d.categorie)}</span></td><td>${e(d.description)}${d.salarie_nom ? `<br><span class="m">👤 ${e(d.salarie_prenom)} ${e(d.salarie_nom)} (${e(d.salarie_fonction)})</span>` : ""}</td><td><b>${f(d.montant)}</b></td><td><button class="s" onclick="deleteDepense('${d.id}')">🗑️</button></td></tr>`).join("") || '<tr><td colspan="5" style="text-align:center">Aucune dépense.</td></tr>'}
+    </tbody></table></div>`;
+}
+
+/* --- FOURNISSEURS ET COMMANDES --- */
+async function addFournisseur() {
+  const nom = $("f_nom").value.trim(); if (!nom) { alert("Le nom est obligatoire."); return; }
+  const { error } = await supa.from("fournisseurs").insert({ nom, contact: $("f_contact").value.trim(), telephone: $("f_tel").value.trim(), adresse: $("f_adr").value.trim() });
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Ajout fournisseur", nom, ""); await loadAllData();
+}
+async function deleteFournisseur(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ce fournisseur ?")) return; await supa.from("fournisseurs").delete().eq("id", id); await loadAllData(); }
+async function addCommande() {
+  const fid = $("c_fournisseur").value, desc = $("c_desc").value.trim(), montant = parseFloat($("c_montant").value) || 0, montantPaye = parseFloat($("c_montant_paye").value) || 0;
+  const dateVal = $("c_date").value || new Date().toISOString().slice(0,10);
+  if (!fid || !desc || montant <= 0) { alert("Veuillez remplir correctement."); return; }
+  const fournisseur = data.fournisseurs.find(x => x.id === fid);
+  const statut = montantPaye >= montant ? "Payé" : (montantPaye > 0 ? "Partiel" : "Commandé");
+  const { error } = await supa.from("commandes").insert({ fournisseur_id: fid, fournisseur_nom: fournisseur.nom, description: desc, montant, montant_paye: montantPaye, statut, date_commande: dateVal });
+  if (error) { alert("Erreur Supabase : " + error.message); return; }
+  await jlog("Nouvelle commande", desc, `${fournisseur.nom} - ${f(montant)}`);
+  $("c_fournisseur").value = ""; $("c_desc").value = ""; $("c_montant").value = ""; $("c_montant_paye").value = ""; 
+  await loadAllData(); alert("Commande enregistrée !");
+}
+async function payerSolde(id) {
+  const c = data.commandes.find(x => x.id === id); if (!c) return;
+  const reste = c.montant - (c.montant_paye || 0);
+  if (!confirm(`Enregistrer le paiement du solde de ${f(reste)} ?`)) return;
+  await supa.from("commandes").update({ montant_paye: c.montant, statut: "Payé" }).eq("id", id);
+  await jlog("Paiement fournisseur", c.fournisseur_nom, `Solde : ${f(reste)}`); await loadAllData();
+}
+async function deleteCommande(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ?")) return; await supa.from("commandes").delete().eq("id", id); await loadAllData(); }
+
+function renderFournisseurs(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
+  A.innerHTML = `<div class="grid"><div class="card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
+    <div class="card"><b>🏭 Nouveau fournisseur</b>
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="f_nom" placeholder="Nom *" style="flex:2"><input id="f_contact" placeholder="Contact" style="flex:1"><input id="f_tel" placeholder="Téléphone" style="flex:1"></div>
+      <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px"><button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button></div>
+    <div class="card"><b>📦 Nouvelle commande</b>
+      <select id="c_fournisseur"><option value="">Choisir un fournisseur *</option>${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}</select>
+      <input id="c_desc" placeholder="Description (ex: 10 filtres...)">
+      <div style="display:flex; gap:8px; margin-bottom:8px"><input id="c_montant" type="number" placeholder="Montant total" style="flex:1"><input id="c_montant_paye" type="number" placeholder="Acompte versé" style="flex:1"><input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1"></div>
+      <button class="p" onclick="addCommande()">Enregistrer la commande</button></div>
+    <div class="card"><b>📜 Historique</b><div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
+      ${(data.commandes || []).map(c => { const reste = (+c.montant||0) - (+c.montant_paye||0); let statutTxt = reste <= 0 ? "Soldé" : (c.montant_paye > 0 ? "Reste à payer" : "Impayé"); let statutBg = reste <= 0 ? "var(--ok)" : (c.montant_paye > 0 ? "#f59e0b" : "var(--r)"); return `<tr><td>${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td><td><b>${e(c.fournisseur_nom)}</b></td><td>${e(c.description)}</td><td><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td><td><span class="tag" style="background:${statutBg};color:#fff">${statutTxt}</span><br><span class="m">Reste : ${f(reste)}</span></td><td>${reste > 0 ? `<button class="s" onclick="payerSolde('${c.id}')">Payer</button>` : ""}${profil.role === 'PDG' ? `<button class="s" onclick="deleteCommande('${c.id}')">🗑️</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="6" style="text-align:center">Aucune commande.</td></tr>'}
+    </tbody></table></div></div>
+    <div class="card"><b>🏭 Liste des fournisseurs</b>${data.fournisseurs.map(f => `<div class="row"><span><b>${e(f.nom)}</b><br><span class="m">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFournisseur('${f.id}')">🗑️</button>` : ""}</div>`).join("") || '<div class="m">Aucun fournisseur.</div>'}</div>`;
+}
+
+/* --- STATISTIQUES --- */
+function renderStats(A) {
+  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+  const caMois = {}; let totalCa = 0;
+  data.factures.filter(f => f.statut === "Payé").forEach(f => { const mois = (f.date_emission || "").slice(0,7); if (!mois) return; caMois[mois] = (caMois[mois] || 0) + (+f.total_ttc || 0); totalCa += (+f.total_ttc || 0); });
+  const totalSalaires = (data.paie || []).reduce((a,p) => a + (+p.solde||0), 0);
+  const totalDepenses = (data.depenses || []).reduce((a,d) => a + (+d.montant||0), 0);
+  const totalFournisseurs = (data.commandes || []).reduce((a,c) => a + (+c.montant_paye||0), 0);
+  const totalSorties = totalSalaires + totalDepenses + totalFournisseurs;
+  const beneficeNet = totalCa - totalSorties;
+  const techStats = {}; data.factures.forEach(f => { if (f.technicien) techStats[f.technicien] = (techStats[f.technicien] || 0) + (+f.total_ttc || 0); });
+  const topTechs = Object.entries(techStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  const clientStats = {}; data.factures.forEach(f => { if (f.client_nom) clientStats[f.client_nom] = (clientStats[f.client_nom] || 0) + (+f.total_ttc || 0); });
+  const topClients = Object.entries(clientStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  A.innerHTML = `<div class="card" style="background:var(--bg)"><b style="font-size:16px">💰 Tableau de bord financier</b>
+    <div class="grid" style="margin-top:10px">
+      <div class="card" style="border-top:4px solid var(--ok)"><div class="m">Recettes</div><div class="k" style="color:var(--ok)">${f(totalCa)}</div></div>
+      <div class="card" style="border-top:4px solid var(--r)"><div class="m">Sorties</div><div class="k" style="color:var(--r)">${f(totalSorties)}</div></div>
+      <div class="card" style="border-top:4px solid #7c3aed"><div class="m">Bénéfice Net</div><div class="k" style="color:${beneficeNet >= 0 ? 'var(--ok)' : 'var(--r)'}">${f(beneficeNet)}</div></div>
+    </div></div>
+    <div class="card"><b>📈 CA par mois</b>${Object.keys(caMois).sort().reverse().map(m => `<div class="row"><span>${m}</span><b>${f(caMois[m])}</b></div>`).join("") || '<div class="m">Aucune facture payée.</div>'}</div>
+    <div class="card"><b>🔧 Top techniciens</b>${topTechs.map((t, i) => `<div class="row"><span>#${i+1} ${e(t[0])}</span><b>${f(t[1])}</b></div>`).join("") || '<div class="m">—</div>'}</div>
+    <div class="card"><b>👑 Top clients</b>${topClients.map((c, i) => `<div class="row"><span>#${i+1} ${e(c[0])}</span><b>${f(c[1])}</b></div>`).join("") || '<div class="m">—</div>'}</div>`;
+}
+
+/* --- PARAMÈTRES --- */
+function renderParams(A) {
+  const p = data.params;
+  const estPDG = (profil.role === "PDG");
+  
+  A.innerHTML = `
+    ${estPDG ? `
+    <div class="card"><b>Informations du garage</b>
+      <label class="m">Nom</label><input id="p_nom" value="${e(p.nom||"")}">
+      <label class="m">NIF</label><input id="p_nif" value="${e(p.nif||"")}">
+      <label class="m">RCCM</label><input id="p_rccm" value="${e(p.rccm||"")}">
+      <label class="m">Adresse</label><input id="p_adr" value="${e(p.adresse||"")}">
+      <label class="m">Téléphone</label><input id="p_tel" value="${e(p.telephone||"")}">
+      <label class="m">TVA (%)</label><input id="p_tva" type="number" value="${e(p.tva_taux||"18")}">
+      <button class="p" onclick="saveParams()">Enregistrer</button></div>
+    ` : ""}
+
+    <div class="card"><b>🔐 Changer mon mot de passe</b>
+      <p class="m">Pour des raisons de sécurité, veuillez saisir votre ancien mot de passe.</p>
+      <input id="old_password" type="password" placeholder="Ancien mot de passe" style="margin-top:8px">
+      <input id="new_password" type="password" placeholder="Nouveau mot de passe">
+      <input id="confirm_password" type="password" placeholder="Confirmer">
+      <button class="p" onclick="changerMotDePasse()">Mettre à jour mon mot de passe</button></div>
+
+    ${estPDG ? `
+    <div class="card"><b>💾 Sauvegarde (PDG uniquement)</b><br>
+      <button class="p" onclick="exportAll()">📥 Exporter</button>
+      <div style="margin-top:10px; border-top:1px solid var(--b); padding-top:10px">
+        <input type="file" id="import_file" accept=".json" style="display:none" onchange="importAll(this)">
+        <button class="p" onclick="document.getElementById('import_file').click()" style="background:#0891b2">📤 Importer</button>
+      </div></div>
+    ` : ""}
+  `;
+}
+
+async function saveParams() {
+  const updates = [{cle:"nom", valeur:$("p_nom").value.trim()},{cle:"nif", valeur:$("p_nif").value.trim()},{cle:"rccm", valeur:$("p_rccm").value.trim()},{cle:"adresse", valeur:$("p_adr").value.trim()},{cle:"telephone", valeur:$("p_tel").value.trim()},{cle:"tva_taux", valeur:$("p_tva").value.trim()}];
+  for (const u of updates) await supa.from("parametres").update({valeur:u.valeur}).eq("cle",u.cle);
+  await loadAllData(); alert("Enregistré !");
+}
+
+async function changerMotDePasse() {
+  const oldPass = $("old_password").value, newPass = $("new_password").value, confirmPass = $("confirm_password").value;
+  if (!oldPass) { alert("Ancien mot de passe requis."); return; }
+  if (newPass.length < 8) { alert("8 caractères minimum."); return; }
+  if (newPass !== confirmPass) { alert("Les mots de passe ne correspondent pas."); return; }
+  const { error: loginError } = await supa.auth.signInWithPassword({ email: session.user.email, password: oldPass });
+  if (loginError) { alert("Ancien mot de passe incorrect."); return; }
+  const { error } = await supa.auth.updateUser({ password: newPass });
+  if (error) { alert("Erreur : " + error.message); } else { alert("✅ Mot de passe mis à jour !"); $("old_password").value = ""; $("new_password").value = ""; $("confirm_password").value = ""; }
+}
+
+function exportAll() {
+  const dataStr = JSON.stringify({ exporte_le: new Date().toISOString(), clients: data.clients, vehicules: data.vehicules, devis: data.devis, factures: data.factures, stock: data.stock, employes: data.employes, paie: data.paie, depenses: data.depenses, fournisseurs: data.fournisseurs, commandes: data.commandes, journal: data.journal }, null, 1);
+  const blob = new Blob([dataStr], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "sauvegarde-speed-garage-" + new Date().toISOString().slice(0,10) + ".json"; a.click();
+}
+
+function importAll(input) {
+  const file = input.files[0]; if (!file) return;
+  if (!confirm("⚠️ Cela va ajouter les données du fichier. Continuer ?")) { input.value = ""; return; }
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const json = JSON.parse(e.target.result);
+      if (!json.clients && !json.factures) { alert("Fichier invalide."); return; }
+      alert("Importation en cours...");
+      for (const c of (json.clients || [])) { delete c.id; await supa.from("clients").insert(c); }
+      for (const v of (json.vehicules || [])) { delete v.id; await supa.from("vehicules").insert(v); }
+      for (const d of (json.devis || [])) { delete d.id; await supa.from("devis").insert(d); }
+      for (const f of (json.factures || [])) { delete f.id; await supa.from("factures").insert(f); }
+      alert("✅ Importation terminée !"); await loadAllData();
+    } catch(err) { alert("Erreur : " + err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function renderLogout(A) { A.innerHTML = `<div class="card"><h3>Se déconnecter</h3><button class="p" onclick="logout()">Se déconnecter</button></div>`; }
+
+/* --- DÉMARRAGE --- */
+(async () => {
+  showLock('<div class="loading">Chargement…</div>');
+  try {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data: { session: s } } = await supa.auth.getSession();
+    if (s) { session = s; await loadProfil(); } else showLogin();
+  } catch(x) { 
+    showLock(`<div class="card" style="margin:40px auto;max-width:400px">
+      <b>Erreur</b>
+      <p class="m">${e(x.message)}</p>
+      <button class="p" onclick="location.reload()">Réessayer</button>
+    </div>`); 
+  }
+})();
+
+supa && supa.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") location.reload(); });
+</script>
+</body>
+</html>
