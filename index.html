@@ -4,770 +4,124 @@
 <meta charset="utf-8">
 <title>Speed Garage Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#dc2626">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#000000">
 <style>
-:root {
---bg: #0a0a0f;
---bg-secondary: #13131a;
---bg-card: #1a1a24;
---bg-hover: #22222e;
---border: #2a2a3a;
---border-light: #3a3a4a;
---text: #f0f0f5;
---text-muted: #8a8a9a;
---text-dim: #5a5a6a;
---primary: #dc2626;
---r: #dc2626;
---primary-hover: #ef4444;
---primary-glow: rgba(220, 38, 38, 0.3);
---success: #10b981;
---success-glow: rgba(16, 185, 129, 0.3);
---warning: #f59e0b;
---info: #3b82f6;
---info-glow: rgba(59, 130, 246, 0.3);
---purple: #8b5cf6;
---shadow: 0 4px 20px rgba(0,0,0,0.4);
---shadow-lg: 0 10px 40px rgba(0,0,0,0.6);
---radius: 12px;
---radius-sm: 8px;
---radius-lg: 16px;
+:root{--bg:#18181b;--c:#27272a;--t:#fafafa;--m:#a1a1aa;--b:#3f3f46;--r:#dc2626;--ok:#22c55e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background-color:var(--bg);color:var(--t);
+  font: 16px 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;font-weight: 500;overflow-x:hidden;
+  background-image: url('https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg');
+  background-size: cover;background-position: center;background-attachment: fixed;
 }
-* {
-box-sizing: border-box;
--webkit-tap-highlight-color: transparent;
-}
-body {
-margin: 0;
-background: var(--bg);
-color: var(--text);
-font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-font-weight: 400;
-font-size: 14px;
-line-height: 1.5;
-overflow-x: hidden;
-background-image:
-radial-gradient(circle at 20% 50%, rgba(220, 38, 38, 0.08) 0%, transparent 50%),
-radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
-background-attachment: fixed;
-min-height: 100vh;
-padding-top: env(safe-area-inset-top);
-padding-bottom: env(safe-area-inset-bottom);
-}
-header {
-background: rgba(10, 10, 15, 0.85);
-backdrop-filter: blur(20px);
--webkit-backdrop-filter: blur(20px);
-color: var(--text);
-padding: 14px 20px;
-padding-top: calc(14px + env(safe-area-inset-top));
-font-weight: 700;
-border-bottom: 1px solid var(--border);
-display: flex;
-align-items: center;
-gap: 12px;
-position: sticky;
-top: 0;
-z-index: 50;
-}
-header .logo {
-display: flex;
-align-items: center;
-gap: 10px;
-}
-header .logo-icon {
-width: 32px;
-height: 32px;
-background: linear-gradient(135deg, var(--primary), #991b1b);
-border-radius: 8px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 16px;
-box-shadow: 0 2px 8px var(--primary-glow);
-}
-header span {
-flex: 1;
-font-size: 15px;
-letter-spacing: -0.3px;
-}
-header small {
-font-weight: 500;
-font-size: 12px;
-opacity: 0.8;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-.tag {
-font-size: 11px;
-padding: 3px 10px;
-border-radius: 99px;
-background: var(--bg-card);
-border: 1px solid var(--border);
-display: inline-block;
-font-weight: 600;
-}
-.tag.pdg { background: rgba(220, 38, 38, 0.15); color: var(--primary); border-color: rgba(220, 38, 38, 0.3); }
-.tag.sec { background: rgba(59, 130, 246, 0.15); color: var(--info); border-color: rgba(59, 130, 246, 0.3); }
-.tag.mkt { background: rgba(139, 92, 246, 0.15); color: var(--purple); border-color: rgba(139, 92, 246, 0.3); }
-.wrap { display: flex; align-items: stretch; min-height: calc(100vh - 60px); }
-nav {
-display: flex;
-flex-direction: column;
-gap: 2px;
-padding: 16px 12px;
-width: 240px;
-flex: none;
-background: var(--bg-secondary);
-border-right: 1px solid var(--border);
-height: calc(100vh - 60px);
-position: sticky;
-top: 60px;
-overflow-y: auto;
-}
-nav button {
-text-align: left;
-border: 0;
-background: none;
-color: var(--text-muted);
-padding: 10px 12px;
-border-radius: var(--radius-sm);
-font: inherit;
-font-size: 13px;
-font-weight: 500;
-cursor: pointer;
-display: flex;
-align-items: center;
-gap: 10px;
-transition: all 0.2s ease;
-}
-nav button:hover {
-background: var(--bg-hover);
-color: var(--text);
-}
-nav button.on {
-background: linear-gradient(135deg, var(--primary), #b91c1c);
-color: #fff;
-font-weight: 600;
-box-shadow: 0 4px 12px var(--primary-glow);
-}
-nav button:active:not(.on) { background: var(--bg-hover); }
-.nav-icon {
-width: 20px;
-height: 20px;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-font-size: 16px;
-}
-main {
-flex: 1;
-min-width: 0;
-padding: 24px;
-width: 100%;
-max-width: 100%;
-margin: 0;
-animation: fadeIn 0.25s ease;
-}
-.mb {
-display: none;
-background: none;
-border: 0;
-color: var(--text);
-font-size: 24px;
-padding: 0;
-cursor: pointer;
-}
-@media (max-width: 768px) {
-.mb { display: inline-block; }
-nav {
-position: fixed;
-left: 0;
-top: 0;
-bottom: 0;
-z-index: 60;
-width: 280px;
-transform: translateX(-100%);
-transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-box-shadow: var(--shadow-lg);
-padding-top: 20px;
-}
-nav.open { transform: none; }
-main { padding: 16px; }
-.grid { grid-template-columns: 1fr 1fr; }
-}
-.card {
-background: var(--bg-card);
-border: 1px solid var(--border);
-border-radius: var(--radius);
-padding: 20px;
-margin-bottom: 16px;
-overflow-x: auto;
-transition: all 0.2s ease;
-}
-.card:hover {
-border-color: var(--border-light);
-}
-.card-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 16px;
-padding-bottom: 12px;
-border-bottom: 1px solid var(--border);
-}
-.card-title {
-font-size: 15px;
-font-weight: 700;
-color: var(--text);
-display: flex;
-align-items: center;
-gap: 8px;
-letter-spacing: -0.2px;
-}
-.grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 16px;
-}
-.k {
-font-size: 28px;
-font-weight: 800;
-letter-spacing: -1px;
-line-height: 1.1;
-}
-.m {
-color: var(--text-muted);
-font-size: 12px;
-font-weight: 500;
-}
-input, select, textarea {
-width: 100%;
-padding: 11px 14px;
-margin: 4px 0;
-border: 1px solid var(--border);
-border-radius: var(--radius-sm);
-background: var(--bg);
-color: var(--text);
-font: inherit;
-font-size: 13px;
-transition: all 0.2s ease;
-}
-input:focus, select:focus, textarea:focus {
-outline: none;
-border-color: var(--primary);
-box-shadow: 0 0 0 3px var(--primary-glow);
-background: var(--bg-secondary);
-}
-input::placeholder, textarea::placeholder {
-color: var(--text-dim);
-}
-label.m {
-display: block;
-margin-top: 8px;
-margin-bottom: 4px;
-font-size: 11px;
-font-weight: 600;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-color: var(--text-muted);
-}
-button.p {
-background: linear-gradient(135deg, var(--primary), #b91c1c);
-color: #fff;
-border: 0;
-border-radius: var(--radius-sm);
-padding: 12px 20px;
-font: inherit;
-font-weight: 700;
-font-size: 13px;
-margin-top: 8px;
-cursor: pointer;
-width: 100%;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-transition: all 0.2s ease;
-box-shadow: 0 4px 12px var(--primary-glow);
-}
-button.p:hover {
-transform: translateY(-1px);
-box-shadow: 0 6px 16px var(--primary-glow);
-}
-button.p:active {
-transform: translateY(0);
-opacity: 0.9;
-}
-button.s {
-background: var(--bg);
-border: 1px solid var(--border);
-color: var(--text-muted);
-border-radius: 6px;
-padding: 7px 12px;
-font: inherit;
-font-size: 12px;
-cursor: pointer;
-margin: 2px;
-transition: all 0.2s ease;
-font-weight: 500;
-}
-button.s:hover {
-background: var(--bg-hover);
-color: var(--text);
-border-color: var(--border-light);
-}
-.row {
-display: flex;
-justify-content: space-between;
-gap: 10px;
-align-items: center;
-padding: 12px 0;
-border-top: 1px solid var(--border);
-flex-wrap: wrap;
-}
-.ref {
-font-family: 'SF Mono', Monaco, monospace;
-font-size: 11px;
-background: var(--bg);
-padding: 2px 8px;
-border-radius: 4px;
-color: var(--text-muted);
-border: 1px solid var(--border);
-}
-#lock {
-position: fixed;
-inset: 0;
-z-index: 100;
-background: var(--bg);
-overflow: auto;
-}
-table {
-width: 100%;
-border-collapse: collapse;
-margin: 8px 0;
-min-width: 500px;
-}
-th, td {
-padding: 10px 8px;
-text-align: left;
-border-bottom: 1px solid var(--border);
-font-size: 13px;
-}
-th {
-background: var(--bg);
-font-weight: 600;
-color: var(--text-muted);
-font-size: 11px;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-}
-tr:hover { background: var(--bg-hover); }
-.loading { text-align:center; padding:40px; color:var(--text-muted); }
+header{background:#000;color:#fff;padding:12px 16px;font-weight:700;border-bottom:3px solid var(--r);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+header span{flex:1;font-size:16px}
+header small{font-weight:400;font-size:12px;opacity:.85}
+nav{display:flex;flex-direction:column;gap:4px;padding:12px;width:250px;flex:none;background:var(--c);border-right:1px solid var(--b);height:calc(100vh - 60px);position:sticky;top:60px;overflow-y:auto}
+nav button{text-align:left;border:0;background:none;color:var(--m);padding:12px;border-radius:8px;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+nav button.on{background:var(--r);color:#fff}
+nav button:active:not(.on){background:var(--b)}
+.wrap{display:flex;align-items:stretch;min-height:calc(100vh - 60px)}
+main{flex:1;min-width:0;padding:16px;width:100%;max-width:100%;margin:0}
+.mb{display:none;background:none;border:0;color:#fff;font-size:24px;padding:0;cursor:pointer}
+@media (max-width:768px){.mb{display:inline-block}nav{position:fixed;left:0;top:0;bottom:0;z-index:60;width:260px;transform:translateX(-100%);transition:transform .2s;box-shadow:4px 0 20px rgba(0,0,0,0.5);padding-top:20px}nav.open{transform:none}main{padding:12px}.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:12px;overflow-x:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.k{font-size:28px;font-weight:800;letter-spacing:-0.5px}
+.m{color:var(--m);font-size:13px}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:1px solid var(--b);border-radius:8px;background:var(--bg);color:var(--t);font:inherit;font-size:16px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--r);border-color:transparent}
+button.p{background:var(--r);color:#fff;border:0;border-radius:12px;padding:14px 20px;font:inherit;font-weight:800;font-size:16px;margin-top:8px;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:0.5px;box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);}
+button.p:active{opacity:0.8}
+button.s{background:none;border:1px solid var(--b);color:var(--t);border-radius:6px;padding:8px 12px;font:inherit;font-size:14px;cursor:pointer;margin:4px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--b);flex-wrap:wrap}
+.tag{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--b);display:inline-block}
+.ref{font-family:monospace;font-size:12px;background:var(--b);padding:3px 8px;border-radius:5px}
+#lock{position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto}
+table{width:100%;border-collapse:collapse;margin:8px 0;min-width:500px}
+th,td{padding:12px 8px;text-align:left;border-bottom:1px solid var(--b);font-size:14px}
+th{background:var(--bg);font-weight:600;color:var(--m);font-size:12px;text-transform:uppercase}
+tr:hover{background:var(--bg)}
+.loading{text-align:center;padding:40px;color:var(--m)}
 
 /* ===== CALENDRIER STYLE CAPTURE ===== */
-.calendar-container {
-background: #1e1e24;
-border: 1px solid #2a2a32;
-border-radius: 12px;
-padding: 24px;
-margin-bottom: 20px;
-}
-.calendar-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 24px;
-}
-.calendar-title {
-font-size: 22px;
-font-weight: 800;
-color: #ffffff;
-letter-spacing: -0.5px;
-}
-.calendar-nav-btn {
-background: #2a2a32;
-border: 1px solid #3a3a45;
-color: #ffffff;
-padding: 10px 18px;
-border-radius: 8px;
-font-size: 14px;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.2s ease;
-}
-.calendar-nav-btn:hover {
-background: #3a3a45;
-border-color: #4a4a55;
-}
-.calendar-weekdays {
-display: grid;
-grid-template-columns: repeat(7, 1fr);
-gap: 6px;
-margin-bottom: 8px;
-}
-.calendar-weekday {
-text-align: center;
-font-size: 13px;
-font-weight: 600;
-color: #8a8a95;
-padding: 8px 0;
-}
-.calendar-days {
-display: grid;
-grid-template-columns: repeat(7, 1fr);
-gap: 6px;
-}
-.calendar-day {
-aspect-ratio: 1;
-width: 100%;
-padding: 6px 8px;
-background: #14141a;
-border: 1px solid #2a2a32;
-border-radius: 6px;
-cursor: pointer;
-transition: all 0.15s ease;
-position: relative;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-justify-content: flex-start;
-}
-.calendar-day:hover {
-background: #1a1a22;
-border-color: #3a3a45;
-}
-.calendar-day-number {
-font-size: 15px;
-font-weight: 700;
-color: #ffffff;
-line-height: 1;
-}
-.calendar-day-empty {
-background: transparent;
-border: none;
-cursor: default;
-aspect-ratio: 1;
-}
-.calendar-day-empty:hover {
-background: transparent;
-border: none;
-}
-.calendar-day.today {
-background: #dc2626;
-border-color: #dc2626;
-}
-.calendar-day.today .calendar-day-number {
-color: #ffffff;
-font-weight: 800;
-}
-.calendar-day.selected {
-background: #2563eb;
-border-color: #2563eb;
-}
-.calendar-day.selected .calendar-day-number {
-color: #ffffff;
-}
-.calendar-day.has-rdv {
-border-left: 3px solid #22c55e;
-}
-.rdv-indicator {
-display: flex;
-gap: 3px;
-margin-top: 6px;
-flex-wrap: wrap;
-}
-.rdv-dot {
-width: 5px;
-height: 5px;
-border-radius: 50%;
-background: #22c55e;
-}
-.rdv-count {
-font-size: 10px;
-font-weight: 600;
-color: #22c55e;
-margin-top: 4px;
-}
-.calendar-day.today .rdv-count {
-color: #ffffff;
-}
-.calendar-day.today .rdv-dot {
-background: #ffffff;
-}
-.rdv-form {
-background: #1e1e24;
-border: 1px solid #2a2a32;
-border-radius: 12px;
-padding: 24px;
-margin-bottom: 20px;
-}
-.rdv-form-title {
-font-size: 18px;
-font-weight: 800;
-color: #ffffff;
-margin-bottom: 20px;
-display: flex;
-align-items: center;
-gap: 10px;
-letter-spacing: -0.3px;
-}
-.rdv-form-title::before {
-content: '＋';
-font-size: 22px;
-font-weight: 700;
-color: #8a8a95;
-}
-.form-field {
-margin-bottom: 14px;
-}
-.form-input-dark {
-width: 100%;
-padding: 14px 16px;
-background: #14141a;
-border: 1px solid #2a2a32;
-border-radius: 8px;
-color: #ffffff;
-font: inherit;
-font-size: 14px;
-transition: all 0.2s ease;
-}
-.form-input-dark:focus {
-outline: none;
-border-color: #dc2626;
-background: #1a1a22;
-}
-.form-input-dark::placeholder {
-color: #6a6a75;
-}
-select.form-input-dark {
-appearance: none;
-background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236a6a75' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-background-repeat: no-repeat;
-background-position: right 16px center;
-padding-right: 40px;
-}
-.form-row-2 {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 12px;
-}
-.form-row-date {
-display: grid;
-grid-template-columns: 2fr 1fr;
-gap: 12px;
-}
-.btn-submit-rdv {
-background: #dc2626;
-color: #ffffff;
-border: none;
-border-radius: 8px;
-padding: 14px 24px;
-font: inherit;
-font-weight: 700;
-font-size: 14px;
-cursor: pointer;
-width: 100%;
-margin-top: 8px;
-transition: all 0.2s ease;
-}
-.btn-submit-rdv:hover {
-background: #ef4444;
-}
-.rdv-list {
-background: #1e1e24;
-border: 1px solid #2a2a32;
-border-radius: 12px;
-padding: 20px;
-}
-.rdv-list-title {
-font-size: 16px;
-font-weight: 700;
-color: #ffffff;
-margin-bottom: 16px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-}
-.rdv-item {
-display: flex;
-align-items: flex-start;
-gap: 16px;
-padding: 14px;
-margin-bottom: 10px;
-background: #14141a;
-border: 1px solid #2a2a32;
-border-left: 4px solid #dc2626;
-border-radius: 8px;
-transition: all 0.15s ease;
-}
-.rdv-item:hover {
-background: #1a1a22;
-}
-.rdv-time-badge {
-display: flex;
-flex-direction: column;
-align-items: center;
-min-width: 55px;
-padding: 8px;
-background: #1e1e24;
-border-radius: 6px;
-border: 1px solid #2a2a32;
-}
-.rdv-time-hour {
-font-size: 16px;
-font-weight: 800;
-color: #dc2626;
-line-height: 1;
-}
-.rdv-time-label {
-font-size: 9px;
-color: #6a6a75;
-text-transform: uppercase;
-margin-top: 3px;
-font-weight: 600;
-}
-.rdv-content {
-flex: 1;
-min-width: 0;
-}
-.rdv-client-name {
-font-size: 14px;
-font-weight: 700;
-color: #ffffff;
-margin-bottom: 4px;
-}
-.rdv-vehicle {
-font-size: 12px;
-color: #8a8a95;
-margin-bottom: 3px;
-}
-.rdv-motif {
-font-size: 11px;
-color: #6a6a75;
-font-style: italic;
-}
-.rdv-actions {
-display: flex;
-flex-direction: column;
-gap: 4px;
-}
-.btn-icon {
-background: #2a2a32;
-border: 1px solid #3a3a45;
-color: #8a8a95;
-width: 32px;
-height: 32px;
-border-radius: 6px;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 14px;
-transition: all 0.15s ease;
-}
-.btn-icon:hover {
-background: #3a3a45;
-color: #ffffff;
-}
-.btn-icon.danger:hover {
-background: #dc2626;
-color: #ffffff;
-border-color: #dc2626;
-}
-.rdv-empty {
-text-align: center;
-padding: 40px 20px;
-color: #6a6a75;
-}
+.calendar-container { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.calendar-title { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+.calendar-nav-btn { background: #2a2a32; border: 1px solid #3a3a45; color: #ffffff; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+.calendar-nav-btn:hover { background: #3a3a45; border-color: #4a4a55; }
+.calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 8px; }
+.calendar-weekday { text-align: center; font-size: 13px; font-weight: 600; color: #8a8a95; padding: 8px 0; }
+.calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.calendar-day { aspect-ratio: 1; width: 100%; padding: 6px 8px; background: #14141a; border: 1px solid #2a2a32; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; }
+.calendar-day:hover { background: #1a1a22; border-color: #3a3a45; }
+.calendar-day-number { font-size: 15px; font-weight: 700; color: #ffffff; line-height: 1; }
+.calendar-day-empty { background: transparent; border: none; cursor: default; aspect-ratio: 1; }
+.calendar-day-empty:hover { background: transparent; border: none; }
+.calendar-day.today { background: #dc2626; border-color: #dc2626; }
+.calendar-day.today .calendar-day-number { color: #ffffff; font-weight: 800; }
+.calendar-day.selected { background: #2563eb; border-color: #2563eb; }
+.calendar-day.selected .calendar-day-number { color: #ffffff; }
+.calendar-day.has-rdv { border-left: 3px solid #22c55e; }
+.rdv-indicator { display: flex; gap: 3px; margin-top: 6px; flex-wrap: wrap; }
+.rdv-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
+.rdv-count { font-size: 10px; font-weight: 600; color: #22c55e; margin-top: 4px; }
+.calendar-day.today .rdv-count { color: #ffffff; }
+.calendar-day.today .rdv-dot { background: #ffffff; }
+
+/* ===== FORMULAIRE RDV STYLE CAPTURE ===== */
+.rdv-form { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.rdv-form-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px; }
+.rdv-form-title::before { content: '＋'; font-size: 22px; font-weight: 700; color: #8a8a95; }
+.form-field { margin-bottom: 14px; }
+.form-input-dark { width: 100%; padding: 14px 16px; background: #14141a; border: 1px solid #2a2a32; border-radius: 8px; color: #ffffff; font: inherit; font-size: 14px; transition: all 0.2s ease; }
+.form-input-dark:focus { outline: none; border-color: #dc2626; background: #1a1a22; }
+.form-input-dark::placeholder { color: #6a6a75; }
+select.form-input-dark { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236a6a75' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row-date { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+.btn-submit-rdv { background: #dc2626; color: #ffffff; border: none; border-radius: 8px; padding: 14px 24px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; margin-top: 8px; transition: all 0.2s ease; }
+.btn-submit-rdv:hover { background: #ef4444; }
+
+/* ===== LISTE RDV ===== */
+.rdv-list { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 20px; }
+.rdv-list-title { font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+.rdv-item { display: flex; align-items: flex-start; gap: 16px; padding: 14px; margin-bottom: 10px; background: #14141a; border: 1px solid #2a2a32; border-left: 4px solid #dc2626; border-radius: 8px; transition: all 0.15s ease; }
+.rdv-item:hover { background: #1a1a22; }
+.rdv-time-badge { display: flex; flex-direction: column; align-items: center; min-width: 55px; padding: 8px; background: #1e1e24; border-radius: 6px; border: 1px solid #2a2a32; }
+.rdv-time-hour { font-size: 16px; font-weight: 800; color: #dc2626; line-height: 1; }
+.rdv-time-label { font-size: 9px; color: #6a6a75; text-transform: uppercase; margin-top: 3px; font-weight: 600; }
+.rdv-content { flex: 1; min-width: 0; }
+.rdv-client-name { font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
+.rdv-vehicle { font-size: 12px; color: #8a8a95; margin-bottom: 3px; }
+.rdv-motif { font-size: 11px; color: #6a6a75; font-style: italic; }
+.rdv-actions { display: flex; flex-direction: column; gap: 4px; }
+.btn-icon { background: #2a2a32; border: 1px solid #3a3a45; color: #8a8a95; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s ease; }
+.btn-icon:hover { background: #3a3a45; color: #ffffff; }
+.btn-icon.danger:hover { background: #dc2626; color: #ffffff; border-color: #dc2626; }
+.rdv-empty { text-align: center; padding: 40px 20px; color: #6a6a75; }
+
 @media (max-width: 768px) {
-.form-row-2, .form-row-date {
-grid-template-columns: 1fr;
-}
-.calendar-day {
-min-height: 45px;
-padding: 6px 8px;
-}
-.calendar-day-number {
-font-size: 13px;
-}
-}
-::-webkit-scrollbar {
-width: 8px;
-height: 8px;
-}
-::-webkit-scrollbar-track {
-background: var(--bg);
-}
-::-webkit-scrollbar-thumb {
-background: var(--border);
-border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-background: var(--border-light);
-}
-@keyframes fadeIn {
-from { opacity: 0; transform: translateY(10px); }
-to { opacity: 1; transform: translateY(0); }
-}
-.card, .rdv-item, .calendar-container {
-animation: fadeIn 0.3s ease;
-}
-@media (max-width: 768px) {
-.card { padding: 14px; }
-.form-row-2, .form-row-date { grid-template-columns: 1fr; }
-.form-actions { flex-direction: column; }
-.btn-primary, .btn-secondary { width: 100%; }
-.card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-header { padding: 10px 12px; }
-header .logo-icon { width: 28px; height: 28px; font-size: 14px; }
-header span { font-size: 13px; }
-.calendar-day { min-height: 42px; padding: 4px; }
-.calendar-day-number { font-size: 12px; }
-.rdv-dot { width: 4px; height: 4px; }
-.rdv-count { font-size: 9px; }
-}
-#status-indicator {
-position: fixed;
-top: 70px;
-right: 16px;
-padding: 6px 12px;
-border-radius: 20px;
-font-size: 11px;
-font-weight: 600;
-z-index: 99;
-background: var(--success);
-color: #fff;
-box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-#status-indicator.offline { background: var(--r); animation: pulse 2s infinite; }
-@keyframes pulse { 50% { opacity: 0.6; } }
-#mobile-overlay {
-display: none;
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.5);
-z-index: 55;
-}
-@media (max-width: 768px) {
-#mobile-overlay.active { display: block; }
+  .form-row-2, .form-row-date { grid-template-columns: 1fr; }
+  .calendar-day { min-height: 45px; padding: 6px 8px; }
+  .calendar-day-number { font-size: 13px; }
 }
 </style>
 </head>
 <body>
+
 <div id="lock"></div>
-<div id="mobile-overlay" onclick="$('nav').classList.remove('open')"></div>
 <header id="hd" style="display:none"></header>
 <div class="wrap" id="wrap" style="display:none">
-<nav id="nav"></nav>
-<main id="app"></main>
+  <nav id="nav"></nav>
+  <main id="app"></main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://qmgjokjuvnscuqvivklc.supabase.co";
 const SUPABASE_KEY = "sb_publishable_6dWTuzuT9i_DTM1qo3Yz_Q_N78vPXqL";
+
 const $ = id => document.getElementById(id);
 const e = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const f = n => (+n || 0).toLocaleString("fr-FR", {maximumFractionDigits:0}) + " GNF";
@@ -779,90 +133,62 @@ let clientDetailId = null, employePaieId = null, clientRappelId = null;
 let dateCalendrier = new Date().toISOString().slice(0, 7);
 let jourSelectionne = null;
 
-const NAV_ICONS = {
-" Tableau de bord": "📊",
-"📅 Planning": "📅",
-"🔔 Rappels": "🔔",
-"👥 Clients": "👥",
-"🚗 Véhicules": "",
-"📝 Devis": "📝",
-"🧾 Factures": "🧾",
-"📦 Stock": "📦",
-"🔧 Techniciens": "🔧",
-"👔 Personnel": "👔",
-"💰 Gestion de paie": "💰",
-"💸 Dépenses": "💸",
-"🏭 Fournisseurs": "🏭",
-"🔍 Journal d'audit": "🔍",
-"📈 Statistiques": "📈",
-"⚙️ Paramètres": "️",
-"🚪 Se déconnecter": "🚪"
-};
-
 const ROLES = {
-PDG: {label:"PDG", cls:"pdg", pages:["📊 Tableau de bord","📅 Planning"," Rappels","👥 Clients"," Véhicules","📝 Devis"," Factures","📦 Stock"," Techniciens","👔 Personnel","💰 Gestion de paie","💸 Dépenses","🏭 Fournisseurs","🔍 Journal d'audit"," Statistiques","⚙️ Paramètres","🚪 Se déconnecter"],
-can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
-SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["📊 Tableau de bord"," Planning","🔔 Rappels"," Clients","🚗 Véhicules"," Devis","🧾 Factures","📦 Stock","🔧 Techniciens"," Dépenses","🏭 Fournisseurs","️ Paramètres","🚪 Se déconnecter"],
-can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
-MARKETING: {label:"Marketing", cls:"mkt", pages:["📊 Tableau de bord","👥 Clients","🚗 Véhicules","⚙️ Paramètres","🚪 Se déconnecter"],
-can:{editClients:false,editDevis:false,editFactures:false,editStock:false,deleteAny:false,viewAudit:false,exportData:true}}
+  PDG: {label:"PDG", cls:"pdg", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","👔 Personnel","💰 Gestion de paie","💸 Dépenses","🏭 Fournisseurs","🔍 Journal d'audit","📈 Statistiques","⚙️ Paramètres","🚪 Se déconnecter"],
+    can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
+  SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","💸 Dépenses","🏭 Fournisseurs","⚙️ Paramètres","🚪 Se déconnecter"],
+    can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
+  MARKETING: {label:"Marketing", cls:"mkt", pages:["📊 Tableau de bord","👥 Clients","🚗 Véhicules","⚙️ Paramètres","🚪 Se déconnecter"],
+    can:{editClients:false,editDevis:false,editFactures:false,editStock:false,deleteAny:false,viewAudit:false,exportData:true}}
 };
 
 function showLock(html){ $("lock").style.display="block"; $("hd").style.display="none"; $("wrap").style.display="none"; $("lock").innerHTML=html; }
 
 function showLogin(msg) {
-showLock(`
-<div style="position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.15), transparent 70%);"></div>
-<div style="max-width:420px;margin:8vh auto;padding:32px; position:relative; background:var(--bg-card); border-radius:16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid var(--border);">
-<div style="text-align:center; margin-bottom: 24px;">
-<div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary), #991b1b); border-radius: 16px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 8px 24px var(--primary-glow);">🏎️</div>
-<h2 style="margin:0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">SPEED GARAGE PRO</h2>
-<p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Gestion professionnelle de garage</p>
-<div style="height: 2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); margin: 20px 0;"></div>
-</div>
-<div class="card" style="border:none; box-shadow:none; padding:0; background:transparent;">
-<label class="m" style="color:var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Identifiant</label>
-<select id="lu" style="width:100%; padding:12px 14px; margin:8px 0; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font:inherit; font-size: 13px;">
-<option value="pdg@speedgarage.local">PDG</option>
-<option value="secretaire@speedgarage.local">SECRETAIRE</option>
-<option value="marketing@speedgarage.local">MARKETING</option>
-</select>
-<label class="m" style="color:var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Mot de passe</label>
-<input id="lp" type="password" style="width:100%; padding:12px 14px; margin:8px 0; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font:inherit; font-size: 13px;" onkeydown="if(event.key==='Enter')doLogin()" placeholder="••••••••">
-<button class="p" style="width:100%; padding:14px; margin-top:16px; font-size:13px; font-weight: 700;" onclick="doLogin()">SE CONNECTER</button>
-<p id="lm" class="m" style="color:var(--primary);margin-top:12px; text-align:center; font-size: 12px;">${msg||""}</p>
-</div>
-<p class="m" style="text-align:center; color:var(--text-dim); margin-top:24px; font-size:11px;">NIF 931828172 · RCCM GN.TCC.2026.B.13913</p>
-</div>
-`);
+  showLock(`
+    <div style="position: fixed; inset: 0; z-index: -1; background-image: url('https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg'); background-size: cover; background-position: center; opacity: 0.15;"></div>
+    <div style="max-width:400px;margin:8vh auto;padding:24px; position:relative; background:var(--c); border-radius:12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); border:1px solid var(--b)">
+      <div style="text-align:center">
+        <img src="https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/login-bg.jpg" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
+        <h2 style="margin:0; color:var(--t)">SPEED GARAGE PRO</h2>
+        <div style="border-top:2px solid var(--r);margin:15px 0;"></div>
+      </div>
+      <div class="card" style="border:none; box-shadow:none; padding:0; background:transparent;">
+        <label class="m">Identifiant</label>
+        <select id="lu" style="width:100%; padding:12px; margin:4px 0; border:1px solid var(--b); border-radius:8px; background:var(--bg); color:var(--t); font:inherit;">
+          <option value="pdg@speedgarage.local">PDG</option>
+          <option value="secretaire@speedgarage.local">SECRETAIRE</option>
+          <option value="marketing@speedgarage.local">MARKETING</option>
+        </select>
+        <label class="m">Mot de passe</label>
+        <input id="lp" type="password" style="width:100%; padding:12px; margin:4px 0; border:1px solid var(--b); border-radius:8px; background:var(--bg); color:var(--t); font:inherit;" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="p" style="width:100%; padding:14px; margin-top:15px; font-size:16px;" onclick="doLogin()">SE CONNECTER</button>
+        <p id="lm" class="m" style="color:var(--r);margin-top:10px; text-align:center;">${msg||""}</p>
+      </div>
+      <p class="m" style="text-align:center; margin-top:20px; font-size:12px;">NIF 931828172 · RCCM GN.TCC.2026.B.13913</p>
+    </div>
+  `);
 }
 
 async function doLogin() {
-const email = $("lu").value.trim().toLowerCase(), pw = $("lp").value, m = $("lm");
-m.textContent = "Connexion en cours...";
-try {
-const { data: d, error } = await supa.auth.signInWithPassword({email, password:pw});
-if (error) { m.textContent = "Échec : " + error.message; return; }
-session = d.session; await loadProfil();
-} catch(x) { m.textContent = "Erreur réseau."; }
+  const email = $("lu").value.trim().toLowerCase(), pw = $("lp").value, m = $("lm");
+  m.textContent = "Connexion…";
+  try {
+    const { data: d, error } = await supa.auth.signInWithPassword({email, password:pw});
+    if (error) { m.textContent = "Échec : " + error.message; return; }
+    session = d.session; await loadProfil();
+  } catch(x) { m.textContent = "Erreur réseau."; }
 }
 
 async function loadProfil() {
-const { data: p, error } = await supa.from("profiles").select("*").eq("id", session.user.id).single();
-if (error || !p) { showLogin("Profil introuvable."); return; }
-profil = p; enterApp();
+  const { data: p, error } = await supa.from("profiles").select("*").eq("id", session.user.id).single();
+  if (error || !p) { showLogin("Profil introuvable."); return; }
+  profil = p; enterApp();
 }
 
 function enterApp() {
-$("lock").style.display="none"; $("hd").style.display="flex"; $("wrap").style.display="flex";
-jlog("Connexion", profil.username, ""); loadAllData(); resetIdle();
-const indicator = document.createElement('div');
-indicator.id = 'status-indicator';
-indicator.textContent = navigator.onLine ? '🟢 En ligne' : '🔴 Hors ligne';
-document.body.appendChild(indicator);
-window.addEventListener('online', () => indicator.textContent = '🟢 En ligne');
-window.addEventListener('offline', () => indicator.textContent = ' Hors ligne');
-notifierRDVJour();
+  $("lock").style.display="none"; $("hd").style.display="flex"; $("wrap").style.display="flex";
+  jlog("Connexion", profil.username, ""); loadAllData(); resetIdle();
 }
 
 function logout() { if (!confirm("Se déconnecter ?")) return; supa.auth.signOut().then(()=>location.reload()); }
@@ -872,864 +198,266 @@ function resetIdle() { clearTimeout(idleT); idleT = setTimeout(()=>{ supa.auth.s
 function go(t){ tab=t; q=""; $("nav").classList.remove("open"); render(); }
 
 async function loadAllData() {
-const R = ROLES[profil.role];
-const tasks = [
-supa.from("clients").select("*").order("created_at",{ascending:false}).then(r=>data.clients=r.data||[]),
-supa.from("techniciens").select("*").order("nom").then(r=>data.techs=r.data||[]),
-supa.from("devis").select("*").order("created_at",{ascending:false}).then(r=>data.devis=r.data||[]),
-supa.from("factures").select("*").order("created_at",{ascending:false}).then(r=>data.factures=r.data||[]),
-supa.from("rdv").select("*").order("date_rdv", {ascending:true}).then(r=>data.rdv=r.data||[]),
-supa.from("vehicules").select("*").then(r=>data.vehicules=r.data||[]),
-supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
-supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
-supa.from("depenses").select("*").order("date_depense", {ascending:false}).then(r=>data.depenses=r.data||[]),
-supa.from("fournisseurs").select("*").order("nom").then(r=>data.fournisseurs=r.data||[]),
-supa.from("commandes").select("*").order("date_commande", {ascending:false}).then(r=>data.commandes=r.data||[]),
-supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
-];
-if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
-if (R.can.viewAudit) tasks.push(supa.from("journal").select("*").order("created_at",{ascending:false}).limit(300).then(r=>data.journal=r.data||[]));
-await Promise.all(tasks); render();
+  const R = ROLES[profil.role];
+  const tasks = [
+    supa.from("clients").select("*").order("created_at",{ascending:false}).then(r=>data.clients=r.data||[]),
+    supa.from("techniciens").select("*").order("nom").then(r=>data.techs=r.data||[]),
+    supa.from("devis").select("*").order("created_at",{ascending:false}).then(r=>data.devis=r.data||[]),
+    supa.from("factures").select("*").order("created_at",{ascending:false}).then(r=>data.factures=r.data||[]),
+    supa.from("rdv").select("*").order("date_rdv", {ascending:true}).then(r=>data.rdv=r.data||[]),
+    supa.from("vehicules").select("*").then(r=>data.vehicules=r.data||[]),
+    supa.from("employes").select("*").order("nom").then(r=>data.employes=r.data||[]),
+    supa.from("paie").select("*").then(r=>data.paie=r.data||[]),
+    supa.from("depenses").select("*").order("date_depense", {ascending:false}).then(r=>data.depenses=r.data||[]),
+    supa.from("fournisseurs").select("*").order("nom").then(r=>data.fournisseurs=r.data||[]),
+    supa.from("commandes").select("*").order("date_commande", {ascending:false}).then(r=>data.commandes=r.data||[]),
+    supa.from("parametres").select("*").then(r=>{ data.params = {}; (r.data||[]).forEach(p=>data.params[p.cle]=p.valeur); })
+  ];
+  if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
+  if (R.can.viewAudit) tasks.push(supa.from("journal").select("*").order("created_at",{ascending:false}).limit(300).then(r=>data.journal=r.data||[]));
+  await Promise.all(tasks); render();
 }
 
 async function jlog(action, reference, details) {
-if (!profil || !session) return;
-try { await supa.from("journal").insert({utilisateur_id: session.user.id, utilisateur_nom: profil.username, role: profil.role, action, reference, details: details||""}); } catch(x){}
+  if (!profil || !session) return;
+  try { await supa.from("journal").insert({utilisateur_id: session.user.id, utilisateur_nom: profil.username, role: profil.role, action, reference, details: details||""}); } catch(x){}
 }
 
 function render() {
-if (!profil) return;
-const R = ROLES[profil.role];
-if (!R.pages.includes(tab)) tab = R.pages[0];
-$("hd").innerHTML = `
-<button class="mb" onclick="$('nav').classList.toggle('open'); $('mobile-overlay').classList.toggle('active');">☰</button>
-<div class="logo">
-<div class="logo-icon">🏎️</div>
-<span>SPEED GARAGE PRO</span>
-</div>
-<small>${e(profil.name||profil.username)} · <span class="tag ${R.cls}">${R.label}</span></small>
-`;
-const rdvJour = data.rdv.filter(r => r.date_rdv === new Date().toISOString().slice(0,10)).length;
-$("nav").innerHTML = R.pages.map(t => {
-const icon = NAV_ICONS[t] || "•";
-const badge = (t.includes("Planning") && rdvJour > 0) 
-? `<span style="background:#fff;color:var(--primary);border-radius:10px;padding:1px 6px;font-size:10px;margin-left:auto;">${rdvJour}</span>` 
-: "";
-return `<button class="${t===tab?"on":""}" onclick="go('${t.replace(/'/g,"\\'")}')"><span class="nav-icon">${icon}</span><span style="flex:1;">${t.replace(/^[^\s]+\s/, '')}</span>${badge}</button>`;
-}).join("");
-const A = $("app");
-const pageClean = tab.replace(/[^\w\s'éèàçùûîô]/g, '').trim();
-if (pageClean === "Tableau de bord") renderDashboard(A);
-else if (pageClean === "Planning") renderPlanning(A);
-else if (pageClean === "Rappels") renderRappels(A);
-else if (pageClean === "Clients") renderClients(A);
-else if (pageClean === "Véhicules") renderVehicules(A);
-else if (pageClean === "Devis") renderDevis(A);
-else if (pageClean === "Factures") renderFactures(A);
-else if (pageClean === "Stock") renderStock(A);
-else if (pageClean === "Techniciens") renderTechs(A);
-else if (pageClean === "Personnel") renderPersonnel(A);
-else if (pageClean === "Gestion de paie") renderPaie(A);
-else if (pageClean === "Dépenses") renderDepenses(A);
-else if (pageClean === "Fournisseurs") renderFournisseurs(A);
-else if (pageClean === "Journal d'audit") renderAudit(A);
-else if (pageClean === "Statistiques") renderStats(A);
-else if (pageClean === "Paramètres") renderParams(A);
-else if (pageClean === "Se déconnecter") renderLogout(A);
+  if (!profil) return;
+  const R = ROLES[profil.role];
+  if (!R.pages.includes(tab)) tab = R.pages[0];
+  $("hd").innerHTML = `<button class="mb" onclick="$('nav').classList.toggle('open')">☰</button><span>SPEED GARAGE PRO</span><small>${e(profil.name||profil.username)} · <span class="tag ${R.cls}">${R.label}</span></small>`;
+  $("nav").innerHTML = R.pages.map(t => `<button class="${t===tab?"on":""}" onclick="go('${t.replace(/'/g,"\\'")}')">${t}</button>`).join("");
+  const A = $("app");
+  
+  const pageClean = tab.replace(/[^\w\s'éèàçùûîô]/g, '').trim();
+  if (pageClean === "Tableau de bord") renderDashboard(A);
+  else if (pageClean === "Planning") renderPlanning(A);
+  else if (pageClean === "Rappels") renderRappels(A);
+  else if (pageClean === "Clients") renderClients(A);
+  else if (pageClean === "Véhicules") renderVehicules(A);
+  else if (pageClean === "Devis") renderDevis(A);
+  else if (pageClean === "Factures") renderFactures(A);
+  else if (pageClean === "Stock") renderStock(A);
+  else if (pageClean === "Techniciens") renderTechs(A);
+  else if (pageClean === "Personnel") renderPersonnel(A);
+  else if (pageClean === "Gestion de paie") renderPaie(A);
+  else if (pageClean === "Dépenses") renderDepenses(A);
+  else if (pageClean === "Fournisseurs") renderFournisseurs(A);
+  else if (pageClean === "Journal d'audit") renderAudit(A);
+  else if (pageClean === "Statistiques") renderStats(A);
+  else if (pageClean === "Paramètres") renderParams(A);
+  else if (pageClean === "Se déconnecter") renderLogout(A);
 }
 
 function renderDashboard(A) {
-const ca = data.factures.filter(o=>o.statut==="Payé").reduce((a,o)=>a+(+o.total_ttc||0),0);
-const impayees = data.factures.filter(o=>o.statut!=="Payé").length;
-const stockBas = data.stock.filter(s=>+s.qte<=+s.seuil_alerte).length;
-const rdvJour = data.rdv.filter(r=>r.date_rdv === new Date().toISOString().slice(0,10)).length;
-const rappelsUrgents = data.clients.filter(c => c.prochain_km > 0 || c.prochaine_date).length;
-const prochainsRDV = data.rdv.filter(r => r.date_rdv >= new Date().toISOString().slice(0,10)).slice(0, 5);
+  const ca = data.factures.filter(o=>o.statut==="Payé").reduce((a,o)=>a+(+o.total_ttc||0),0);
+  const impayees = data.factures.filter(o=>o.statut!=="Payé").length;
+  const stockBas = data.stock.filter(s=>+s.qte<=+s.seuil_alerte).length;
+  const rdvJour = data.rdv.filter(r=>r.date_rdv === new Date().toISOString().slice(0,10)).length;
+  const rappelsUrgents = data.clients.filter(c => c.prochain_km > 0 || c.prochaine_date).length;
 
-A.innerHTML = `
-<div class="grid">
-<div class="card" style="border-top:3px solid var(--success); background: linear-gradient(135deg, var(--bg-card), rgba(16, 185, 129, 0.05));">
-<div class="m">💰 Encaissé (Total)</div>
-<div class="k" style="color:var(--success); margin-top: 8px;">${f(ca)}</div>
-</div>
-<div class="card" style="border-top:3px solid var(--warning); background: linear-gradient(135deg, var(--bg-card), rgba(245, 158, 11, 0.05));">
-<div class="m">⏳ Factures en attente</div>
-<div class="k" style="color:var(--warning); margin-top: 8px;">${impayees}</div>
-</div>
-<div class="card" style="border-top:3px solid var(--info); background: linear-gradient(135deg, var(--bg-card), rgba(59, 130, 246, 0.05));">
-<div class="m"> RDV Aujourd'hui</div>
-<div class="k" style="color:var(--info); margin-top: 8px;">${rdvJour}</div>
-</div>
-<div class="card" style="border-top:3px solid var(--purple); background: linear-gradient(135deg, var(--bg-card), rgba(139, 92, 246, 0.05));">
-<div class="m">🔔 Rappels en attente</div>
-<div class="k" style="color:var(--purple); margin-top: 8px;">${rappelsUrgents}</div>
-</div>
-</div>
-<div class="card">
-<div class="card-header">
-<div class="card-title">⚡ Actions Rapides</div>
-</div>
-<div style="display:flex; gap:12px; flex-wrap:wrap;">
-<button class="p" style="margin:0; width:auto; flex: 1; min-width: 150px;" onclick="go('👥 Clients')">➕ Nouveau Client</button>
-<button class="p" style="margin:0; width:auto; flex: 1; min-width: 150px; background: linear-gradient(135deg, var(--info), #2563eb);" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
-<button class="p" style="margin:0; width:auto; flex: 1; min-width: 150px; background: linear-gradient(135deg, var(--purple), #7c3aed);" onclick="go('📅 Planning')">📅 Prendre RDV</button>
-</div>
-</div>
-${stockBas > 0 ? `
-<div class="card" style="border-left:4px solid var(--r); background: linear-gradient(135deg, var(--bg-card), rgba(220, 38, 38, 0.05));">
-<div style="display: flex; align-items: center; gap: 12px;">
-<div style="font-size: 32px;">⚠️</div>
-<div style="flex: 1;">
-<b style="color:var(--primary); font-size: 14px;">Alerte Stock</b>
-<p class="m" style="color:var(--text-muted); margin: 4px 0 0;">Vous avez ${stockBas} article(s) en rupture ou stock bas.</p>
-</div>
-<button class="s" onclick="go('📦 Stock')" style="background: var(--primary); color: #fff; border-color: var(--primary);">Voir →</button>
-</div>
-</div>
-` : ""}
-${prochainsRDV.length > 0 ? `
-<div class="card">
-<div class="card-header"><div class="card-title">📅 Prochains RDV</div></div>
-${prochainsRDV.map(r => `
-<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
-<div>
-<b>${e(r.client_nom)}</b><br>
-<span class="m">${e(r.vehicule)} · ${e(r.motif||'')}</span>
-</div>
-<div style="text-align:right;">
-<b style="color:var(--primary);">${e(r.date_rdv)}</b><br>
-<span class="m">${e(r.heure_rdv||'--:--')}</span>
-</div>
-</div>
-`).join('')}
-</div>` : ''}
-<div class="card">
-<div class="card-header">
-<div class="card-title">👋 Bienvenue, ${e(profil.name||profil.username)}</div>
-</div>
-<p class="m" style="font-size: 13px;">Vous êtes connecté en tant que <b style="color: var(--text);">${ROLES[profil.role].label}</b>. Bonne journée de travail !</p>
-</div>
-`;
+  A.innerHTML = `
+    <div class="grid">
+      <div class="card" style="border-top:4px solid var(--r)">
+        <div class="m">Encaissé (Total)</div><div class="k" style="color:var(--ok)">${f(ca)}</div>
+      </div>
+      <div class="card" style="border-top:4px solid #f59e0b">
+        <div class="m">Factures en attente</div><div class="k">${impayees}</div>
+      </div>
+      <div class="card" style="border-top:4px solid #2563eb">
+        <div class="m">RDV Aujourd'hui</div><div class="k">${rdvJour}</div>
+      </div>
+      <div class="card" style="border-top:4px solid #7c3aed">
+        <div class="m">Rappels en attente</div><div class="k">${rappelsUrgents}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <b>⚡ Actions Rapides</b>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; justify-content:flex-start">
+        <button class="p" style="margin:0; width:auto" onclick="go('👥 Clients')">➕ Nouveau Client</button>
+        <button class="p" style="margin:0; width:auto; background:#0891b2" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
+        <button class="p" style="margin:0; width:auto; background:#7c3aed" onclick="go('📅 Planning')">📅 Prendre RDV</button>
+      </div>
+    </div>
+
+    ${stockBas > 0 ? `
+    <div class="card" style="border-left:4px solid var(--r); background:var(--c); border-top:1px solid #7f1d1d; border-bottom:1px solid #7f1d1d;">
+      <b style="color:#fca5a5">⚠️ Alerte Stock</b>
+      <p class="m" style="color:var(--t)">Vous avez ${stockBas} article(s) en rupture ou stock bas. <a href="#" onclick="go('📦 Stock'); return false;" style="color:var(--r); font-weight:bold;">Voir le stock →</a></p>
+    </div>` : ""}
+
+    <div class="card">
+      <b>Bienvenue ${e(profil.name||profil.username)} 👋</b>
+      <p class="m">Vous êtes connecté en tant que <b>${ROLES[profil.role].label}</b>.</p>
+    </div>
+  `;
 }
 
+/* --- PLANNING --- */
 async function addRdv() {
-if (!ROLES[profil.role].can.editClients) return;
-const cid = $("rd_client").value; if (!cid) { alert("Choisissez un client."); return; }
-const d = $("rd_date").value; if (!d) { alert("Choisissez une date."); return; }
-const client = data.clients.find(c => c.id === cid);
-const clientNom = client ? client.nom : "Inconnu";
-const { error } = await supa.from("rdv").insert({
-client_id: cid, client_nom: clientNom,
-vehicule: ($("rd_marque").value.trim() + " " + $("rd_modele").value.trim()).trim(), immat: $("rd_immat").value.trim(),
-date_rdv: d, heure_rdv: $("rd_heure").value, motif: $("rd_motif").value.trim(), created_by: session.user.id
-});
-if (error) { alert("Erreur : "+error.message); return; }
-await jlog("Nouveau RDV", cid + " le " + d, ""); await loadAllData();
+  if (!ROLES[profil.role].can.editClients) return;
+  const cid = $("rd_client").value; if (!cid) { alert("Choisissez un client."); return; }
+  const d = $("rd_date").value; if (!d) { alert("Choisissez une date."); return; }
+  const { error } = await supa.from("rdv").insert({
+    client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom,
+    vehicule: ($("rd_marque").value.trim() + " " + $("rd_modele").value.trim()).trim(), immat: $("rd_immat").value.trim(),
+    date_rdv: d, heure_rdv: $("rd_heure").value, motif: $("rd_motif").value.trim(), created_by: session.user.id
+  });
+  if (error) { alert("Erreur : "+error.message); return; }
+  await jlog("Nouveau RDV", cid + " le " + d, ""); await loadAllData();
 }
 
 function autoRemplirPlanning(clientId) {
-if (!clientId) return;
-const v = data.vehicules.find(x => x.client_id === clientId);
-if (v) {
-if ($("rd_marque")) $("rd_marque").value = v.marque;
-if ($("rd_modele")) $("rd_modele").value = v.modele;
-if ($("rd_immat")) $("rd_immat").value = v.immat;
-} else {
-if ($("rd_marque")) $("rd_marque").value = "";
-if ($("rd_modele")) $("rd_modele").value = "";
-if ($("rd_immat")) $("rd_immat").value = "";
-}
+  if (!clientId) return;
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  if (v) {
+    if ($("rd_marque")) $("rd_marque").value = v.marque;
+    if ($("rd_modele")) $("rd_modele").value = v.modele;
+    if ($("rd_immat")) $("rd_immat").value = v.immat;
+  } else {
+    if ($("rd_marque")) $("rd_marque").value = "";
+    if ($("rd_modele")) $("rd_modele").value = "";
+    if ($("rd_immat")) $("rd_immat").value = "";
+  }
 }
 
 async function deleteRdv(id) { if (!confirm("Annuler ce RDV ?")) return; await supa.from("rdv").delete().eq("id", id); await loadAllData(); }
 
 function changerMois(delta) {
-let [annee, mois] = dateCalendrier.split('-');
-let d = new Date(annee, parseInt(mois) - 1 + delta, 1);
-dateCalendrier = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-jourSelectionne = null; render();
+  let [annee, mois] = dateCalendrier.split('-');
+  let d = new Date(annee, parseInt(mois) - 1 + delta, 1);
+  dateCalendrier = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  jourSelectionne = null; render();
 }
 
 function renderPlanning(A) {
-const peutEditer = ROLES[profil.role].can.editClients;
-const [annee, mois] = dateCalendrier.split('-');
-const premierJour = new Date(annee, parseInt(mois)-1, 1);
-const dernierJour = new Date(annee, parseInt(mois), 0);
-const nbJours = dernierJour.getDate();
-const jourDebut = premierJour.getDay() === 0 ? 6 : premierJour.getDay() - 1;
-const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
-const nomMois = nomsMois[parseInt(mois)-1];
-const joursSemaine = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+  const peutEditer = ROLES[profil.role].can.editClients;
+  const [annee, mois] = dateCalendrier.split('-');
+  const premierJour = new Date(annee, parseInt(mois)-1, 1);
+  const dernierJour = new Date(annee, parseInt(mois), 0);
+  const nbJours = dernierJour.getDate();
+  const jourDebut = premierJour.getDay() === 0 ? 6 : premierJour.getDay() - 1;
+  const nomsMois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  const nomMois = nomsMois[parseInt(mois)-1];
+  const joursSemaine = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
-let htmlCalendrier = `<div class="calendar-container">
-<div class="calendar-header">
-<button class="calendar-nav-btn" onclick="changerMois(-1)">← Précédent</button>
-<div class="calendar-title">${nomMois} ${annee}</div>
-<button class="calendar-nav-btn" onclick="changerMois(1)">Suivant →</button>
-</div>
-<div class="calendar-weekdays">
-${joursSemaine.map(j => `<div class="calendar-weekday">${j}</div>`).join("")}
-</div>
-<div class="calendar-days">`;
+  // CALENDRIER
+  let htmlCalendrier = `<div class="calendar-container">
+    <div class="calendar-header">
+      <button class="calendar-nav-btn" onclick="changerMois(-1)">← Précédent</button>
+      <div class="calendar-title">${nomMois} ${annee}</div>
+      <button class="calendar-nav-btn" onclick="changerMois(1)">Suivant →</button>
+    </div>
+    <div class="calendar-weekdays">
+      ${joursSemaine.map(j => `<div class="calendar-weekday">${j}</div>`).join("")}
+    </div>
+    <div class="calendar-days">`;
+  
+  for (let i = 0; i < jourDebut; i++) htmlCalendrier += `<div class="calendar-day calendar-day-empty"></div>`;
+  
+  for (let j = 1; j <= nbJours; j++) {
+    const dateStr = `${annee}-${mois}-${String(j).padStart(2, '0')}`;
+    const nbRdv = data.rdv.filter(r => r.date_rdv === dateStr).length;
+    const isToday = dateStr === new Date().toISOString().slice(0,10);
+    const isSelected = dateStr === jourSelectionne;
+    
+    let classes = "calendar-day";
+    if (isToday) classes += " today";
+    if (isSelected) classes += " selected";
+    if (nbRdv > 0) classes += " has-rdv";
+    
+    htmlCalendrier += `
+      <div class="${classes}" onclick="jourSelectionne='${dateStr}'; render();">
+        <div class="calendar-day-number">${j}</div>
+        ${nbRdv > 0 ? `
+          <div class="rdv-indicator">
+            ${Array(Math.min(nbRdv, 3)).fill('<div class="rdv-dot"></div>').join("")}
+          </div>
+          <div class="rdv-count">${nbRdv} RDV</div>
+        ` : ""}
+      </div>`;
+  }
+  htmlCalendrier += `</div></div>`;
 
-for (let i = 0; i < jourDebut; i++) htmlCalendrier += `<div class="calendar-day calendar-day-empty"></div>`;
+  // FORMULAIRE
+  let formHtml = "";
+  if (peutEditer) {
+    formHtml = `<div class="rdv-form">
+      <div class="rdv-form-title">Nouveau rendez-vous</div>
+      <div class="form-field">
+        <select id="rd_client" class="form-input-dark" onchange="autoRemplirPlanning(this.value)">
+          <option value="">Choisir un client…</option>
+          ${data.clients.map(c=>`<option value="${c.id}">${e(c.nom)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="form-row-2">
+        <div class="form-field">
+          <input id="rd_marque" placeholder="Marque" class="form-input-dark">
+        </div>
+        <div class="form-field">
+          <input id="rd_modele" placeholder="Modèle" class="form-input-dark">
+        </div>
+      </div>
+      <div class="form-field">
+        <input id="rd_immat" placeholder="Immatriculation" class="form-input-dark">
+      </div>
+      <div class="form-row-date">
+        <div class="form-field">
+          <input id="rd_date" type="date" class="form-input-dark" value="${jourSelectionne || (new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0'))}">
+        </div>
+        <div class="form-field">
+          <input id="rd_heure" type="time" class="form-input-dark">
+        </div>
+      </div>
+      <div class="form-field">
+        <input id="rd_motif" placeholder="Motif (ex: Vidange)" class="form-input-dark">
+      </div>
+      <button class="btn-submit-rdv" onclick="addRdv()">Enregistrer le RDV</button>
+    </div>`;
+  }
 
-for (let j = 1; j <= nbJours; j++) {
-const dateStr = `${annee}-${mois}-${String(j).padStart(2, '0')}`;
-const nbRdv = data.rdv.filter(r => r.date_rdv === dateStr).length;
-const isToday = dateStr === new Date().toISOString().slice(0,10);
-const isSelected = dateStr === jourSelectionne;
-let classes = "calendar-day";
-if (isToday) classes += " today";
-if (isSelected) classes += " selected";
-if (nbRdv > 0) classes += " has-rdv";
-htmlCalendrier += `<div class="${classes}" onclick="jourSelectionne='${dateStr}'; render(); setTimeout(() => { const el = document.getElementById('liste_rdv'); if(el) el.scrollIntoView({ behavior: 'smooth' }); }, 150)"><div class="calendar-day-number">${j}</div>${nbRdv > 0 ? `<div class="rdv-indicator">${Array(Math.min(nbRdv, 3)).fill('<div class="rdv-dot"></div>').join("")}</div><div class="rdv-count">${nbRdv} RDV</div>` : ""}</div>`;
+  // LISTE DES RDV
+  let rdvsAffiches = data.rdv;
+  let titreRdv = "Tous les rendez-vous à venir";
+  if (jourSelectionne) {
+    rdvsAffiches = data.rdv.filter(r => r.date_rdv === jourSelectionne);
+    titreRdv = `Rendez-vous du ${new Date(jourSelectionne).toLocaleDateString('fr-FR')}`;
+  } else {
+    rdvsAffiches = data.rdv.filter(r => r.date_rdv >= new Date().toISOString().slice(0,10));
+  }
+  rdvsAffiches = rdvsAffiches.sort((a,b) => a.date_rdv.localeCompare(b.date_rdv) || (a.heure_rdv||"").localeCompare(b.heure_rdv||""));
+
+  let listeHtml = `<div class="rdv-list" id="liste_rdv">
+    <div class="rdv-list-title">
+      <span>📅 ${titreRdv}</span>
+      ${jourSelectionne ? `<button class="calendar-nav-btn" style="padding:6px 12px; font-size:12px" onclick="jourSelectionne=null; render()">Voir tout</button>` : ""}
+    </div>
+    ${rdvsAffiches.map(r => {
+      const cl = data.clients.find(c => c.id === r.client_id);
+      const heure = (r.heure_rdv || "--:--").slice(0,5);
+      return `<div class="rdv-item">
+        <div class="rdv-time-badge">
+          <div class="rdv-time-hour">${e(heure)}</div>
+          <div class="rdv-time-label">${e(r.date_rdv ? new Date(r.date_rdv).toLocaleDateString('fr-FR', {day: '2-digit', month: 'short'}) : '')}</div>
+        </div>
+        <div class="rdv-content">
+          <div class="rdv-client-name">${e(r.client_nom)}</div>
+          <div class="rdv-vehicle">🚗 ${e(r.vehicule || '—')} ${e(r.immat || '')}</div>
+          ${cl && cl.tel ? `<div class="rdv-vehicle">📞 ${e(cl.tel)}</div>` : ""}
+          <div class="rdv-motif">${e(r.motif || 'Pas de motif précisé')}</div>
+        </div>
+        ${peutEditer ? `<div class="rdv-actions">
+          <button class="btn-icon danger" onclick="deleteRdv('${r.id}')">🗑️</button>
+        </div>` : ""}
+      </div>`;
+    }).join("") || `<div class="rdv-empty">Aucun rendez-vous pour cette période.</div>`}
+  </div>`;
+
+  A.innerHTML = htmlCalendrier + formHtml + listeHtml;
 }
-htmlCalendrier += `</div></div>`;
 
-let formHtml = "";
-if (peutEditer) {
-formHtml = `<div class="rdv-form"><div class="rdv-form-title">Nouveau rendez-vous</div><div class="form-field"><select id="rd_client" class="form-input-dark" onchange="autoRemplirPlanning(this.value)"><option value="">Choisir un client…</option>${data.clients.map(c=>`<option value="${c.id}">${e(c.nom)}</option>`).join("")}</select></div><div class="form-row-2"><div class="form-field"><input id="rd_marque" placeholder="Marque" class="form-input-dark"></div><div class="form-field"><input id="rd_modele" placeholder="Modèle" class="form-input-dark"></div></div><div class="form-field"><input id="rd_immat" placeholder="Immatriculation" class="form-input-dark"></div><div class="form-row-date"><div class="form-field"><input id="rd_date" type="date" class="form-input-dark" value="${jourSelectionne || (new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0'))}"></div><div class="form-field"><input id="rd_heure" type="time" class="form-input-dark"></div></div><div class="form-field"><input id="rd_motif" placeholder="Motif (ex: Vidange)" class="form-input-dark"></div><button class="btn-submit-rdv" onclick="addRdv()">Enregistrer le RDV</button></div>`;
-}
-
-let rdvsAffiches = data.rdv;
-let titreRdv = "Tous les rendez-vous à venir";
-if (jourSelectionne) {
-rdvsAffiches = data.rdv.filter(r => r.date_rdv === jourSelectionne);
-titreRdv = `Rendez-vous du ${new Date(jourSelectionne).toLocaleDateString('fr-FR')}`;
-} else {
-rdvsAffiches = data.rdv.filter(r => r.date_rdv >= new Date().toISOString().slice(0,10));
-}
-rdvsAffiches = rdvsAffiches.sort((a,b) => a.date_rdv.localeCompare(b.date_rdv) || (a.heure_rdv||"").localeCompare(b.heure_rdv||""));
-
-let listeHtml = `<div class="rdv-list" id="liste_rdv"><div class="rdv-list-title"><span>📅 ${titreRdv}</span>${jourSelectionne ? `<button class="calendar-nav-btn" style="padding:6px 12px; font-size:12px" onclick="jourSelectionne=null; render()">Voir tout</button>` : ""}</div>${rdvsAffiches.map(r => {
-const cl = data.clients.find(c => c.id === r.client_id);
-const heure = (r.heure_rdv || "--:--").slice(0,5);
-return `<div class="rdv-item"><div class="rdv-time-badge"><div class="rdv-time-hour">${e(heure)}</div><div class="rdv-time-label">${e(r.date_rdv ? new Date(r.date_rdv).toLocaleDateString('fr-FR', {day: '2-digit', month: 'short'}) : '')}</div></div><div class="rdv-content"><div class="rdv-client-name">${e(r.client_nom)}</div><div class="rdv-vehicle">🚗 ${e(r.vehicule || '—')} ${e(r.immat || '')}</div>${cl && cl.tel ? `<div class="rdv-vehicle">📞 ${e(cl.tel)}</div>` : ""}<div class="rdv-motif">${e(r.motif || 'Pas de motif précisé')}</div></div>${peutEditer ? `<div class="rdv-actions"><button class="btn-icon danger" onclick="deleteRdv('${r.id}')">🗑️</button></div>` : ""}</div>`;
-}).join("") || `<div class="rdv-empty">Aucun rendez-vous pour cette période.</div>`}</div>`;
-
-A.innerHTML = htmlCalendrier + formHtml + listeHtml;
-}
-
+/* --- RAPPELS --- */
 async function definirRappel(clientId) { clientRappelId = clientId; render(); }
-
-async function sauverRappel() {
-const km = +$("rap_km").value || 0;
-const dateVal = $("rap_date").value || null;
-const cl = data.clients.find(c => c.id === clientRappelId);
-const vehicule = data.vehicules.find(v => v.client_id === clientRappelId);
-const veh = vehicule ? `${vehicule.marque} ${vehicule.modele} (${vehicule.immat})` : "";
-await supa.from("clients").update({ prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh }).eq("id", clientRappelId);
-await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
-clientRappelId = null; await loadAllData();
-}
-
-function envoyerRappelWhatsApp(clientId) {
-const c = data.clients.find(x => x.id === clientId);
-if (!c) return;
-const v = data.vehicules.find(x => x.client_id === clientId);
-const vehiculeInfo = v ? `${v.marque} ${v.modele} (${v.immat})` : (c.vehicule_rappel || "votre véhicule");
-let msg = `Bonjour *${c.nom}*,\n\nCeci est un rappel de *SPEED GARAGE PRO* 🚗.\n`;
-if (c.prochain_km > 0) msg += `📏 Votre véhicule (${vehiculeInfo}) approche ou a atteint le seuil d'entretien de ${c.prochain_km.toLocaleString('fr-FR')} km.\n`;
-if (c.prochaine_date) msg += `📅 Date d'entretien recommandée : ${new Date(c.prochaine_date).toLocaleDateString('fr-FR')}.\n`;
-msg += `\nSouhaitez-vous prendre rendez-vous pour l'entretien ?\nMerci de votre confiance !`;
-let phone = c.tel ? c.tel.replace(/\D/g, '') : '';
-if (phone.length === 9 && phone.startsWith('6')) phone = '224' + phone;
-if (!phone || phone.length < 10) { alert("Numéro de téléphone invalide."); return; }
-const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-window.open(url, '_blank');
-}
-
-function envoyerSMSRappel(clientId) {
-const c = data.clients.find(x => x.id === clientId);
-if (!c) return;
-const msg = `Rappel SPEED GARAGE PRO : Votre entretien est prévu bientôt. Merci de nous contacter.`;
-window.open(`sms:${c.tel}?body=${encodeURIComponent(msg)}`, '_blank');
-}
-
-function renderRappels(A) {
-const peutEditer = ROLES[profil.role].can.editClients;
-const aRappeler = data.clients.filter(c => (c.prochain_km > 0) || c.prochaine_date);
-let formHtml = "";
-if (clientRappelId) {
-const cl = data.clients.find(c => c.id === clientRappelId);
-if (cl) {
-const v = data.vehicules.find(x => x.client_id === cl.id);
-formHtml = `<div class="card" style="border:2px solid var(--primary);"><div class="card-header"><div class="card-title">🔔 Définir le rappel pour ${e(cl.nom)}</div></div><div style="background:var(--bg); padding:12px; border-radius:8px; margin-bottom:12px; font-size:13px; border-left: 3px solid var(--info);"><b style="color: var(--text);">📞 Téléphone :</b> ${e(cl.tel || "Non renseigné")}</div>${v ? `<div style="background:var(--bg); padding:12px; border-radius:8px; margin-bottom:12px; font-size:13px; border-left: 3px solid var(--success);"><b style="color: var(--text);">🚗 Véhicule :</b> ${e(v.marque)} ${e(v.modele)} (${e(v.immat)})<br><b style="color: var(--text);">🔢 VIN :</b> ${e(v.vin || "Non renseigné")}<br><b style="color: var(--text);">📏 Dernier km :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + " km" : "Non renseigné"}</div>` : `<div class="m" style="margin-bottom:12px">Aucun véhicule enregistré.</div>`}<label class="m">Prochain entretien km</label><input id="rap_km" type="number" class="form-input" value="${cl.prochain_km || ''}"><label class="m">Date de rappel</label><input id="rap_date" type="date" class="form-input" value="${cl.prochaine_date || (() => { let d = new Date(); d.setMonth(d.getMonth() + 6); return d.toISOString().slice(0,10); })()}"><div style="display:flex; gap:12px; margin-top:16px;"><button class="btn-primary" onclick="sauverRappel()">✓ Enregistrer</button><button class="btn-secondary" onclick="clientRappelId=null; render()">Annuler</button></div></div>`;
-}
-}
-A.innerHTML = `${formHtml}<div class="card"><div class="card-header"><div class="card-title">🔔 Prochains entretiens</div><span class="tag" style="background: var(--primary); color: #fff;">${aRappeler.length}</span></div></div>${aRappeler.map(c => {
-let dernierKm = 0;
-const vehiculeClient = data.vehicules.find(v => v.client_id === c.id);
-if (vehiculeClient && vehiculeClient.kilometrage) dernierKm = vehiculeClient.kilometrage;
-let estDepasse = false, estBientot = false, motifAlerte = [];
-if (c.prochain_km > 0 && dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push("Km dépassé"); }
-else if (c.prochain_km > 0 && (c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push("Km bientôt"); }
-if (c.prochaine_date) {
-const dateRappel = new Date(c.prochaine_date).getTime();
-const aujourdhui = new Date().setHours(0,0,0,0);
-const diffJours = Math.ceil((dateRappel - aujourdhui) / (1000 * 60 * 60 * 24));
-if (diffJours < 0) { estDepasse = true; motifAlerte.push("Date dépassée"); }
-else if (diffJours <= 30) { estBientot = true; motifAlerte.push("Date bientôt"); }
-}
-return `<div class="card" style="border-left: 4px solid ${estDepasse ? 'var(--r)' : (estBientot ? 'var(--warning)' : 'var(--success)')};"><div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px"><div style="flex:1; min-width:200px"><div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap"><h3 style="margin:0; font-size:16px; font-weight: 700;">${e(c.nom)}</h3>${estDepasse ? `<span class="tag" style="background:var(--r); color:#fff;">️ À RAPPELER</span>` : (estBientot ? `<span class="tag" style="background:var(--warning); color:#fff;"> BIENTÔT</span>` : '')}</div><div class="m" style="display:flex; flex-direction:column; gap:6px; font-size:13px;"><span>🚗 <b style="color: var(--text);">${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}</b></span><span>📏 Dernier km : <b style="color: var(--text);">${dernierKm.toLocaleString('fr-FR')} km</b></span><span>🎯 Seuil : <b style="color: var(--text);">${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') + ' km' : '—'}</b></span>${motifAlerte.length > 0 ? `<span style="color:${estDepasse ? 'var(--r)' : 'var(--warning)'};">ℹ️ ${motifAlerte.join(", ")}</span>` : ''}</div></div><div style="display:flex; flex-direction: column; gap: 8px;"><button class="btn-primary" style="margin:0; background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); padding: 10px 16px; font-size: 12px;" onclick="envoyerRappelWhatsApp('${c.id}')">📱 WhatsApp</button><button class="btn-secondary" style="padding: 10px 16px; font-size: 12px;" onclick="envoyerSMSRappel('${c.id}')">💬 SMS</button>${peutEditer ? `<button class="btn-secondary" style="padding: 10px 16px; font-size: 12px;" onclick="definirRappel('${c.id}')">✏️ Modifier</button>` : ''}</div></div></div>`;
-}).join("") || '<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">🔔</div><div style="font-size: 14px; font-weight: 600;">Aucun rappel défini</div></div></div>'}`;
-}
-
-let clientVehiculeId = null;
-
-async function nextRef(type) {
-const prefix = type==="Société" ? "SOC" : "PART";
-const { data: rows } = await supa.from("clients").select("ref").like("ref", prefix+"-%");
-const max = (rows||[]).map(r => +(r.ref.split("-")[1]||0)).length ? Math.max(...(rows||[]).map(r => +(r.ref.split("-")[1]||0))) : 0;
-return prefix + "-" + String(max+1).padStart(4,"0");
-}
-
-async function addClient() {
-if (!ROLES[profil.role].can.editClients) { alert("Non autorisé."); return; }
-const type = $("cl_type").value, nom = $("cl_nom").value.trim(), tel = $("cl_tel").value.trim(), adr = $("cl_adr").value.trim();
-if (!nom) { alert("Le nom est obligatoire."); return; }
-if (!/^\d{9}$/.test(tel)) { alert("Le téléphone doit contenir exactement 9 chiffres."); return; }
-if (!adr) { alert("L'adresse est obligatoire."); return; }
-const ref = await nextRef(type);
-const { data: newClient, error } = await supa.from("clients").insert({ref, type, nom, tel, adr, contact: "", nif: "", created_by: session.user.id}).select().single();
-if (error) { alert("Erreur client : "+error.message); return; }
-if ($("cl_add_veh") && $("cl_add_veh").checked) {
-const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
-const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
-if (marque && modele && immat) {
-await supa.from("vehicules").insert({ client_id: newClient.id, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id });
-}
-}
-await jlog("Création client", `${ref} — ${nom}`, `Type: ${type}`);
-await loadAllData();
-}
-
-async function deleteClient(id) {
-if (!ROLES[profil.role].can.deleteAny) { alert("Seul le PDG peut supprimer."); return; }
-if (!confirm("Supprimer ce client et tous ses devis/factures ?")) return;
-await supa.from("clients").delete().eq("id", id); await loadAllData();
-}
-
-function ouvrirFicheClient(id) { clientDetailId = id; clientVehiculeId = null; render(); }
-function allerAuRappel(clientId) { clientDetailId = null; tab = "🔔 Rappels"; definirRappel(clientId); }
-
-function renderClients(A) {
-const R = ROLES[profil.role], peutEditer = R.can.editClients, peutSuppr = (profil.role === "PDG");
-if (clientDetailId) {
-const c = data.clients.find(x => x.id === clientDetailId);
-if (!c) { clientDetailId = null; render(); return; }
-A.innerHTML = `<div class="card" style="border-top:4px solid var(--primary);"><button class="btn-secondary" onclick="clientDetailId=null; render()" style="margin-bottom: 12px; width: auto;">← Retour</button><div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:10px; flex-wrap: wrap; gap: 12px;"><div><h3 style="margin:0; font-size: 20px; font-weight: 800;">${e(c.nom)}</h3><span class="ref">${e(c.ref)}</span><p class="m" style="margin-top:10px; font-size: 13px;">📞 <a href="tel:${e(c.tel)}" style="color:var(--info); text-decoration: none;">${e(c.tel)}</a><br> ${e(c.adr)}</p></div><div style="display:flex; gap:8px; flex-direction:column;"><button class="btn-primary" style="margin:0; padding:10px 16px; font-size: 12px; background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);" onclick="envoyerRappelWhatsApp('${c.id}')">📱 WhatsApp</button><button class="btn-primary" style="margin:0; padding:10px 16px; font-size: 12px;" onclick="allerAuRappel('${c.id}')">🔔 Rappel</button><button class="btn-primary" style="margin:0; padding:10px 16px; font-size: 12px; background: linear-gradient(135deg, var(--info), #2563eb);" onclick="imprimerRecuDepot('${c.id}')">🖨️ Reçu</button>${peutSuppr ? `<button class="btn-secondary" style="color:var(--r); border-color: var(--r);" onclick="deleteClient('${c.id}')">🗑️ Supprimer</button>` : ""}</div></div></div><div class="card"><div class="card-header"><div class="card-title">🚗 Véhicules de ce client</div></div>${data.vehicules.filter(v => v.client_id === c.id).map(v => `<div class="row" style="border-top:1px solid var(--border); padding: 12px 0;"><span><b style="font-size: 14px;">${e(v.marque)} ${e(v.modele)}</b> <span class="ref">${e(v.immat)}</span><br><span class="m">${e(v.carburant||"")} · ${v.kilometrage} km</span></span>${peutSuppr ? `<button class="s" onclick="deleteVehicule('${v.id}')" style="color: var(--r);">️</button>` : ""}</div>`).join("") || '<div class="m" style="text-align: center; padding: 20px;">Aucun véhicule enregistré.</div>'}</div><div class="card" style="border:2px solid var(--border);"><div class="card-header"><div class="card-title">➕ Ajouter un véhicule</div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input list="list_marques" id="v_marque" placeholder="Marque *" class="form-input" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"><input list="list_modeles" id="v_modele" placeholder="Modèle *" class="form-input" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"></div><input id="v_immat" placeholder="Immatriculation *" class="form-input" style="margin-bottom:12px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"><div style="display:flex; gap:12px; margin-bottom:12px;"><select id="v_carb" class="form-input" style="flex:1;"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select><select id="v_boite" class="form-input" style="flex:1;"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select><input id="v_portes" type="number" placeholder="Portes" class="form-input" style="flex:1;"></div><input id="v_vin" placeholder="VIN / Châssis" class="form-input" style="margin-bottom:12px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"><input id="v_km" type="number" placeholder="Kilométrage actuel" class="form-input" style="margin-bottom:12px;"><button class="btn-primary" onclick="ajouterVehicule('${c.id}')">✓ Enregistrer ce véhicule</button></div>`;
-return;
-}
-const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
-A.innerHTML = `${peutEditer?`<div class="card"><div class="card-header"><div class="card-title">➕ Nouveau client</div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><select id="cl_type" onchange="document.getElementById('cl_soc').style.display=this.value==='Société'?'block':'none'" class="form-input" style="flex:1;"><option>Particulier</option><option>Société</option></select><input id="cl_nom" placeholder="Nom / Raison sociale *" class="form-input" style="flex:2;"></div><div id="cl_soc" style="display:none; margin-bottom:12px;"><input id="cl_contact" placeholder="Contact *" class="form-input" style="margin-bottom: 8px;"><input id="cl_nif" placeholder="NIF *" class="form-input"></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9" class="form-input" style="flex:1;"><input id="cl_adr" placeholder="Adresse *" class="form-input" style="flex:2;"></div><div style="margin-bottom:12px;"><label style="font-size:13px; display: flex; align-items: center; gap: 8px; cursor: pointer;"><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto;"> Ajouter un véhicule en même temps</label></div><div id="veh_form" style="display:none; border:1px solid var(--border); padding:16px; border-radius: var(--radius); margin-bottom:12px; background: var(--bg);"><div style="display:flex; gap:12px; margin-bottom:12px;"><input list="list_marques" id="v_marque" placeholder="Marque *" class="form-input" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"><input list="list_modeles" id="v_modele" placeholder="Modèle *" class="form-input" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"></div><input id="v_immat" placeholder="Immatriculation *" class="form-input" style="margin-bottom:12px; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"><div style="display:flex; gap:12px;"><select id="v_carb" class="form-input" style="flex:1;"><option value="">Carburant…</option><option>Essence</option><option>Diesel</option><option>Hybride</option><option>Électrique</option></select><select id="v_boite" class="form-input" style="flex:1;"><option value="">Boîte…</option><option>Manuelle</option><option>Automatique</option></select><input id="v_portes" type="number" placeholder="Portes" class="form-input" style="flex:1;"></div><input id="v_vin" placeholder="VIN / Châssis" class="form-input" style="margin: 12px 0; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()"><input id="v_km" type="number" placeholder="Kilométrage actuel" class="form-input"></div><button class="btn-primary" onclick="addClient()">✓ Ajouter le client</button></div>`:`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}<div class="card"><input placeholder="🔍 Rechercher un client..." class="form-input" value="${e(q)}" oninput="q=this.value;render()"><p class="m" style="margin-top:8px;">${liste.length} client(s) trouvé(s)</p></div>${liste.map(c=>`<div class="card" style="cursor:pointer; transition: all 0.2s;" onclick="ouvrirFicheClient('${c.id}')" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='none'"><div class="row" style="border-top:0; padding:0;"><div style="flex:1;"><b style="font-size:15px; font-weight: 700;">${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br><span class="m" style="font-size: 12px;">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span></div><div style="font-size:20px; color:var(--primary);">→</div></div></div>`).join("")||'<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon"></div><div style="font-size: 14px; font-weight: 600;">Aucun client</div></div></div>'}`;
-}
-
-async function ajouterVehicule(clientId) {
-if (!clientId) { alert("Erreur : client non identifié."); return; }
-const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
-const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
-if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
-const { error } = await supa.from("vehicules").insert({ client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id });
-if (error) { alert("Erreur : " + error.message); return; }
-await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`);
-clientVehiculeId = null;
-await loadAllData();
-alert("✅ Véhicule ajouté avec succès !");
-}
-
-async function deleteVehicule(id) {
-if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un véhicule."); return; }
-if (!confirm("Supprimer ce véhicule ?")) return;
-await supa.from("vehicules").delete().eq("id", id); await loadAllData();
-}
-
-function imprimerRecuDepot(clientId) {
-const cl = data.clients.find(c => c.id === clientId);
-if (!cl) return;
-const sesVehicules = data.vehicules.filter(v => v.client_id === cl.id);
-if (sesVehicules.length === 0) { alert("Ce client n'a pas de véhicule enregistré."); return; }
-const motif = prompt("Motif du dépôt :", "Entretien");
-if (motif === null) return;
-const w = window.open("", "_blank");
-const p = data.params;
-let tableauVehicules = sesVehicules.map(v => `<tr><td><b>${e(v.marque)} ${e(v.modele)}</b></td><td>${e(v.immat)}</td><td>${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : "—"}</td><td>${e(v.carburant || "—")}</td></tr>`).join("");
-w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reçu de dépôt - ${cl.nom}</title><style>body{font-family:Arial;font-size:12px;color:#000;padding:20px;max-width:700px;margin:auto}.header{display:flex;justify-content:space-between;border-bottom:3px solid #1a2a3a;padding-bottom:10px;margin-bottom:20px}.header h1{font-size:20px;margin:0}.title{text-align:center;font-size:18px;font-weight:bold;margin:20px 0}.box{border:1px solid #000;padding:15px;margin-bottom:15px}.box h3{margin-top:0;font-size:14px}.info{display:flex;justify-content:space-between}.info div{width:48%}table{width:100%;border-collapse:collapse;margin-bottom:15px}th,td{border:1px solid #000;padding:8px;text-align:left}th{background:#eee}.signatures{display:flex;justify-content:space-between;margin-top:40px}.signatures div{width:40%;border-top:1px solid #000;text-align:center;padding-top:5px}@media print{button{display:none}}</style></head><body><div class="header"><div><h1>${e(p.nom || "SPEED GARAGE PRO")}</h1><p>NIF : ${e(p.nif || "931828172")} · RCCM : ${e(p.rccm || "GN.TCC.2026.B.13913")}</p><p>${e(p.adresse || "")} ${e(p.telephone ? "· Tél : " + p.telephone : "")}</p></div><div style="text-align:right"><h2>REÇU DE DÉPÔT</h2><p>Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR').slice(0,5)}</p></div></div><div class="title">Fiche d'intervention</div><div class="box"><h3>Informations Client</h3><div class="info"><div><p><b>Nom :</b> ${e(cl.nom)}</p></div><div><p><b>Téléphone :</b> ${e(cl.tel || "—")}</p></div></div><p><b>Adresse :</b> ${e(cl.adr || "—")}</p></div><div class="box"><h3>Véhicules déposés</h3><table><thead><tr><th>Véhicule</th><th>Immatriculation</th><th>Kilométrage</th><th>Carburant</th></tr></thead><tbody>${tableauVehicules}</tbody></table></div><div class="box"><h3>Motif du dépôt</h3><p style="font-size: 14px; font-weight: bold;">${e(motif || "Entretien général")}</p></div><div class="signatures"><div>Signature du Client</div><div>Cachet du Garage</div></div><p style="text-align:center;margin-top:40px;"><button onclick="window.print()" style="padding:10px 20px;cursor:pointer;">️ Imprimer</button></p></body></html>`);
-w.document.close();
-}
-
-let vhDetail = null;
-function renderVehicules(A) {
-const liste = data.vehicules.filter(v => (v.marque + v.modele + v.immat).toLowerCase().includes(q.toLowerCase()));
-if (vhDetail) {
-const v = data.vehicules.find(x => x.id === vhDetail); if (!v) { vhDetail = null; render(); return; }
-const cl = data.clients.find(c => c.id === v.client_id);
-const sesFactures = data.factures.filter(fact => fact.immat === v.immat).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
-A.innerHTML = `<div class="card"><button class="btn-secondary" onclick="vhDetail=null;render()" style="width: auto; margin-bottom: 12px;">← Retour</button><h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 800;">${e(v.marque)} ${e(v.modele)}</h3><p class="m" style="font-size: 13px;">Immat : <b style="color: var(--text);">${e(v.immat)}</b><br>Client : <b style="color: var(--text);">${e(cl ? cl.nom : 'Inconnu')}</b><br>${v.kilometrage ? `Kilométrage : ${v.kilometrage} km<br>` : ""}Carburant : ${e(v.carburant || '—')} · Boîte : ${e(v.boite || '—')}</p></div><div class="card"><div class="card-header"><div class="card-title">📜 Historique</div></div>${sesFactures.map(fact => `<div class="row" style="border-top:1px solid var(--border);"><div><b>${e(fact.activite || 'Facture')}</b><br><span class="m">${e(fact.date_emission)}</span></div><b style="color: var(--success);">${f(fact.total_ttc)}</b></div>`).join("") || '<div class="m" style="text-align: center; padding: 20px;">Aucune facture.</div>'}</div>`;
-return;
-}
-A.innerHTML = `<div class="card"><input placeholder=" Rechercher un véhicule..." class="form-input" value="${e(q)}" oninput="q=this.value;render()"><p class="m" style="margin-top:8px;">${liste.length} véhicule(s) trouvé(s)</p></div>${liste.map(v => { const cl = data.clients.find(c => c.id === v.client_id); return `<div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:16px; transition: all 0.2s;" onclick="vhDetail='${v.id}';render()" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='none'"><div style="display:flex; align-items:center; gap:16px;"><div style="font-size:32px; background:var(--bg); padding:12px; border-radius:12px; border: 1px solid var(--border);">🚗</div><div><div style="font-size:15px; font-weight:700; margin-bottom:4px;">${e(v.marque)} ${e(v.modele)} <span class="ref" style="margin-left:8px;">${e(v.immat)}</span></div><div class="m" style="display:flex; gap:16px; font-size: 12px;"><span>👤 ${e(cl ? cl.nom : 'Inconnu')}</span><span>📏 ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : '—'}</span><span>⛽ ${e(v.carburant || '—')}</span></div></div></div><div style="font-size:20px; color:var(--primary);">→</div></div>`; }).join("") || '<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">🚗</div><div style="font-size: 14px; font-weight: 600;">Aucun véhicule</div></div></div>'}`;
-}
-
-let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
-let dLignes = [{d:"",q:1,p:0}];
-let dLignesMO = [{d:"",q:1,p:0}];
-
-function devisTotHT(){ const htPieces = dLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0); const htMO = dLignesMO.reduce((a,x)=>a+(+x.p||0),0); return htPieces + htMO; }
-function updateDevisTotals() { const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva; if ($("dv_tot_ht")) $("dv_tot_ht").textContent = f(ht); if ($("dv_tot_tva")) $("dv_tot_tva").textContent = f(tva); if ($("dv_tot_ttc")) $("dv_tot_ttc").textContent = f(ttc); }
-function remplirVehiculeDevis(clientId) { if (!clientId) return; const v = data.vehicules.find(x => x.client_id === clientId); if (v) { dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; dMemo.km = v.kilometrage || ""; } else { dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; } dMemo.client = clientId; renderDevis(document.getElementById('app')); }
-function rechercherPieceDevis(index, valeur) { dLignes[index].d = valeur; const article = data.stock.find(s => s.nom.toLowerCase() === valeur.toLowerCase()); if (article) { dLignes[index].p = article.prix; dLignes[index].stock_id = article.id; renderDevis(document.getElementById('app')); } }
-
-function renderDevis(A) {
-const R = ROLES[profil.role], peutEditer = R.can.editDevis, tv = +(data.params.tva_taux||18);
-const selectedClient = data.clients.find(c => c.id === dMemo.client);
-A.innerHTML = `${peutEditer?`<div class="card"><div class="card-header"><div class="card-title">➕ Nouveau devis</div></div><div style="background:var(--bg); padding:16px; border-radius:var(--radius); margin-bottom:16px; border-left: 4px solid var(--primary);"><b style="font-size: 13px; font-weight: 700; margin-bottom: 12px; display: block;">📋 Informations Client & Véhicule</b><select id="dv_client" onchange="remplirVehiculeDevis(this.value)" class="form-input" style="margin-bottom:12px;"><option value="">Choisir un client…</option>${data.clients.map(c=>`<option value="${c.id}" ${c.id===dMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}</select>${selectedClient ? `<div style="font-size:12px; margin-bottom:12px; color: var(--text-muted);">📞 Téléphone : <b style="color: var(--text);">${e(selectedClient.tel)}</b></div>` : ""}<div style="background:var(--bg-card); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border);"><div style="display:flex; gap:12px; margin-bottom:8px;"><div style="flex:1; padding:8px; border-bottom:1px solid var(--border); color:var(--text); font-size: 13px;">🚗 <b>Véhicule :</b> ${e(dMemo.veh || "Non renseigné")}</div><div style="flex:1; padding:8px; border-bottom:1px solid var(--border); color:var(--text); font-size: 13px;">🔢 <b>Immatriculation :</b> ${e(dMemo.immat || "Non renseignée")}</div></div><div style="padding:8px; color:var(--text); font-size: 13px;">📏 <b>Kilométrage :</b> ${e(dMemo.km || "0")} km</div></div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><textarea id="dv_motif" placeholder="Motif de la demande / diagnostic" style="height:60px; flex:2;" class="form-input" oninput="dMemo.motif=this.value">${e(dMemo.motif)}</textarea><input id="dv_delai" placeholder="Délai (ex: 2 jours)" class="form-input" style="flex:1;" value="${e(dMemo.delai)}" oninput="dMemo.delai=this.value"></div><div style="display:flex; gap:12px; margin-bottom:12px;"><select id="dv_paiement" onchange="dMemo.paiement=this.value" class="form-input" style="flex:1;"><option value="">Mode de paiement…</option><option value="Espèces" ${dMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option><option value="Orange Money" ${dMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option><option value="Virement Bancaire" ${dMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option><option value="Chèque" ${dMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option></select><input id="dv_garantie" placeholder="Garantie" class="form-input" style="flex:1;" value="${e(dMemo.garantie)}" oninput="dMemo.garantie=this.value"><input id="dv_acompte" type="number" placeholder="Acompte (GNF)" class="form-input" style="flex:1;" value="${e(dMemo.acompte)}" oninput="dMemo.acompte=this.value"></div><div style="margin-bottom:16px;"><b style="font-size:13px; color:var(--primary); font-weight: 700; display: block; margin-bottom: 8px;">📦 Pièces détachées</b><table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border); text-align:left;"><th style="padding:8px; font-size:11px;">Désignation</th><th style="padding:8px; width:80px; font-size:11px;">Qté</th><th style="padding:8px; width:120px; font-size:11px;">P.U</th><th style="padding:8px; width:40px;"></th></tr></thead><tbody>${dLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;"><input list="stock_list_dv_${i}" value="${e(l.d)}" oninput="rechercherPieceDevis(${i}, this.value)" placeholder="Taper ou choisir..." class="form-input" style="margin:0; font-size:12px; width:100%"><datalist id="stock_list_dv_${i}">${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}</datalist></td><td style="padding:8px;"><input type="number" value="${l.q}" oninput="dLignes[${i}].q=+this.value; updateDevisTotals()" class="form-input" style="width:100%; font-size:12px;"></td><td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignes[${i}].p=+this.value; updateDevisTotals()" class="form-input" style="width:100%; font-size:12px;"></td><td style="padding:8px; text-align:center;"><button class="s" onclick="dLignes.splice(${i},1);if(!dLignes.length)dLignes=[{d:'',q:1,p:0}]; renderDevis(document.getElementById('app'))" style="color: var(--r);">✕</button></td></tr>`).join("")}</tbody></table><button class="s" onclick="dLignes.push({d:'',q:1,p:0}); renderDevis(document.getElementById('app'))" style="margin-top: 8px;">+ Pièce</button></div><div style="margin-bottom:16px;"><b style="font-size:13px; color:var(--primary); font-weight: 700; display: block; margin-bottom: 8px;">🔧 Main d'œuvre</b><table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border); text-align:left;"><th style="padding:8px; font-size:11px;">Description</th><th style="padding:8px; width:150px; font-size:11px;">Coût (GNF)</th></tr></thead><tbody>${dLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;"><input value="${e(l.d)}" oninput="dLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" class="form-input" style="font-size:12px;"></td><td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="dLignesMO[${i}].p=+this.value; updateDevisTotals()" placeholder="0" class="form-input" style="width:100%; font-size:12px;"></td></tr>`).join("")}</tbody></table></div><div style="background:var(--bg); padding:16px; border-radius:var(--radius); margin-top:16px; border: 1px solid var(--border);"><p style="margin:0; font-size: 13px;"><b>Total HT :</b> <span id="dv_tot_ht">${f(devisTotHT())}</span><br><b>TVA ${tv}% :</b> <span id="dv_tot_tva">${f(devisTotHT()*tv/100)}</span><br><b style="font-size:16px; color: var(--success);">Total TTC : <span id="dv_tot_ttc">${f(devisTotHT()*(1+tv/100))}</span></b></p></div><button class="btn-primary" onclick="saveDevis()" style="margin-top: 16px;">✓ Enregistrer le devis</button></div>`:""}<div class="card"><div class="card-header"><div class="card-title"> Devis enregistrés</div></div>${data.devis.map(d=>`<div class="row" style="border-top:1px solid var(--border);"><div style="flex:1;"><b style="font-size: 14px;">${e(d.numero)}</b> <span class="tag">${e(d.statut)}</span><br><span class="m">${e(d.client_nom)} — ${e(d.vehicule)} ${e(d.immat)}<br>${e(d.date_emission)}</span><br><b style="color: var(--success);">${f(d.total_ttc)}</b> TTC</div><div style="display:flex; gap: 6px;"><button class="s" onclick="printDevis('${d.id}')">🖨️</button>${peutEditer?`<button class="s" onclick="preparerFactureDepuisDevis('${d.id}')" style="background: var(--primary); color: #fff; border-color: var(--primary);">→ Facture</button>`:""}</div></div>`).join("")||'<div class="m" style="text-align: center; padding: 20px;">Aucun devis.</div>'}</div>`;
-}
-
-async function saveDevis() {
-const cid = $("dv_client").value; if (!cid) { alert("Choisissez un client."); return; }
-const lignesPieces = dLignes.filter(l=>l.d.trim());
-const lignesMO = dLignesMO.filter(l=>l.d.trim());
-const lignes = [...lignesPieces.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
-if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
-const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
-const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","devis").single();
-const num = (cpt?.valeur || 0) + 1, numero = "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
-const { error } = await supa.from("devis").insert({numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid)?.nom || "Inconnu", vehicule: dMemo.veh, immat: dMemo.immat, kilometrage: +dMemo.km || 0, motif: $("dv_motif").value.trim(), delai: $("dv_delai").value.trim(), paiement: $("dv_paiement").value, garantie: $("dv_garantie").value.trim(), acompte: +$("dv_acompte").value || 0, lignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id});
-if (error) { alert("Erreur : "+error.message); return; }
-await supa.from("compteurs").update({valeur: num}).eq("cle","devis");
-await jlog("Création devis", numero, "");
-dLignes = [{d:"",q:1,p:0}]; dLignesMO = [{d:"",q:1,p:0}];
-dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
-await loadAllData();
-}
-
-function preparerFactureDepuisDevis(idDevis) {
-const d = data.devis.find(x => x.id === idDevis);
-if (!d) return;
-fMemo = { client: d.client_id, veh: d.vehicule, immat: d.immat, acompte: d.acompte || "", paiement: d.paiement || "" };
-fLignes = d.lignes && d.lignes.length ? d.lignes.filter(l => l.t !== "Main d'œuvre").map(l => ({...l, t: "Pièce"})) : [{d:"",q:1,p:0}];
-fLignesMO = d.lignes && d.lignes.length ? d.lignes.filter(l => l.t === "Main d'œuvre").map(l => ({...l})) : [{d:"",q:1,p:0}];
-tab = "🧾 Factures"; render();
-}
-
-let fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
-let fLignes = [{d:"",q:1,p:0}];
-let fLignesMO = [{d:"",q:1,p:0}];
-function factTotHT(){ const htPieces = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0); const htMO = fLignesMO.reduce((a,x)=>a+(+x.p||0),0); return htPieces + htMO; }
-function updateFactTotals() { const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva; if ($("fc_tot_ttc")) $("fc_tot_ttc").textContent = f(ttc); }
-function remplirVehiculeFacture(clientId) { if (!clientId) return; const v = data.vehicules.find(x => x.client_id === clientId); if (v) { fMemo.veh = v.marque + " " + v.modele; fMemo.immat = v.immat; } else { fMemo.veh = ""; fMemo.immat = ""; } fMemo.client = clientId; renderFactures(document.getElementById('app')); }
-function rechercherPieceFacture(index, valeur) { fLignes[index].d = valeur; const article = data.stock.find(s => s.nom.toLowerCase() === valeur.toLowerCase()); if (article) { fLignes[index].p = article.prix; fLignes[index].stock_id = article.id; renderFactures(document.getElementById('app')); } }
-
-function renderFactures(A) {
-const peutEditer = ROLES[profil.role].can.editFactures, tv = +(data.params.tva_taux||18);
-const ht = factTotHT(), ttc = ht + (ht*tv/100);
-A.innerHTML = `${peutEditer ? `<div class="card"><div class="card-header"><div class="card-title">➕ Créer une facture directe</div></div><select id="fc_client" onchange="remplirVehiculeFacture(this.value)" class="form-input" style="margin-bottom: 12px;"><option value="">Client… *</option>${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}</select><div style="display:flex; gap:12px; margin-bottom:16px;"><div style="flex:1; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg); font-size: 13px;">🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}</div><div style="flex:1; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg); font-size: 13px;"> <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}</div></div><div style="margin-bottom:16px;"><b style="font-size:13px; color:var(--primary); font-weight: 700; display: block; margin-bottom: 8px;">📦 Pièces détachées</b><table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border); text-align:left;"><th style="padding:8px; font-size:11px;">Désignation</th><th style="padding:8px; width:80px; font-size:11px;">Qté</th><th style="padding:8px; width:120px; font-size:11px;">P.U</th><th style="padding:8px; width:40px;"></th></tr></thead><tbody>${fLignes.map((l,i)=>`<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;"><input list="stock_list_fc_${i}" value="${e(l.d)}" oninput="rechercherPieceFacture(${i}, this.value)" placeholder="Taper ou choisir..." class="form-input" style="margin:0; font-size:12px; width:100%"><datalist id="stock_list_fc_${i}">${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}</datalist></td><td style="padding:8px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; renderFactures(document.getElementById('app'))" class="form-input" style="width:100%; font-size:12px;"></td><td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; renderFactures(document.getElementById('app'))" class="form-input" style="width:100%; font-size:12px;"></td><td style="padding:8px; text-align:center;"><button class="s" onclick="fLignes.splice(${i},1);if(!fLignes.length)fLignes=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))" style="color: var(--r);">✕</button></td></tr>`).join("")}</tbody></table><button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))" style="margin-top: 8px;">+ Pièce</button></div><div style="margin-bottom:16px;"><b style="font-size:13px; color:var(--primary); font-weight: 700; display: block; margin-bottom: 8px;">🔧 Main d'œuvre</b><table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border); text-align:left;"><th style="padding:8px; font-size:11px;">Description</th><th style="padding:8px; width:150px; font-size:11px;">Coût (GNF)</th></tr></thead><tbody>${fLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px;"><input value="${e(l.d)}" oninput="fLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" class="form-input" style="font-size:12px;"></td><td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; renderFactures(document.getElementById('app'))" placeholder="0" class="form-input" style="width:100%; font-size:12px;"></td></tr>`).join("")}</tbody></table></div><div style="display:flex; gap:12px; margin-top:16px; margin-bottom:16px; border-top:1px solid var(--border); padding-top:16px;"><input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" class="form-input" style="flex:1; margin:0;" value="${e(fMemo.acompte)}"><select id="fc_paiement" class="form-input" style="flex:1; margin:0;"><option value="">Mode de paiement…</option><option value="Espèces" ${fMemo.paiement === "Espèces" ? "selected" : ""}>Espèces</option><option value="Orange Money" ${fMemo.paiement === "Orange Money" ? "selected" : ""}>Orange Money</option><option value="Virement Bancaire" ${fMemo.paiement === "Virement Bancaire" ? "selected" : ""}>Virement Bancaire</option><option value="Chèque" ${fMemo.paiement === "Chèque" ? "selected" : ""}>Chèque</option></select></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; background:var(--bg); padding:16px; border-radius:var(--radius); border: 1px solid var(--border);"><b style="font-size:18px; color: var(--success);">Total TTC : <span id="fc_tot_ttc">${f(ttc)}</span></b><button class="btn-primary" style="margin:0; width: auto;" onclick="saveFactureDirecte()">✓ Créer la facture</button></div></div>` : ""}<div class="card"><input placeholder="🔍 Rechercher une facture..." class="form-input" value="${e(q)}" oninput="q=this.value;render()"></div>${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0;"><div style="flex:1;"><b style="font-size: 14px;">${e(fa.numero)}</b> <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--success)' : (fa.statut === 'Terminé' ? 'var(--info)' : (fa.statut === 'En cours' ? 'var(--warning)' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br><span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b style="color: var(--success);">${f(fa.total_ttc)}</b></div><div style="display:flex;flex-direction:column;gap:6px;"><select onchange="updateStatut('${fa.id}',this.value)" class="form-input" style="width:auto; font-size: 12px; padding: 6px 10px;">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select><button class="s" onclick="printFacture('${fa.id}')">️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r);">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">🧾</div><div style="font-size: 14px; font-weight: 600;">Aucune facture</div></div></div>'}`;
-}
-
-async function saveFactureDirecte() {
-const cid = $("fc_client").value, veh = fMemo.veh, immat = fMemo.immat;
-const acompte = +$("fc_acompte").value || 0;
-const paiement = $("fc_paiement").value || "";
-if (!cid || !veh || !immat) { alert("Tous les champs sont obligatoires."); return; }
-const lignes = fLignes.filter(l => l.d.trim() !== "");
-const lignesMO = fLignesMO.filter(l => l.d.trim() !== "");
-const toutesLesLignes = [...lignes.map(l => ({...l, t: "Pièce"})), ...lignesMO.map(l => ({...l, t: "Main d'œuvre"}))];
-if (!toutesLesLignes.length) { alert("Ajoutez au moins une ligne."); return; }
-const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht * tv / 100, ttc = ht + tva;
-const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
-const num = (cpt?.valeur || 0) + 1, numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
-const { error } = await supa.from("factures").insert({numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid)?.nom || "Inconnu", vehicule: veh, immat: immat, lignes: toutesLesLignes, total_ht: ht, tva, total_ttc: ttc, acompte: acompte, paiement: paiement, statut: "En attente", created_by: session.user.id});
-if (error) { alert("Erreur : "+error.message); return; }
-await supa.from("compteurs").update({valeur: num}).eq("cle","facture");
-for (const ligne of lignes) {
-if (ligne.stock_id) {
-const art = data.stock.find(s => s.id === ligne.stock_id);
-if (art) await supa.from("stock").update({ qte: (+art.qte || 0) - (+ligne.q || 0) }).eq("id", art.id);
-}
-}
-fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
-fLignes = [{d:"",q:1,p:0}]; fLignesMO = [{d:"",q:1,p:0}];
-await loadAllData();
-alert("✅ Facture créée !");
-}
-
-async function updateStatut(id, st) { await supa.from("factures").update({statut:st}).eq("id", id); await loadAllData(); }
-async function deleteFacture(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer cette facture ?")) return; await supa.from("factures").delete().eq("id", id); await loadAllData(); }
-async function deleteDevis(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ce devis ?")) return; await supa.from("devis").delete().eq("id", id); await loadAllData(); }
-function printDevis(id) { const d = data.devis.find(x=>x.id===id); if (d) printDoc("DEVIS", d.numero, d); }
-function printFacture(id) { const fa = data.factures.find(x=>x.id===id); if (fa) printDoc("FACTURE", fa.numero, fa); }
-
-function printDoc(type, numero, doc) {
-const p = data.params;
-const lignes = doc.lignes && doc.lignes.length ? doc.lignes : [{d: doc.activite || "Prestation", q: 1, p: doc.total_ht || 0}];
-const client = data.clients.find(c => c.id === doc.client_id) || {};
-const v = data.vehicules.find(veh => veh.immat === doc.immat) || {};
-const w = window.open("", "_blank");
-const lignesHtml = lignes.map(l => {
-const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
-return `<tr><td style="border: 1px solid #000; padding: 6px;">${e(l.d)}</td><td style="border: 1px solid #000; padding: 6px; text-align:center;">${e(l.q || 1)}</td><td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(l.p)}</td><td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(l.p)}</td><td style="border: 1px solid #000; padding: 6px; text-align:right;">${f(montant)}</td></tr>`;
-}).join("");
-w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title><style>body{font-family:Arial;font-size:12px;color:#000;padding:20px;max-width:800px;margin:auto}.header{display:flex;justify-content:space-between;margin-bottom:20px}.header-left h1{font-size:22px;color:#666;margin:0}.header-right{background:#eee;padding:10px;width:280px;font-size:11px}.title-bar{border:2px solid #000;padding:5px 10px;font-size:18px;font-weight:bold;margin-bottom:5px}.vehicule-bar{border:1px solid #000;display:flex;margin-bottom:20px}.vehicule-bar div{border-right:1px solid #000;padding:5px 10px;flex:1;font-size:11px}.vehicule-bar div:last-child{border-right:none}table{width:100%;border-collapse:collapse;margin-bottom:10px}th{border:1px solid #000;background:#eee;padding:6px;font-size:11px}.totaux{width:300px;margin-left:auto}.totaux td{border:1px solid #000;padding:6px;font-weight:bold}.footer{margin-top:40px;display:flex;justify-content:flex-end}.cachet{border:1px solid #000;width:250px;height:100px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:10px}@media print{button{display:none}}</style></head><body><div class="header"><div class="header-left"><h1>${e(p.nom || "SPEED GARAGE PRO")}</h1><p>${e(p.adresse || "")}</p><p>Tél : ${e(p.telephone || "—")}</p><p>NIF : ${e(p.nif || "—")} · RCCM : ${e(p.rccm || "—")}</p></div><div class="header-right"><p><b>Client :</b> ${e(doc.client_nom)}</p><p><b>Adresse :</b> ${e(client.adr || "—")}</p><p><b>Tel :</b> ${e(client.tel || "—")}</p></div></div><div class="title-bar">${type} N° : ${e(numero)}</div><div style="border:1px solid #000;border-top:none;padding:5px 10px;font-size:11px;margin-bottom:20px;">Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}</div><div class="vehicule-bar"><div><span>Marque :</span> ${e(v.marque || doc.vehicule || "—")}</div><div><span>Modèle :</span> ${e(v.modele || "—")}</div><div><span>Type :</span> ${e(v.carburant || "—")}</div><div><span>N° Série :</span> ${e(v.vin || doc.immat || "—")}</div></div><table><thead><tr><th style="width:40%;">Main d'œuvre / Pièces</th><th style="width:10%;">Qté</th><th style="width:15%;">P.U Vente</th><th style="width:15%;">P.U Net</th><th style="width:20%;">Montant</th></tr></thead><tbody>${lignesHtml}</tbody></table><table class="totaux"><tr><td>Total HT</td><td style="text-align:right;">${f(doc.total_ht)}</td></tr><tr><td>Total TVA</td><td style="text-align:right;">${f(doc.tva)}</td></tr><tr><td>Total TTC</td><td style="text-align:right;">${f(doc.total_ttc)}</td></tr></table><div class="footer"><div class="cachet">Cachet et Signature</div></div><p style="text-align:center;margin-top:20px;"><button onclick="window.print()" style="padding:10px 20px;cursor:pointer;background:#000;color:#fff;border:none;">🖨️ Imprimer</button></p></body></html>`);
-w.document.close();
-}
-
-let stockCategories = {
-"Lubrifiants": ["Huiles", "Liquides"],
-"Filtres": ["Filtre à huile", "Filtre à air", "Filtre à carburant", "Filtre habitacle", "Autres"],
-"Allumage": ["Bougies", "Préchauffage", "Nettoyants"],
-"Freinage": ["Plaquettes", "Disques", "Mâchoires", "Liquide", "Accessoires"],
-"Courroies": ["Distribution", "Accessoires", "Galets"],
-"Électricité": ["Fusibles", "Ampoules", "Cosses", "Connecteurs"],
-"Entretien": ["Nettoyage", "Protection", "Graisses"],
-"Pneumatiques": ["Valves", "Masses", "Réparation"],
-"Climatisation": ["Gaz", "Huiles", "Outils"],
-"Visserie": ["Vis", "Écrous", "Rondelles", "Rivets", "Clips"],
-"Joints": ["Moteur", "Étanchéité", "Filetage"],
-"Carrosserie": ["Abrasifs", "Mastics", "Peintures", "Masquage"],
-"Atelier": ["Protection", "Nettoyage", "Divers"],
-"Diagnostic": ["Outils", "Piles", "Sprays"],
-"Diesel": ["Additifs", "Nettoyants"]
-};
-let currentStockCat = "";
-let currentStockSubCat = "";
-function filterStockCat() { currentStockCat = $("st_cat").value; currentStockSubCat = ""; renderStock(document.getElementById('app')); }
-function filterStockSubCat() { currentStockSubCat = $("st_subcat").value; renderStock(document.getElementById('app')); }
-
-function renderStock(A) {
-const filtered = data.stock.filter(s => {
-if (currentStockCat && s.categorie !== currentStockCat) return false;
-if (currentStockSubCat && s.sous_categorie !== currentStockSubCat) return false;
-if (q && !(s.nom + " " + (s.categorie||"") + " " + (s.sous_categorie||"")).toLowerCase().includes(q.toLowerCase())) return false;
-return true;
-});
-const subCats = currentStockCat ? stockCategories[currentStockCat] || [] : [];
-A.innerHTML = `<div class="card"><div class="card-header"><div class="card-title"> Nouvel article</div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><select id="st_cat" onchange="filterStockCat()" class="form-input" style="flex:1;"><option value="">Toutes les catégories</option>${Object.keys(stockCategories).sort().map(c => `<option value="${c}" ${c === currentStockCat ? 'selected' : ''}>${c}</option>`).join("")}</select><select id="st_subcat" onchange="filterStockSubCat()" class="form-input" style="flex:1;" ${!currentStockCat ? 'disabled' : ''}><option value="">Toutes les sous-catégories</option>${subCats.map(sc => `<option value="${sc}" ${sc === currentStockSubCat ? 'selected' : ''}>${sc}</option>`).join("")}</select></div><input id="st_nom" placeholder="Désignation précise" class="form-input" style="margin-bottom: 12px;"><div style="display:flex; gap:12px; margin-bottom: 12px;"><input id="st_qte" type="number" placeholder="Quantité" class="form-input" style="flex:1;"><input id="st_min" type="number" placeholder="Seuil d'alerte" class="form-input" style="flex:1;"><input id="st_prix" type="number" placeholder="Prix unitaire (GNF)" class="form-input" style="flex:2;"></div><button class="btn-primary" onclick="addStock()">✓ Ajouter l'article</button></div><div class="card"><input placeholder="🔍 Rechercher un article..." class="form-input" value="${e(q)}" oninput="q=this.value;render()"></div>${Object.keys(stockCategories).filter(c => !currentStockCat || c === currentStockCat).sort().map(cat => {
-const articlesCat = filtered.filter(s => s.categorie === cat);
-if (articlesCat.length === 0) return "";
-return `<div class="card" style="background:var(--bg); margin-bottom:8px; padding:12px; border-left: 4px solid var(--info);"><b style="font-size: 14px;">📦 ${cat}</b> <span class="tag" style="margin-left: 8px;">${articlesCat.length}</span></div>${articlesCat.map(s => `<div class="card" style="margin-bottom: 8px;"><div class="row" style="border-top:0;"><div style="flex:1;"><b style="font-size: 14px;">${e(s.nom)}</b>${s.sous_categorie ? `<span class="tag" style="margin-left:8px;">${e(s.sous_categorie)}</span>` : ""}${+s.qte<=+s.seuil_alerte?'<span class="tag" style="background:var(--r);color:#fff; margin-left: 8px;">️ Bas</span>':""}<br><span class="m" style="font-size: 12px;">Qté : ${s.qte} · Seuil : ${s.seuil_alerte} · <b style="color: var(--success);">${f(s.prix)}</b></span></div><div style="display: flex; gap: 4px;"><button class="s" onclick="changeStock('${s.id}',-1)" style="font-size: 16px; padding: 6px 10px;">−</button><button class="s" onclick="changeStock('${s.id}',1)" style="font-size: 16px; padding: 6px 10px;">+</button><button class="s" onclick="deleteStock('${s.id}')" style="color: var(--r);">🗑️</button></div></div></div>`).join("")}`).join("") || '<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">📦</div><div style="font-size: 14px; font-weight: 600;">Aucun article</div></div></div>'}`;
-}
-
-async function addStock() {
-const nom = $("st_nom").value.trim();
-const cat = $("st_cat").value;
-const subcat = $("st_subcat") ? $("st_subcat").value : "";
-const qte = +$("st_qte").value || 0;
-const min = +$("st_min").value || 0;
-const prix = +$("st_prix").value || 0;
-if (!nom || !cat) { alert("La désignation et la catégorie sont obligatoires."); return; }
-await supa.from("stock").insert({nom, categorie: cat, sous_categorie: subcat, qte, seuil_alerte: min, prix});
-await jlog("Ajout stock", `[${cat}] ${nom}`, "");
-await loadAllData();
-}
-
-async function changeStock(id, delta) { const s = data.stock.find(x=>x.id===id); if (s) { await supa.from("stock").update({qte: (+s.qte||0)+delta}).eq("id", id); await loadAllData(); } }
-async function deleteStock(id) { if (!confirm("Supprimer ?")) return; await supa.from("stock").delete().eq("id", id); await loadAllData(); }
-
-function renderTechs(A) {
-A.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">➕ Nouveau technicien</div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="tc_prenom" placeholder="Prénom *" class="form-input" style="flex:1;"><input id="tc_nom" placeholder="Nom *" class="form-input" style="flex:1;"></div><select id="tc_sp" class="form-input" style="margin-bottom:12px;"><option value="">Spécialité *</option><option value="Mécanicien">Mécanicien</option><option value="Électricien">Électricien</option><option value="Peintre">Peintre</option><option value="Tôlier">Tôlier</option><option value="Autre">Autre</option></select><input id="tc_adr" placeholder="Adresse" class="form-input" style="margin-bottom:12px;"><input id="tc_tel" type="tel" placeholder="Téléphone *" class="form-input" style="margin-bottom:12px;"><button class="btn-primary" onclick="addTech()">✓ Ajouter</button></div><div class="card"><div class="card-header"><div class="card-title">👷 Liste des techniciens</div></div><table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border); text-align:left;"><th style="padding:10px; font-size: 11px;">Nom & Prénom</th><th style="padding:10px; font-size: 11px;">Spécialité</th><th style="padding:10px; font-size: 11px;">Téléphone</th><th style="padding:10px; font-size: 11px;">Adresse</th><th style="padding:10px; font-size: 11px; text-align:center;">Action</th></tr></thead><tbody>${data.techs.map(t => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><b style="font-size: 13px;">${e(t.prenom || '')} ${e(t.nom)}</b></td><td style="padding:10px;"><span class="tag">${e(t.specialite || '—')}</span></td><td style="padding:10px; font-size: 13px;">${e(t.telephone || '—')}</td><td style="padding:10px; font-size: 13px;">${e(t.adresse || '—')}</td><td style="padding:10px; text-align:center;">${profil.role === 'PDG' ? `<button class="s" onclick="deleteTech('${t.id}')" style="color: var(--r);">🗑️</button>` : ""}</td></tr>`).join("") || '<tr><td colspan="5" style="text-align:center; padding:20px; color: var(--text-dim);">Aucun technicien.</td></tr>'}</tbody></table></div>`;
-}
-
-async function addTech() {
-const prenom = $("tc_prenom").value.trim();
-const nom = $("tc_nom").value.trim();
-const sp = $("tc_sp").value;
-const adr = $("tc_adr").value.trim();
-const tel = $("tc_tel").value.trim();
-if (!prenom || !nom) { alert("Le prénom et le nom sont obligatoires."); return; }
-if (!sp) { alert("La spécialité est obligatoire."); return; }
-if (!tel) { alert("Le téléphone est obligatoire."); return; }
-const { error } = await supa.from("techniciens").insert({prenom, nom, specialite: sp, adresse: adr, telephone: tel});
-if (error) { alert("Erreur : " + error.message); return; }
-await jlog("Ajout technicien", `${prenom} ${nom}`, sp);
-await loadAllData();
-}
-
-async function deleteTech(id) {
-if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer un technicien."); return; }
-if (!confirm("Supprimer ce technicien ?")) return;
-await supa.from("techniciens").delete().eq("id", id);
-await loadAllData();
-}
-
-async function addPersonnel() {
-const nom = $("p_nom").value.trim();
-const prenom = $("p_prenom").value.trim();
-const poste = $("p_poste").value.trim();
-const tel = $("p_tel").value.trim();
-const adr = $("p_adr").value.trim();
-const dateEmbauche = $("p_date").value;
-const typeContrat = $("p_contrat").value;
-const salaire = +$("p_salaire").value || 0;
-if (!nom || !poste) { alert("Le nom et le poste sont obligatoires."); return; }
-const { error } = await supa.from("employes").insert({nom, prenom, poste, telephone: tel, adresse: adr, date_embauche: dateEmbauche, type_contrat: typeContrat, salaire_base: salaire});
-if (error) { alert("Erreur : " + error.message); return; }
-await jlog("Ajout employé", `${prenom} ${nom}`, poste);
-await loadAllData();
-alert("Employé ajouté avec succès !");
-}
-
-function renderPersonnel(A) {
-if (profil.role !== "PDG") { A.innerHTML = `<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">🔒</div><div style="font-size: 14px; font-weight: 600;">Réservé au PDG</div></div></div>`; return; }
-A.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">➕ Nouvel employé</div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="p_prenom" placeholder="Prénom *" class="form-input" style="flex:1;"><input id="p_nom" placeholder="Nom *" class="form-input" style="flex:1;"></div><input id="p_poste" placeholder="Poste *" class="form-input" style="margin-bottom:12px;"><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="p_tel" type="tel" placeholder="Téléphone" class="form-input" style="flex:1;"><input id="p_adr" placeholder="Adresse" class="form-input" style="flex:2;"></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="p_date" type="date" class="form-input" style="flex:1;"><select id="p_contrat" class="form-input" style="flex:1;"><option value="CDI">CDI</option><option value="CDD">CDD</option><option value="Stage">Stage</option><option value="Apprentissage">Apprentissage</option></select><input id="p_salaire" type="number" placeholder="Salaire (GNF)" class="form-input" style="flex:1;"></div><button class="btn-primary" onclick="addPersonnel()">✓ Ajouter l'employé</button></div><div class="card"><div class="card-header"><div class="card-title">👥 Liste des employés</div></div><table style="width:100%; border-collapse:collapse;"><thead><tr style="border-bottom:2px solid var(--border); text-align:left;"><th style="padding:10px; font-size: 11px;">Nom & Prénom</th><th style="padding:10px; font-size: 11px;">Poste</th><th style="padding:10px; font-size: 11px;">Téléphone</th><th style="padding:10px; font-size: 11px;">Contrat</th><th style="padding:10px; font-size: 11px; text-align:right;">Salaire</th><th style="padding:10px; font-size: 11px; text-align:center;">Action</th></tr></thead><tbody>${data.employes.map(emp => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><b style="font-size: 13px;">${e(emp.prenom || '')} ${e(emp.nom)}</b></td><td style="padding:10px;"><span class="tag">${e(emp.poste || '—')}</span></td><td style="padding:10px; font-size: 13px;">${e(emp.telephone || '—')}</td><td style="padding:10px; font-size: 13px;">${e(emp.type_contrat || '—')}</td><td style="padding:10px; text-align:right; font-family:monospace; font-size: 13px; color: var(--success);">${f(emp.salaire_base)}</td><td style="padding:10px; text-align:center;">${profil.role === 'PDG' ? `<button class="s" onclick="deleteEmploye('${emp.id}')" style="color: var(--r);">️</button>` : ""}</td></tr>`).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px; color: var(--text-dim);">Aucun employé enregistré.</td></tr>'}</tbody></table></div>`;
-}
-
-async function deleteEmploye(id) {
-if (profil.role !== "PDG") return;
-if (!confirm("Supprimer cet employé ?")) return;
-await supa.from("employes").delete().eq("id", id);
-await loadAllData();
-}
-
-async function addEmploye() {
-const nom = $("emp_nom").value.trim();
-const poste = $("emp_poste").value.trim();
-const salaire = +$("emp_salaire").value || 0;
-const tel = $("emp_tel").value.trim();
-const date = $("emp_date").value;
-if (!nom || !poste) { alert("Le nom et le poste sont obligatoires."); return; }
-const { error } = await supa.from("employes").insert({nom, poste, salaire_base: salaire, telephone: tel, date_embauche: date});
-if (error) { alert("Erreur : " + error.message); return; }
-await jlog("Ajout employé", nom, poste);
-await loadAllData();
-alert("Employé ajouté avec succès !");
-}
-
-async function sauverPaie(employeId) {
-const mois = $("paie_mois").value; if (!mois) { alert("Choisissez le mois."); return; }
-const base = +$("paie_base").value || 0, primes = +$("paie_primes").value || 0, avances = +$("paie_avances").value || 0;
-const cnss = +$("paie_cnss").value || 0, impot = +$("paie_impot").value || 0;
-const solde = base + primes - avances - cnss - impot;
-const { error } = await supa.from("paie").insert({ employe_id: employeId, mois, salaire_base: base, primes, avances, cnss, impot, solde });
-if (error) { alert("Erreur : " + error.message); return; }
-const emp = data.employes.find(x => x.id === employeId);
-await jlog("Paie enregistrée", `${emp.nom} - ${mois}`, `Solde : ${f(solde)}`);
-employePaieId = null; await loadAllData(); alert("Paie enregistrée !");
-}
-
-function renderPaie(A) {
-if (profil.role !== "PDG") { A.innerHTML = `<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">🔒</div><div style="font-size: 14px; font-weight: 600;">Réservé au PDG</div></div></div>`; return; }
-if (employePaieId) {
-const emp = data.employes.find(x => x.id === employePaieId);
-if (!emp) { employePaieId = null; render(); return; }
-const base = +$("paie_base")?.value || emp.salaire_base || 0;
-const primes = +$("paie_primes")?.value || 0, avances = +$("paie_avances")?.value || 0;
-const cnss = +$("paie_cnss")?.value || 0, impot = +$("paie_impot")?.value || 0;
-const solde = base + primes - avances - cnss - impot;
-A.innerHTML = `<div class="card"><button class="btn-secondary" onclick="employePaieId=null; render()" style="width: auto; margin-bottom: 12px;">← Retour</button><h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 800;">Fiche de paie : ${e(emp.nom)}</h3><input id="paie_mois" type="month" class="form-input" value="${new Date().toISOString().slice(0,7)}" style="margin-bottom: 12px;"><label class="m">Salaire de base (GNF)</label><input id="paie_base" type="number" class="form-input" value="${base}" oninput="renderPaie(document.getElementById('app'))"><label class="m">Primes</label><input id="paie_primes" type="number" class="form-input" value="${primes}" oninput="renderPaie(document.getElementById('app'))"><label class="m">Avances</label><input id="paie_avances" type="number" class="form-input" value="${avances}" oninput="renderPaie(document.getElementById('app'))"><label class="m">CNSS</label><input id="paie_cnss" type="number" class="form-input" value="${cnss}" oninput="renderPaie(document.getElementById('app'))"><label class="m">Impôt</label><input id="paie_impot" type="number" class="form-input" value="${impot}" oninput="renderPaie(document.getElementById('app'))"><div style="background:var(--bg); padding:16px; margin-top:16px; border:2px solid var(--primary); border-radius: var(--radius);"><b style="font-size: 16px; color: var(--success);">Solde à payer : ${f(solde)}</b></div><button class="btn-primary" onclick="sauverPaie('${emp.id}')" style="margin-top: 16px;">✓ Enregistrer</button></div>`;
-return;
-}
-A.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">👥 Registre des salaires</div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="emp_nom" placeholder="Nom complet *" class="form-input" style="flex:1;"><input id="emp_poste" placeholder="Poste *" class="form-input" style="flex:1;"></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="emp_salaire" type="number" placeholder="Salaire (GNF)" class="form-input" style="flex:1;"><input id="emp_tel" placeholder="Téléphone" class="form-input" style="flex:1;"><input id="emp_date" type="date" class="form-input" style="flex:1;"></div><button class="btn-primary" onclick="addEmploye()">✓ Ajouter</button></div><div class="card"><div class="card-header"><div class="card-title">👷 Liste des employés</div></div><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; font-size: 11px;">Nom</th><th style="padding:10px; font-size: 11px;">Poste</th><th style="padding:10px; font-size: 11px; text-align:right;">Salaire</th><th style="padding:10px; font-size: 11px; text-align:center;">Action</th></tr></thead><tbody>${data.employes.map(emp => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px;"><b style="font-size: 13px;">${e(emp.nom)}</b></td><td style="padding:10px;"><span class="tag">${e(emp.poste)}</span></td><td style="padding:10px; text-align:right; font-family:monospace; font-size: 13px; color: var(--success);">${f(emp.salaire_base)}</td><td style="padding:10px; text-align:center;"><button class="btn-primary" style="margin:0; padding: 8px 12px; font-size: 11px; width: auto;" onclick="employePaieId='${emp.id}';render()">Faire la paie</button></td></tr>`).join("") || '<tr><td colspan="4" style="text-align:center; padding:20px; color: var(--text-dim);">Aucun employé.</td></tr>'}</tbody></table></div><div class="card"><div class="card-header"><div class="card-title">📜 Historique des paies</div></div><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; font-size: 11px;">Employé</th><th style="padding:10px; font-size: 11px;">Mois</th><th style="padding:10px; font-size: 11px; text-align:right;">Net à payer</th><th style="padding:10px; font-size: 11px; text-align:center;">Action</th></tr></thead><tbody>${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => { const emp = data.employes.find(x => x.id === paie.employe_id); return `<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px; font-size: 13px;">${e(emp ? emp.nom : "Inconnu")}</td><td style="padding:10px; font-size: 13px;">${e(paie.mois)}</td><td style="padding:10px; text-align:right; font-family:monospace; font-size: 13px; color: var(--success);"><b>${f(paie.solde)}</b></td><td style="padding:10px; text-align:center;"><button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deletePaie('${paie.id}')" style="color:var(--r);">️</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="4" style="text-align:center; padding:20px; color: var(--text-dim);">Aucune paie.</td></tr>'}</tbody></table></div>`;
-}
-
-async function deletePaie(id) {
-if (profil.role !== "PDG") return;
-if (!confirm("Supprimer ce bulletin de paie ?")) return;
-await supa.from("paie").delete().eq("id", id);
-await loadAllData();
-}
-
-function printBulletinPaie(paieId) {
-const p = data.paie.find(x => x.id === paieId); if (!p) return;
-const emp = data.employes.find(x => x.id === p.employe_id); if (!emp) return;
-const w = window.open("", "_blank");
-w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Bulletin de paie</title><style>body{font-family:Arial;font-size:12px;padding:20px;max-width:700px;margin:auto}.header{display:flex;justify-content:space-between;border-bottom:3px solid #1a2a3a;padding-bottom:10px;margin-bottom:20px}.header h1{font-size:20px;margin:0}.title{text-align:center;font-size:18px;font-weight:bold;margin:20px 0}.info{display:flex;justify-content:space-between;margin-bottom:20px}.info div{width:48%}table{width:100%;border-collapse:collapse;margin-bottom:20px}th,td{border:1px solid #000;padding:8px;text-align:left}th{background:#eee}.totaux{text-align:right;font-size:15px;font-weight:bold;margin-top:20px;border-top:2px solid #000;padding-top:10px}.signatures{display:flex;justify-content:space-between;margin-top:50px}.signatures div{width:40%;border-top:1px solid #000;text-align:center;padding-top:5px}@media print{button{display:none}}</style></head><body><div class="header"><div><h1>${e(data.params.nom || "SPEED GARAGE")}</h1><p>NIF : ${e(data.params.nif || "")} · RCCM : ${e(data.params.rccm || "")}</p></div><div style="text-align:right"><h2>BULLETIN DE PAIE</h2><p>Période : ${e(p.mois)}</p></div></div><div class="info"><div><p><b>Employé :</b> ${e(emp.nom)}</p><p><b>Poste :</b> ${e(emp.poste)}</p></div></div><table><thead><tr><th>Éléments</th><th style="text-align:right">Montant</th></tr></thead><tbody><tr><td>Salaire de base</td><td style="text-align:right">${f(p.salaire_base)}</td></tr><tr><td>Primes</td><td style="text-align:right">${f(p.primes)}</td></tr><tr><td>Avances</td><td style="text-align:right">- ${f(p.avances)}</td></tr><tr><td>CNSS</td><td style="text-align:right">- ${f(p.cnss || 0)}</td></tr><tr><td>Impôt</td><td style="text-align:right">- ${f(p.impot || 0)}</td></tr></tbody></table><div class="totaux">NET À PAYER : ${f(p.solde)}</div><div class="signatures"><div>Signature employeur</div><div>Signature employé</div></div><p style="text-align:center;margin-top:40px"><button onclick="window.print()">🖨️ Imprimer</button></p></body></html>`); w.document.close();
-}
-
-async function addDepense() {
-const cat = $("dep_cat").value, desc = $("dep_desc").value.trim(), montant = +$("dep_montant").value || 0, dateVal = $("dep_date").value || new Date().toISOString().slice(0,10);
-const salNom = $("dep_sal_nom").value.trim(), salPrenom = $("dep_sal_prenom").value.trim(), salFonction = $("dep_sal_fonction").value.trim();
-if (!desc || montant <= 0) { alert("Description et montant obligatoires."); return; }
-const { error } = await supa.from("depenses").insert({ categorie: cat, description: desc, montant, date_depense: dateVal, salarie_nom: salNom, salarie_prenom: salPrenom, salarie_fonction: salFonction, created_by: session.user.id });
-if (error) { alert("Erreur : " + error.message); return; }
-await jlog("Nouvelle dépense", desc, cat);
-$("dep_desc").value = ""; $("dep_montant").value = ""; $("dep_sal_nom").value = ""; $("dep_sal_prenom").value = ""; $("dep_sal_fonction").value = "";
-await loadAllData();
-}
-
-async function deleteDepense(id) { if (!confirm("Supprimer ?")) return; await supa.from("depenses").delete().eq("id", id); await loadAllData(); }
-
-function renderDepenses(A) {
-const total = data.depenses.reduce((a,d) => a + (+d.montant||0), 0);
-A.innerHTML = `<div class="card"><div class="card-header"><div class="card-title">➕ Enregistrer une dépense</div></div><select id="dep_cat" class="form-input" style="margin-bottom: 12px;"><option value="Achat pièces">Achat de pièces</option><option value="Salaires">Salaires</option><option value="Loyer">Loyer</option><option value="Électricité">Électricité</option><option value="Eau">Eau</option><option value="Carburant">Carburant</option><option value="Entretien">Entretien</option><option value="Fournitures">Fournitures</option><option value="Frais de déplacement">Frais de déplacement</option><option value="Appel téléphonique">Appel téléphonique</option><option value="Connexion internet">Connexion Internet</option><option value="Divers">Divers</option></select><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="dep_sal_nom" placeholder="Nom salarié" class="form-input" style="flex:1;"><input id="dep_sal_prenom" placeholder="Prénom" class="form-input" style="flex:1;"><input id="dep_sal_fonction" placeholder="Fonction" class="form-input" style="flex:1;"></div><input id="dep_desc" placeholder="Description / Motif" class="form-input" style="margin-bottom: 12px;"><div style="display:flex; gap:12px; margin-bottom: 12px;"><input id="dep_montant" type="number" placeholder="Montant (GNF)" class="form-input" style="flex:1;"><input id="dep_date" type="date" class="form-input" style="flex:1;" value="${new Date().toISOString().slice(0,10)}"></div><button class="btn-primary" onclick="addDepense()">✓ Ajouter la dépense</button></div><div class="card" style="background: linear-gradient(135deg, var(--bg-card), rgba(220, 38, 38, 0.05)); border-left:4px solid var(--r);"><div style="display: flex; align-items: center; gap: 12px;"><div style="font-size: 32px;">💸</div><div><div class="m">Total des dépenses</div><b style="font-size:20px; font-weight: 800; color: var(--primary);">${f(total)}</b></div></div></div><div class="card"><div class="card-header"><div class="card-title">📜 Historique</div></div><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; font-size: 11px;">Date</th><th style="padding:10px; font-size: 11px;">Catégorie</th><th style="padding:10px; font-size: 11px;">Description</th><th style="padding:10px; font-size: 11px; text-align:right;">Montant</th><th style="padding:10px; font-size: 11px;"></th></tr></thead><tbody>${data.depenses.map(d => `<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px; font-size: 13px;">${new Date(d.date_depense).toLocaleDateString('fr-FR')}</td><td style="padding:10px;"><span class="tag">${e(d.categorie)}</span></td><td style="padding:10px; font-size: 13px;">${e(d.description)}${d.salarie_nom ? `<br><span class="m"> ${e(d.salarie_prenom)} ${e(d.salarie_nom)} (${e(d.salarie_fonction)})</span>` : ""}</td><td style="padding:10px; text-align:right; font-family:monospace; font-size: 13px; color: var(--primary);"><b>${f(d.montant)}</b></td><td style="padding:10px;"><button class="s" onclick="deleteDepense('${d.id}')" style="color: var(--r);">️</button></td></tr>`).join("") || '<tr><td colspan="5" style="text-align:center; padding:20px; color: var(--text-dim);">Aucune dépense.</td></tr>'}</tbody></table></div>`;
-}
-
-async function addFournisseur() {
-const nom = $("f_nom").value.trim(); if (!nom) { alert("Le nom est obligatoire."); return; }
-const { error } = await supa.from("fournisseurs").insert({ nom, contact: $("f_contact").value.trim(), telephone: $("f_tel").value.trim(), adresse: $("f_adr").value.trim() });
-if (error) { alert("Erreur : " + error.message); return; }
-await jlog("Ajout fournisseur", nom, ""); await loadAllData();
-}
-async function deleteFournisseur(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ce fournisseur ?")) return; await supa.from("fournisseurs").delete().eq("id", id); await loadAllData(); }
-async function addCommande() {
-const fid = $("c_fournisseur").value, desc = $("c_desc").value.trim(), montant = parseFloat($("c_montant").value) || 0, montantPaye = parseFloat($("c_montant_paye").value) || 0;
-const dateVal = $("c_date").value || new Date().toISOString().slice(0,10);
-if (!fid || !desc || montant <= 0) { alert("Veuillez remplir correctement."); return; }
-const fournisseur = data.fournisseurs.find(x => x.id === fid);
-const statut = montantPaye >= montant ? "Payé" : (montantPaye > 0 ? "Partiel" : "Commandé");
-const { error } = await supa.from("commandes").insert({ fournisseur_id: fid, fournisseur_nom: fournisseur.nom, description: desc, montant, montant_paye: montantPaye, statut, date_commande: dateVal });
-if (error) { alert("Erreur Supabase : " + error.message); return; }
-await jlog("Nouvelle commande", desc, `${fournisseur.nom} - ${f(montant)}`);
-$("c_fournisseur").value = ""; $("c_desc").value = ""; $("c_montant").value = ""; $("c_montant_paye").value = "";
-await loadAllData(); alert("Commande enregistrée !");
-}
-async function payerSolde(id) {
-const c = data.commandes.find(x => x.id === id); if (!c) return;
-const reste = c.montant - (c.montant_paye || 0);
-if (!confirm(`Enregistrer le paiement du solde de ${f(reste)} ?`)) return;
-await supa.from("commandes").update({ montant_paye: c.montant, statut: "Payé" }).eq("id", id);
-await jlog("Paiement fournisseur", c.fournisseur_nom, `Solde : ${f(reste)}`); await loadAllData();
-}
-async function deleteCommande(id) { if (profil.role !== "PDG") return; if (!confirm("Supprimer ?")) return; await supa.from("commandes").delete().eq("id", id); await loadAllData(); }
-
-function renderFournisseurs(A) {
-const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
-A.innerHTML = `<div class="grid"><div class="card" style="border-top:4px solid var(--r); background: linear-gradient(135deg, var(--bg-card), rgba(220, 38, 38, 0.05));"><div class="m">💸 Dettes fournisseurs</div><div class="k" style="color:var(--r); margin-top: 8px;">${f(dette)}</div></div></div><div class="card"><div class="card-header"><div class="card-title">🏭 Nouveau fournisseur</div></div><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="f_nom" placeholder="Nom *" class="form-input" style="flex:2;"><input id="f_contact" placeholder="Contact" class="form-input" style="flex:1;"><input id="f_tel" placeholder="Téléphone" class="form-input" style="flex:1;"></div><input id="f_adr" placeholder="Adresse" class="form-input" style="margin-bottom:12px;"><button class="btn-primary" onclick="addFournisseur()">✓ Ajouter le fournisseur</button></div><div class="card"><div class="card-header"><div class="card-title">📦 Nouvelle commande</div></div><select id="c_fournisseur" class="form-input" style="margin-bottom: 12px;"><option value="">Choisir un fournisseur *</option>${data.fournisseurs.map(f => `<option value="${f.id}">${e(f.nom)}</option>`).join("")}</select><input id="c_desc" placeholder="Description (ex: 10 filtres...)" class="form-input" style="margin-bottom: 12px;"><div style="display:flex; gap:12px; margin-bottom:12px;"><input id="c_montant" type="number" placeholder="Montant total" class="form-input" style="flex:1;"><input id="c_montant_paye" type="number" placeholder="Acompte versé" class="form-input" style="flex:1;"><input id="c_date" type="date" class="form-input" style="flex:1;" value="${new Date().toISOString().slice(0,10)}"></div><button class="btn-primary" onclick="addCommande()">✓ Enregistrer la commande</button></div><div class="card"><div class="card-header"><div class="card-title">📜 Historique des commandes</div></div><div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="padding:10px; font-size: 11px;">Date</th><th style="padding:10px; font-size: 11px;">Fournisseur</th><th style="padding:10px; font-size: 11px;">Description</th><th style="padding:10px; font-size: 11px;">Montant</th><th style="padding:10px; font-size: 11px;">Statut</th><th style="padding:10px; font-size: 11px;"></th></tr></thead><tbody>${(data.commandes || []).map(c => { const reste = (+c.montant||0) - (+c.montant_paye||0); let statutTxt = reste <= 0 ? "Soldé" : (c.montant_paye > 0 ? "Partiel" : "Impayé"); let statutBg = reste <= 0 ? "var(--success)" : (c.montant_paye > 0 ? "var(--warning)" : "var(--r)"); return `<tr style="border-bottom:1px solid var(--border);"><td style="padding:10px; font-size: 13px;">${new Date(c.date_commande).toLocaleDateString('fr-FR')}</td><td style="padding:10px; font-size: 13px;"><b>${e(c.fournisseur_nom)}</b></td><td style="padding:10px; font-size: 13px;">${e(c.description)}</td><td style="padding:10px; font-size: 13px;"><b>${f(c.montant)}</b><br><span class="m">Payé: ${f(c.montant_paye||0)}</span></td><td style="padding:10px;"><span class="tag" style="background:${statutBg};color:#fff;">${statutTxt}</span><br><span class="m">Reste : ${f(reste)}</span></td><td style="padding:10px;">${reste > 0 ? `<button class="btn-primary" style="margin:0; padding: 6px 12px; font-size: 11px; width: auto;" onclick="payerSolde('${c.id}')">Payer</button>` : ""}${profil.role === 'PDG' ? `<button class="s" onclick="deleteCommande('${c.id}')" style="color: var(--r);">🗑️</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="6" style="text-align:center; padding:20px; color: var(--text-dim);">Aucune commande.</td></tr>'}</tbody></table></div></div><div class="card"><div class="card-header"><div class="card-title"> Liste des fournisseurs</div></div>${data.fournisseurs.map(f => `<div class="row" style="border-top:1px solid var(--border);"><span><b style="font-size: 14px;">${e(f.nom)}</b><br><span class="m" style="font-size: 12px;">${e(f.contact||"")} ${e(f.telephone||"")}<br>📍 ${e(f.adresse||"—")}</span></span>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFournisseur('${f.id}')" style="color: var(--r);">️</button>` : ""}</div>`).join("") || '<div class="m" style="text-align: center; padding: 20px;">Aucun fournisseur.</div>'}</div>`;
-}
-
-function renderAudit(A) {
-if (profil.role !== "PDG") { A.innerHTML = `<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon"></div><div style="font-size: 14px; font-weight: 600;">Réservé au PDG</div></div></div>`; return; }
-const J = [...(data.journal||[])].sort((a,b) => a.created_at < b.created_at ? 1 : -1).slice(0, 300);
-A.innerHTML = `<div class="card"><div class="card-header"><div class="card-title"> Journal d'audit</div><div style="display: flex; gap: 8px;"><button class="btn-secondary" onclick="exportAudit()" style="width: auto; padding: 8px 16px; font-size: 12px;">📥 Exporter CSV</button><button class="btn-secondary" onclick="supprimerJournal()" style="width: auto; padding: 8px 16px; font-size: 12px; color: var(--r); border-color: var(--r);">🗑️ Vider</button></div></div><p class="m">Les 300 dernières actions</p></div>${J.map(x => `<div class="card" style="padding:16px; border-left: 4px solid var(--primary);"><div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom: 8px;"><b style="font-size:15px; font-weight: 700;">${e(x.action)}</b><span class="tag">${e(x.role||'—')}</span></div><div class="m" style="font-size: 12px;"><span>Réf : <b style="color: var(--text);">${e(x.reference)}</b></span><br><span>Par : <b style="color: var(--text);">${e(x.utilisateur_nom)}</b> le ${new Date(x.created_at).toLocaleString('fr-FR')}</span>${x.details ? `<br><span style="color:var(--primary); font-size: 11px;">Détails : ${e(String(x.details).slice(0,300))}</span>` : ""}</div></div>`).join("") || '<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">🔍</div><div style="font-size: 14px; font-weight: 600;">Aucune entrée</div></div></div>'}`;
-}
-
-async function supprimerJournal() {
-if (profil.role !== "PDG") { alert("Seul le PDG peut supprimer le journal."); return; }
-if (!confirm("️ Voulez-vous vraiment supprimer TOUT l'historique ?")) return;
-const { error } = await supa.rpc("vider_journal");
-if (error) { alert("Erreur : " + error.message); return; }
-await jlog("Journal vidé", "Par " + profil.username, "");
-await loadAllData();
-alert("✅ Le journal a été vidé !");
-}
-
-function exportAudit() {
-if (!data.journal || data.journal.length === 0) { alert("Aucune donnée à exporter."); return; }
-const J = [...data.journal].sort((a,b) => a.created_at < b.created_at ? 1 : -1);
-let csv = "Date;Utilisateur;Role;Action;Reference;Details\n";
-J.forEach(x => {
-const ligne = [new Date(x.created_at).toLocaleString('fr-FR'), x.utilisateur_nom || "", x.role || "", x.action || "", x.reference || "", x.details || ""].map(v => `"${String(v).replace(/"/g, '""')}"`).join(";");
-csv += ligne + "\n";
-});
-const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement("a");
-a.href = url;
-a.download = "journal-audit-" + new Date().toISOString().slice(0,10) + ".csv";
-a.click();
-}
-
-function renderStats(A) {
-if (profil.role !== "PDG") { A.innerHTML = `<div class="card"><div class="rdv-empty"><div class="rdv-empty-icon">🔒</div><div style="font-size: 14px; font-weight: 600;">Réservé au PDG</div></div></div>`; return; }
-const caMois = {}; let totalCa = 0;
-data.factures.filter(fact => fact.statut === "Payé").forEach(fact => {
-const mois = (fact.date_emission || "").slice(0,7);
-if (!mois) return;
-caMois[mois] = (caMois[mois] || 0) + (+fact.total_ttc || 0);
-totalCa += (+fact.total_ttc || 0);
-});
-const totalSalaires = (data.paie || []).reduce((a,p) => a + (+p.solde||0), 0);
-const totalDepenses = (data.depenses || []).reduce((a,d) => a + (+d.montant||0), 0);
-const totalFournisseurs = (data.commandes || []).reduce((a,c) => a + (+c.montant_paye||0), 0);
-const totalSorties = totalSalaires + totalDepenses + totalFournisseurs;
-const beneficeNet = totalCa - totalSorties;
-const techStats = {}; data.factures.forEach(fact => { if (fact.technicien) techStats[fact.technicien] = (techStats[fact.technicien] || 0) + (+fact.total_ttc || 0); });
-const topTechs = Object.entries(techStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
-const clientStats = {}; data.factures.forEach(fact => { if (fact.client_nom) clientStats[fact.client_nom] = (clientStats[fact.client_nom] || 0) + (+fact.total_ttc || 0); });
-const topClients = Object.entries(clientStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
-A.innerHTML = `<div class="card" style="background: linear-gradient(135deg, var(--bg-card), rgba(16, 185, 129, 0.05));"><div class="card-header"><div class="card-title">💰 Tableau de bord financier</div></div><div class="grid" style="margin-top:12px;"><div class="card" style="border-top:4px solid var(--success); margin: 0;"><div class="m">📈 Recettes</div><div class="k" style="color:var(--success); margin-top: 8px;">${f(totalCa)}</div></div><div class="card" style="border-top:4px solid var(--r); margin: 0;"><div class="m">📉 Sorties</div><div class="k" style="color:var(--r); margin-top: 8px;">${f(totalSorties)}</div></div><div class="card" style="border-top:4px solid var(--purple); margin: 0;"><div class="m">💎 Bénéfice Net</div><div class="k" style="color:${beneficeNet >= 0 ? 'var(--success)' : 'var(--r)'}; margin-top: 8px;">${f(beneficeNet)}</div></div></div></div><div class="card"><div class="card-header"><div class="card-title">📈 CA par mois</div></div>${Object.keys(caMois).sort().reverse().map(m => `<div class="row" style="border-top:1px solid var(--border);"><span style="font-size: 13px;">${m}</span><b style="font-size: 14px; color: var(--success);">${f(caMois[m])}</b></div>`).join("") || '<div class="m" style="text-align: center; padding: 20px;">Aucune facture payée.</div>'}</div><div class="card"><div class="card-header"><div class="card-title">🔧 Top techniciens</div></div>${topTechs.map((t, i) => `<div class="row" style="border-top:1px solid var(--border);"><span style="font-size: 13px;">#${i+1} ${e(t[0])}</span><b style="font-size: 14px; color: var(--success);">${f(t[1])}</b></div>`).join("") || '<div class="m" style="text-align: center; padding: 20px;">—</div>'}</div><div class="card"><div class="card-header"><div class="card-title"> Top clients</div></div>${topClients.map((c, i) => `<div class="row" style="border-top:1px solid var(--border);"><span style="font-size: 13px;">#${i+1} ${e(c[0])}</span><b style="font-size: 14px; color: var(--success);">${f(c[1])}</b></div>`).join("") || '<div class="m" style="text-align: center; padding: 20px;">—</div>'}</div>`;
-}
-
-function renderParams(A) {
-const p = data.params;
-const estPDG = (profil.role === "PDG");
-A.innerHTML = `${estPDG ? `<div class="card"><div class="card-header"><div class="card-title">🏢 Informations du garage</div></div><label class="m">Nom</label><input id="p_nom" class="form-input" value="${e(p.nom||"")}"><label class="m">NIF</label><input id="p_nif" class="form-input" value="${e(p.nif||"")}"><label class="m">RCCM</label><input id="p_rccm" class="form-input" value="${e(p.rccm||"")}"><label class="m">Adresse</label><input id="p_adr" class="form-input" value="${e(p.adresse||"")}"><label class="m">Téléphone</label><input id="p_tel" class="form-input" value="${e(p.telephone||"")}"><label class="m">TVA (%)</label><input id="p_tva" type="number" class="form-input" value="${e(p.tva_taux||"18")}"><button class="btn-primary" onclick="saveParams()" style="margin-top: 16px;">✓ Enregistrer</button></div>` : ""}<div class="card"><div class="card-header"><div class="card-title">🔐 Changer mon mot de passe</div></div><p class="m" style="margin-bottom: 12px;">Pour des raisons de sécurité, veuillez saisir votre ancien mot de passe.</p><input id="old_password" type="password" placeholder="Ancien mot de passe" class="form-input" style="margin-bottom: 8px;"><input id="new_password" type="password" placeholder="Nouveau mot de passe" class="form-input" style="margin-bottom: 8px;"><input id="confirm_password" type="password" placeholder="Confirmer" class="form-input" style="margin-bottom: 12px;"><button class="btn-primary" onclick="changerMotDePasse()">✓ Mettre à jour</button></div>${estPDG ? `<div class="card"><div class="card-header"><div class="card-title">💾 Sauvegarde</div></div><button class="btn-primary" onclick="exportAll()" style="margin-bottom: 12px;">📥 Exporter les données</button><div style="border-top:1px solid var(--border); padding-top:12px;"><input type="file" id="import_file" accept=".json" style="display:none" onchange="importAll(this)"><button class="btn-primary" onclick="document.getElementById('import_file').click()" style="background: linear-gradient(135deg, var(--info), #2563eb); box-shadow: 0 4px 12px var(--info-glow);">📤 Importer</button></div></div>` : ""}`;
-}
-
-async function saveParams() {
-const updates = [{cle:"nom", valeur:$("p_nom").value.trim()},{cle:"nif", valeur:$("p_nif").value.trim()},{cle:"rccm", valeur:$("p_rccm").value.trim()},{cle:"adresse", valeur:$("p_adr").value.trim()},{cle:"telephone", valeur:$("p_tel").value.trim()},{cle:"tva_taux", valeur:$("p_tva").value.trim()}];
-for (const u of updates) await supa.from("parametres").update({valeur:u.valeur}).eq("cle",u.cle);
-await loadAllData(); alert("✅ Enregistré !");
-}
-
-async function changerMotDePasse() {
-const oldPass = $("old_password").value, newPass = $("new_password").value, confirmPass = $("confirm_password").value;
-if (!oldPass) { alert("Ancien mot de passe requis."); return; }
-if (newPass.length < 8) { alert("8 caractères minimum."); return; }
-if (newPass !== confirmPass) { alert("Les mots de passe ne correspondent pas."); return; }
-const { error: loginError } = await supa.auth.signInWithPassword({ email: session.user.email, password: oldPass });
-if (loginError) { alert("Ancien mot de passe incorrect."); return; }
-const { error } = await supa.auth.updateUser({ password: newPass });
-if (error) { alert("Erreur : " + error.message); } else { alert("✅ Mot de passe mis à jour !"); $("old_password").value = ""; $("new_password").value = ""; $("confirm_password").value = ""; }
-}
-
-function exportAll() {
-const dataStr = JSON.stringify({ exporte_le: new Date().toISOString(), clients: data.clients, vehicules: data.vehicules, devis: data.devis, factures: data.factures, stock: data.stock, employes: data.employes, paie: data.paie, depenses: data.depenses, fournisseurs: data.fournisseurs, commandes: data.commandes, journal: data.journal }, null, 1);
-const blob = new Blob([dataStr], {type:"application/json"});
-const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-a.download = "sauvegarde-speed-garage-" + new Date().toISOString().slice(0,10) + ".json"; a.click();
-}
-
-function importAll(input) {
-const file = input.files[0]; if (!file) return;
-if (!confirm("⚠️ Cela va ajouter les données du fichier. Continuer ?")) { input.value = ""; return; }
-const reader = new FileReader();
-reader.onload = async (e) => {
-try {
-const json = JSON.parse(e.target.result);
-if (!json.clients && !json.factures) { alert("Fichier invalide."); return; }
-alert("Importation en cours...");
-for (const c of (json.clients || [])) { delete c.id; await supa.from("clients").insert(c); }
-for (const v of (json.vehicules || [])) { delete v.id; await supa.from("vehicules").insert(v); }
-for (const d of (json.devis || [])) { delete d.id; await supa.from("devis").insert(d); }
-for (const fa of (json.factures || [])) { delete fa.id; await supa.from("factures").insert(fa); }
-alert("✅ Importation terminée !"); await loadAllData();
-} catch(err) { alert("Erreur : " + err.message); }
-};
-reader.readAsText(file);
-}
-
-function renderLogout(A) { A.innerHTML = `<div class="card" style="text-align: center; padding: 40px;"><h3 style="margin: 0 0 20px 0; font-size: 20px;">Se déconnecter</h3><button class="btn-primary" onclick="logout()" style="max-width: 300px; margin: 0 auto;">🚪 Se déconnecter</button></div>`; }
-
-function notifierRDVJour() {
-const aujourdHui = new Date().toISOString().slice(0, 10);
-const rdvJour = data.rdv.filter(r => r.date_rdv === aujourdHui);
-if (rdvJour.length > 0) {
-const liste = rdvJour.map(r => `• ${r.heure_rdv || '--:--'} - ${r.client_nom}`).join('\n');
-setTimeout(() => {
-alert(`📅 Vous avez ${rdvJour.length} RDV aujourd'hui :\n\n${liste}`);
-}, 800);
-}
-}
-
-document.addEventListener('keydown', (e) => {
-if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-e.preventDefault();
-const q = prompt("🔍 Rechercher (client, véhicule, facture...) :");
-if (q) {
-const results = [
-...data.clients.filter(c => c.nom.toLowerCase().includes(q.toLowerCase())).map(c => ({type:'Client', nom:c.nom, id:c.id})),
-...data.factures.filter(f => f.numero.toLowerCase().includes(q.toLowerCase())).map(f => ({type:'Facture', nom:f.numero, id:f.id}))
-];
-if (results.length) alert(`Résultats :\n${results.map(r => `• [${r.type}] ${r.nom}`).join('\n')}`);
-else alert("Aucun résultat.");
-}
-}
-});
-
-(async () => {
-showLock('<div class="loading">Chargement…</div>');
-try {
-supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const { data: { session: s } } = await supa.auth.getSession();
-if (s) { session = s; await loadProfil(); } else showLogin();
-} catch(x) {
-showLock(`<div class="card" style="margin:40px auto;max-width:400px;"><b style="font-size: 16px;">Erreur</b><p class="m" style="margin: 12px 0;">${e(x.message)}</p><button class="btn-primary" onclick="location.reload()">Réessayer</button></div>`);
-}
-})();
-
-supa && supa.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") location.reload(); });
-</script>
-</body>
-</html>
