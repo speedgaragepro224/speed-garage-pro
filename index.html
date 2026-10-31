@@ -7,18 +7,26 @@
 <meta name="theme-color" content="#000000">
 <style>
 :root {
-  --bg: #111111;
-  --c: #1e1e1e;
-  --t: #ededed;
+  --bg: #09090b;
+  --c: #18181b;
+  --t: #fafafa;
   --m: #a1a1aa;
-  --b: #333333;
+  --b: #27272a;
   --r: #e50914;
   --ok: #10b981;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
-  margin:0;background-color:var(--bg);color:var(--t);
-  font: 15px 'Segoe UI', system-ui, sans-serif;overflow-x:hidden;
+  margin:0;
+  background-color: #0d0d12;
+  background-image: linear-gradient(rgba(13, 13, 18, 0.4), rgba(13, 13, 18, 0.4)), url('https://raw.githubusercontent.com/speedgaragepro224/speed-garage-pro/main/fond-coucher-soleil.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color:var(--t);
+  font: 15px 'Segoe UI', system-ui, sans-serif;
+  overflow-x:hidden;
+  min-height: 100vh;
 }
 header{background:#111111;color:var(--t);padding:16px 24px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:50}
 header span{flex:1;font-size:16px;font-weight:700}
@@ -49,33 +57,50 @@ table{width:100%;border-collapse:collapse;margin:8px 0;min-width:500px}
 th,td{padding:12px 8px;text-align:left;border-bottom:1px solid var(--b);font-size:14px}
 th{background:#111;font-weight:600;color:var(--m);font-size:12px;text-transform:uppercase}
 tr:hover{background:#1a1a24}
+
+.card, div[class*="card"], .grid > div, main > div {
+  background-color: #111111 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  color: #f4f4f5 !important;
+}
+.card .k, .card b, .card h3, .card p, .card span { color: #f4f4f5; }
+.card .m { color: #a1a1aa; }
 .loading{text-align:center;padding:40px;color:var(--m)}
 
-/* CALENDRIER */
-.calendar-container { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.calendar-title { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
-.calendar-nav-btn { background: #2a2a32; border: 1px solid #3a3a45; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-.calendar-nav-btn:hover { background: #3a3a45; border-color: #4a4a55; }
+.calendar-container {
+  background: linear-gradient(145deg, #1a1a24, #13131a);
+  border: 1px solid #2a2a3a;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.calendar-title { font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; text-transform: capitalize; }
+.calendar-nav-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; padding: 8px 16px; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+.calendar-nav-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
 .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 8px; }
-.calendar-weekday { text-align: center; font-size: 13px; font-weight: 600; color: #8a8a95; padding: 8px 0; }
+.calendar-weekday { text-align: center; font-size: 11px; font-weight: 700; color: #6b6b7a; text-transform: uppercase; letter-spacing: 1px; padding: 4px 0; }
 .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.calendar-day { height: 60px; padding: 6px 8px; background: #14141a; border: 1px solid #2a2a32; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; }
-.calendar-day:hover { background: #1a1a22; border-color: #3a3a45; }
-.calendar-day-number { font-size: 15px; font-weight: 700; color: #ffffff; line-height: 1; }
-.calendar-day-empty { background: transparent; border: none; cursor: default; height: 60px; }
-.calendar-day.today { background: #dc2626; border-color: #dc2626; }
+.calendar-day { height: 48px; padding: 6px; background: rgba(255,255,255,0.03); border: 1px solid transparent; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; }
+.calendar-day:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
+.calendar-day-number { font-size: 14px; font-weight: 600; color: #a1a1aa; transition: color 0.2s; }
+.calendar-day:hover .calendar-day-number { color: #ffffff; }
+.calendar-day-empty { background: transparent; border: none; cursor: default; height: 48px; }
+.calendar-day-empty:hover { background: transparent; transform: none; }
+.calendar-day.today { background: linear-gradient(135deg, #dc2626, #991b1b); border-color: #ef4444; box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); }
 .calendar-day.today .calendar-day-number { color: #ffffff; font-weight: 800; }
-.calendar-day.selected { background: #2563eb; border-color: #2563eb; }
+.calendar-day.selected { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-color: #3b82f6; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
 .calendar-day.selected .calendar-day-number { color: #ffffff; }
-.calendar-day.has-rdv { border-left: 3px solid #22c55e; }
-.rdv-indicator { display: flex; gap: 3px; margin-top: 6px; flex-wrap: wrap; }
-.rdv-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
-.rdv-count { font-size: 10px; font-weight: 600; color: #22c55e; margin-top: 4px; }
-.calendar-day.today .rdv-count { color: #ffffff; }
-.calendar-day.today .rdv-dot { background: #ffffff; }
+.calendar-day.has-rdv { border-left: 3px solid #22c55e; background: rgba(34, 197, 94, 0.05); }
+.rdv-indicator { display: flex; gap: 3px; margin-top: 2px; flex-wrap: wrap; }
+.rdv-dot { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px rgba(34, 197, 94, 0.6); }
+.rdv-count { font-size: 9px; font-weight: 700; color: #22c55e; margin-top: 2px; background: rgba(34, 197, 94, 0.15); padding: 1px 4px; border-radius: 6px; }
+.calendar-day.today .rdv-count { color: #ffffff; background: rgba(255,255,255,0.2); }
+.calendar-day.today .rdv-dot { background: #ffffff; box-shadow: 0 0 6px rgba(255, 255, 255, 0.8); }
 
-/* FORMULAIRE RDV & LISTE */
 .rdv-form { background: #1e1e24; border: 1px solid #2a2a32; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
 .rdv-form-title { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px; }
 .rdv-form-title::before { content: '＋'; font-size: 22px; font-weight: 700; color: #8a8a95; }
@@ -347,7 +372,6 @@ function renderPlanning(A) {
   const nomMois = nomsMois[parseInt(mois)-1];
   const joursSemaine = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
-  // CALENDRIER
   let htmlCalendrier = `<div class="calendar-container">
     <div class="calendar-header">
       <button class="calendar-nav-btn" onclick="changerMois(-1)">← Précédent</button>
@@ -385,7 +409,6 @@ function renderPlanning(A) {
   }
   htmlCalendrier += `</div></div>`;
 
-  // FORMULAIRE
   let formHtml = "";
   if (peutEditer) {
     formHtml = `<div class="rdv-form">
@@ -422,7 +445,6 @@ function renderPlanning(A) {
     </div>`;
   }
 
-  // LISTE DES RDV
   let rdvsAffiches = data.rdv;
   let titreRdv = "Tous les rendez-vous à venir";
   if (jourSelectionne) {
@@ -463,20 +485,35 @@ function renderPlanning(A) {
 }
 
 /* --- RAPPELS --- */
-async function definirRappel(clientId) { clientRappelId = clientId; render(); }
+async function definirRappel(clientId) {
+  const cl = data.clients.find(c => c.id === clientId);
+  if (!cl) return;
+  const km = prompt(`Rappel pour ${cl.nom} : À quel kilométrage ? (ex: 65000)`, cl.prochain_km || "");
+  if (km === null) return;
+  const dateStr = prompt(`Date de rappel pour ${cl.nom} ? Format AAAA-MM-JJ (ex: 2027-01-15)`, cl.prochaine_date || "");
+  if (dateStr === null) return;
+  const v = data.vehicules.find(x => x.client_id === clientId);
+  const veh = v ? `${v.marque} ${v.modele} (${v.immat})` : "";
+  const { error } = await supa.from("clients").update({
+    prochain_km: +km || 0,
+    prochaine_date: dateStr || null,
+    vehicule_rappel: veh
+  }).eq("id", clientId);
+  if (error) { alert("Erreur : " + error.message); return; }
+  await jlog("Rappel modifié", `${cl.nom}`, `Km: ${km}, Date: ${dateStr}`);
+  await loadAllData();
+  alert("✅ Rappel mis à jour avec succès !");
+}
 
 async function sauverRappel() {
   const km = +$("rap_km").value || 0;
   const dateVal = $("rap_date").value || null;
-  
   const cl = data.clients.find(c => c.id === clientRappelId);
   const vehicule = data.vehicules.find(v => v.client_id === clientRappelId);
   const veh = vehicule ? `${vehicule.marque} ${vehicule.modele} (${vehicule.immat})` : "";
-  
   await supa.from("clients").update({
     prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh
   }).eq("id", clientRappelId);
-  
   await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
   clientRappelId = null; await loadAllData();
 }
@@ -524,9 +561,10 @@ function renderRappels(A) {
       if (c.prochain_km > 0 && dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push("Km dépassé"); }
       else if (c.prochain_km > 0 && (c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push("Km bientôt"); }
       if (c.prochaine_date) {
-        const dateRappel = new Date(c.prochaine_date).getTime();
-        const aujourdhui = new Date().setHours(0,0,0,0);
-        const diffJours = Math.ceil((dateRappel - aujourdhui) / (1000 * 60 * 60 * 24));
+        // ✅ CORRECTION FUSEAU HORAIRE : Ajout de T12:00:00 pour éviter les décalages d'un jour
+        const dateRappel = new Date(c.prochaine_date + "T12:00:00").getTime();
+        const aujourdhui = new Date(); aujourdhui.setHours(12, 0, 0, 0);
+        const diffJours = Math.ceil((dateRappel - aujourdhui.getTime()) / (1000 * 60 * 60 * 24));
         if (diffJours < 0) { estDepasse = true; motifAlerte.push("Date dépassée"); }
         else if (diffJours <= 30) { estBientot = true; motifAlerte.push("Date bientôt"); }
       }
@@ -664,11 +702,9 @@ function renderClients(A) {
         <input id="cl_tel" type="tel" placeholder="Téléphone (9 chiffres) *" maxlength="9" style="flex:1">
         <input id="cl_adr" placeholder="Adresse *" style="flex:2">
       </div>
-      
       <div style="margin-bottom:8px">
         <label style="font-size:13px"><input type="checkbox" id="cl_add_veh" onchange="document.getElementById('veh_form').style.display=this.checked?'block':'none'" style="width:auto; margin-right:8px"> Ajouter un véhicule en même temps</label>
       </div>
-      
       <div id="veh_form" style="display:none; border:1px solid var(--b); padding:10px; border-radius:8px; margin-bottom:8px">
         <div style="display:flex; gap:8px; margin-bottom:8px">
           <input id="v_marque" placeholder="Marque *" style="flex:1; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase()">
@@ -686,34 +722,56 @@ function renderClients(A) {
       <button class="p" onclick="addClient()">Ajouter le client</button></div>`
       :`<div class="card"><p class="m">👁️ Lecture seule.</p></div>`}
       
-    <div class="card"><input placeholder="🔍 Rechercher un client..." value="${e(q)}" oninput="q=this.value;render()"><p class="m">${liste.length} client(s)</p></div>
-    
-    ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
+    <div class="card">
+      <input id="search_client" placeholder="🔍 Rechercher un client..." value="${e(q)}" oninput="filterClients()">
+      <p class="m" id="count_clients" style="margin-top:8px">${liste.length} client(s)</p>
+    </div>
+    <div id="liste_clients_container">
+      ${liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
+        <div class="row" style="border-top:0; padding:0">
+          <div style="flex:1">
+            <b style="font-size:16px">${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br>
+            <span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span>
+          </div>
+          <div style="width: 40px; height: 40px; background: rgba(220, 38, 38, 0.1); color: var(--r); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.2s;">›</div>
+        </div>
+      </div>`).join("")||'<div class="card m">Aucun client.</div>'}
+    </div>
+  `;
+}
+
+function filterClients() {
+  const input = $("search_client");
+  if (!input) return;
+  q = input.value;
+  const liste = data.clients.filter(c => (c.nom+c.ref+(c.tel||"")+(c.adr||"")).toLowerCase().includes(q.toLowerCase()));
+  const container = $("liste_clients_container");
+  const counter = $("count_clients");
+  if (counter) counter.textContent = liste.length + " client(s)";
+  if (container) {
+    container.innerHTML = liste.map(c=>`<div class="card" style="cursor:pointer" onclick="ouvrirFicheClient('${c.id}')">
       <div class="row" style="border-top:0; padding:0">
         <div style="flex:1">
           <b style="font-size:16px">${e(c.nom)}</b> <span class="ref">${e(c.ref)}</span><br>
           <span class="m">📞 ${e(c.tel)} · 📍 ${e(c.adr)}</span>
         </div>
-        <div style="font-size:20px; color:var(--r)">→</div>
+        <div style="width: 40px; height: 40px; background: rgba(220, 38, 38, 0.1); color: var(--r); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.2s;">›</div>
       </div>
-    </div>`).join("")||'<div class="card m">Aucun client.</div>'}`;
+    </div>`).join("") || '<div class="card m">Aucun client trouvé.</div>';
+  }
 }
 
 async function ajouterVehicule(clientId) {
   if (!clientId) { alert("Erreur : client non identifié."); return; }
   const marque = $("v_marque").value.trim(), modele = $("v_modele").value.trim(), immat = $("v_immat").value.trim();
   const carburant = $("v_carb").value, boite = $("v_boite").value, portes = +$("v_portes").value || 0, vin = $("v_vin").value.trim(), km = +$("v_km").value || 0;
-  
   if (!marque || !modele || !immat) { alert("Marque, Modèle et Immatriculation sont obligatoires."); return; }
-
   const { error } = await supa.from("vehicules").insert({
     client_id: clientId, marque, modele, immat, carburant, boite, portes, vin, kilometrage: km, created_by: session.user.id
   });
-  
   if (error) { alert("Erreur : " + error.message); return; }
   await jlog("Ajout véhicule", `${marque} ${modele} (${immat})`, `Client ID: ${clientId}`);
-  
-  clientVehiculeId = null; // On ferme le formulaire
+  clientVehiculeId = null;
   await loadAllData();
   alert("✅ Véhicule ajouté avec succès !");
 }
@@ -728,18 +786,11 @@ function imprimerRecuDepot(clientId) {
   const cl = data.clients.find(c => c.id === clientId);
   if (!cl) return;
   const sesVehicules = data.vehicules.filter(v => v.client_id === cl.id);
-  
-  if (sesVehicules.length === 0) {
-    alert("Ce client n'a pas de véhicule enregistré. Ajoutez d'abord un véhicule.");
-    return;
-  }
-  
+  if (sesVehicules.length === 0) { alert("Ce client n'a pas de véhicule enregistré. Ajoutez d'abord un véhicule."); return; }
   const motif = prompt("Motif du dépôt (ex: Vidange, Diagnostic, Réparation) :", "Entretien");
   if (motif === null) return;
-  
   const w = window.open("", "_blank");
   const p = data.params;
-
   let tableauVehicules = sesVehicules.map(v => `
     <tr>
       <td><b>${e(v.marque)} ${e(v.modele)}</b></td>
@@ -767,7 +818,6 @@ function imprimerRecuDepot(clientId) {
       .signatures div { width: 40%; border-top: 1px solid #000; text-align: center; padding-top: 5px; }
       @media print { button { display: none; } body { padding: 0; } }
     </style></head><body>
-    
     <div class="header">
       <div>
         <h1>${e(p.nom || "SPEED GARAGE PRO")}</h1>
@@ -779,9 +829,7 @@ function imprimerRecuDepot(clientId) {
         <p>Date : ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR').slice(0,5)}</p>
       </div>
     </div>
-
     <div class="title">Fiche d'intervention</div>
-
     <div class="box">
       <h3>Informations Client</h3>
       <div class="info">
@@ -790,58 +838,74 @@ function imprimerRecuDepot(clientId) {
       </div>
       <p><b>Adresse :</b> ${e(cl.adr || "—")}</p>
     </div>
-
     <div class="box">
       <h3>Véhicules déposés</h3>
       <table>
-        <thead>
-          <tr><th>Véhicule</th><th>Immatriculation</th><th>Kilométrage</th><th>Carburant</th></tr>
-        </thead>
-        <tbody>
-          ${tableauVehicules}
-        </tbody>
+        <thead><tr><th>Véhicule</th><th>Immatriculation</th><th>Kilométrage</th><th>Carburant</th></tr></thead>
+        <tbody>${tableauVehicules}</tbody>
       </table>
     </div>
-
     <div class="box">
       <h3>Motif du dépôt</h3>
       <p style="font-size: 14px; font-weight: bold;">${e(motif || "Entretien général")}</p>
     </div>
-
     <div class="signatures">
       <div>Signature du Client<br><span style="font-size:10px; color:#555;">(Bon pour accord)</span></div>
       <div>Cachet du Garage</div>
     </div>
-    
     <p style="text-align:center; margin-top:40px;"><button onclick="window.print()" style="padding:10px 20px; cursor:pointer;">🖨️ Imprimer le Reçu</button></p>
   </body></html>`);
   w.document.close();
 }
 
 /* --- VÉHICULES --- */
-let vhDetail = null;
 function renderVehicules(A) {
   const liste = data.vehicules.filter(v => (v.marque + v.modele + v.immat).toLowerCase().includes(q.toLowerCase()));
-  if (vhDetail) {
-    const v = data.vehicules.find(x => x.id === vhDetail); if (!v) { vhDetail = null; render(); return; }
-    const cl = data.clients.find(c => c.id === v.client_id);
-    const sesFactures = data.factures.filter(f => f.immat === v.immat).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
-    A.innerHTML = `<div class="card"><button class="s" onclick="vhDetail=null;render()">← Retour</button><h3>${e(v.marque)} ${e(v.modele)}</h3>
-      <p class="m">Immat : <b>${e(v.immat)}</b><br>Client : <b>${e(cl ? cl.nom : 'Inconnu')}</b><br>${v.kilometrage ? `Kilométrage : ${v.kilometrage} km<br>` : ""}Carburant : ${e(v.carburant || '—')} · Boîte : ${e(v.boite || '—')}</p></div>
-      <div class="card"><b>Historique</b></div>${sesFactures.map(f => `<div class="card"><b>${e(f.activite || 'Facture')}</b> - ${f(f.total_ttc)}<br><span class="m">${e(f.date_emission)}</span></div>`).join("") || '<div class="card m">Aucune facture.</div>'}`;
-    return;
-  }
-  
   A.innerHTML = `
     <div class="card">
-      <input placeholder="🔍 Rechercher un véhicule (marque, immat, client...)" value="${e(q)}" oninput="q=this.value;render()">
-      <p class="m" style="margin-top:8px">${liste.length} véhicule(s) trouvé(s)</p>
+      <input id="search_vehicule" placeholder="🔍 Rechercher un véhicule (marque, immat, client...)" value="${e(q)}" oninput="filterVehicules()">
+      <p class="m" id="count_vehicules" style="margin-top:8px">${liste.length} véhicule(s) trouvé(s)</p>
     </div>
-    
-    ${liste.map(v => { 
+    <div id="liste_vehicules_container">
+      ${liste.map(v => { 
+        const cl = data.clients.find(c => c.id === v.client_id); 
+        return `
+          <div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px;" onclick="alert('Fiche véhicule à venir')">
+            <div style="display:flex; align-items:center; gap:15px;">
+              <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;">🚗</div>
+              <div>
+                <div style="font-size:16px; font-weight:bold; margin-bottom:4px;">
+                  ${e(v.marque)} ${e(v.modele)} 
+                  <span class="ref" style="margin-left:8px;">${e(v.immat)}</span>
+                </div>
+                <div class="m" style="display:flex; gap:15px;">
+                  <span>👤 ${e(cl ? cl.nom : 'Inconnu')}</span>
+                  <span>📏 ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : 'Kilométrage inconnu'}</span>
+                  <span>⛽ ${e(v.carburant || '—')}</span>
+                </div>
+              </div>
+            </div>
+            <div style="width: 40px; height: 40px; background: rgba(220, 38, 38, 0.15); color: var(--r); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; transition: 0.2s;">›</div>
+          </div> <!-- ✅ CORRECTION : Balise fermée ajoutée -->
+        `; 
+      }).join("") || '<div class="card m">Aucun véhicule enregistré.</div>'}
+    </div>
+  `;
+}
+
+function filterVehicules() {
+  const input = $("search_vehicule");
+  if (!input) return;
+  q = input.value;
+  const liste = data.vehicules.filter(v => (v.marque + v.modele + v.immat).toLowerCase().includes(q.toLowerCase()));
+  const container = $("liste_vehicules_container");
+  const counter = $("count_vehicules");
+  if (counter) counter.textContent = liste.length + " véhicule(s) trouvé(s)";
+  if (container) {
+    container.innerHTML = liste.map(v => { 
       const cl = data.clients.find(c => c.id === v.client_id); 
       return `
-        <div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px;" onclick="vhDetail='${v.id}';render()">
+        <div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px;" onclick="alert('Fiche véhicule à venir')">
           <div style="display:flex; align-items:center; gap:15px;">
             <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;">🚗</div>
             <div>
@@ -856,11 +920,11 @@ function renderVehicules(A) {
               </div>
             </div>
           </div>
-          <div style="font-size:20px; color:var(--r);">→</div>
-        </div>
+          <div style="width: 40px; height: 40px; background: rgba(220, 38, 38, 0.15); color: var(--r); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; transition: 0.2s;">›</div>
+        </div> <!-- ✅ CORRECTION : Balise fermée ajoutée -->
       `; 
-    }).join("") || '<div class="card m">Aucun véhicule enregistré.</div>'}
-  `;
+    }).join("") || '<div class="card m">Aucun véhicule trouvé.</div>';
+  }
 }
 
 /* --- DEVIS --- */
@@ -1026,11 +1090,13 @@ function preparerFactureDepuisDevis(idDevis) {
 let fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
 let fLignes = [{d:"",q:1,p:0}];
 let fLignesMO = [{d:"",q:1,p:0}];
+
 function factTotHT(){ 
   const htPieces = fLignes.reduce((a,x)=>a+(+x.q||0)*(+x.p||0),0);
   const htMO = fLignesMO.reduce((a,x)=>a+(+x.p||0),0);
   return htPieces + htMO; 
 }
+
 function updateFactTotals() {
   const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
   if ($("fc_tot_ttc")) $("fc_tot_ttc").textContent = f(ttc);
@@ -1042,17 +1108,6 @@ function remplirVehiculeFacture(clientId) {
   if (v) { fMemo.veh = v.marque + " " + v.modele; fMemo.immat = v.immat; }
   else { fMemo.veh = ""; fMemo.immat = ""; }
   fMemo.client = clientId; renderFactures(document.getElementById('app'));
-}
-
-function choisirArticleStock(index, stockId) {
-  if (!stockId) return;
-  const article = data.stock.find(s => s.id === stockId);
-  if (article) {
-    fLignes[index].d = article.nom;
-    fLignes[index].p = article.prix;
-    fLignes[index].stock_id = article.id;
-    renderFactures(document.getElementById('app'));
-  }
 }
 
 function rechercherPieceFacture(index, valeur) {
@@ -1074,13 +1129,11 @@ function renderFactures(A) {
         <option value="">Client… *</option>
         ${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}
       </select>
-      
       <div style="display:flex; gap:8px; margin-bottom:15px">
         <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}</div>
         <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}</div>
       </div>
 
-      <!-- BLOC PIECES -->
       <div style="margin-bottom:15px">
         <b style="font-size:14px; color:var(--r)">📦 Pièces détachées</b>
         <table style="width:100%; border-collapse:collapse; margin-top:5px;">
@@ -1104,7 +1157,6 @@ function renderFactures(A) {
         <button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Pièce</button>
       </div>
 
-      <!-- BLOC MAIN D'OEUVRE -->
       <div style="margin-bottom:15px">
         <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
         <table style="width:100%; border-collapse:collapse; margin-top:5px;">
@@ -1120,7 +1172,6 @@ function renderFactures(A) {
         </table>
       </div>
 
-      <!-- BLOC PAIEMENT -->
       <div style="display:flex; gap:10px; margin-top:20px; margin-bottom:15px; border-top:1px solid var(--b); padding-top:15px">
         <input id="fc_acompte" type="number" placeholder="Acompte versé (GNF)" style="flex:1; margin:0" value="${e(fMemo.acompte)}">
         <select id="fc_paiement" style="flex:1; margin:0">
@@ -1138,19 +1189,42 @@ function renderFactures(A) {
       </div>
     </div>` : ""}
       
-    <div class="card"><input placeholder="🔍 Rechercher une facture..." value="${e(q)}" oninput="q=this.value;render()"></div>
-    ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> 
+    <div class="card">
+      <!-- ✅ CORRECTION : Ajout d'ID et appel à filterFactures() pour éviter le re-rendu complet -->
+      <input id="search_facture" placeholder="🔍 Rechercher une facture..." value="${e(q)}" oninput="filterFactures()">
+    </div>
+    <div id="liste_factures_container">
+      ${data.factures.filter(fa=>(fa.numero+fa.client_nom+(fa.immat||"")).toLowerCase().includes(q.toLowerCase())).map(fa=>`<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> 
+        <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br>
+        <span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
+        <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
+        <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}
+    </div>`;
+}
+
+// ✅ CORRECTION : Fonction de filtrage ciblée pour les factures (évite les lenteurs)
+function filterFactures() {
+  const input = $("search_facture");
+  if (!input) return;
+  q = input.value;
+  
+  const liste = data.factures.filter(fa => (fa.numero + fa.client_nom + (fa.immat || "")).toLowerCase().includes(q.toLowerCase()));
+  const container = $("liste_factures_container");
+  const peutEditer = ROLES[profil.role].can.editFactures;
+  
+  if (container) {
+    container.innerHTML = liste.map(fa => `<div class="card"><div class="row" style="border-top:0"><div style="flex:1"><b>${e(fa.numero)}</b> 
       <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : (fa.statut === 'Terminé' ? '#0891b2' : (fa.statut === 'En cours' ? '#f59e0b' : 'var(--r)'))}; color:#fff;">${e(fa.statut)}</span><br>
       <span class="m">${e(fa.client_nom)} — ${e(fa.vehicule)}<br>${e(fa.date_emission)}</span><br><b>${f(fa.total_ttc)}</b></div>
       <div style="display:flex;flex-direction:column;gap:4px"><select onchange="updateStatut('${fa.id}',this.value)" style="width:auto">${["En attente","En cours","Terminé","Payé"].map(s=>`<option ${s===fa.statut?"selected":""}>${s}</option>`).join("")}</select>
-      <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("")||'<div class="card m">Aucune facture.</div>'}`;
+      <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>${profil.role === 'PDG' ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}</div></div></div>`).join("") || '<div class="card m">Aucune facture trouvée.</div>';
+  }
 }
 
 async function saveFactureDirecte() {
   const cid = $("fc_client").value, veh = fMemo.veh, immat = fMemo.immat;
   const acompte = +$("fc_acompte").value || 0;
   const paiement = $("fc_paiement").value || "";
-  
   if (!cid || !veh || !immat) { alert("Tous les champs sont obligatoires."); return; }
   const lignes = fLignes.filter(l => l.d.trim() !== ""); 
   const lignesMO = fLignesMO.filter(l => l.d.trim() !== "");
@@ -1166,7 +1240,6 @@ async function saveFactureDirecte() {
     lignes: toutesLesLignes, total_ht: ht, tva, total_ttc: ttc, acompte: acompte, paiement: paiement, 
     statut: "En attente", created_by: session.user.id
   });
-  
   if (error) { alert("Erreur : "+error.message); return; }
   await supa.from("compteurs").update({valeur: num}).eq("cle","facture");
   
@@ -1176,7 +1249,6 @@ async function saveFactureDirecte() {
       if (art) await supa.from("stock").update({ qte: (+art.qte || 0) - (+ligne.q || 0) }).eq("id", art.id);
     }
   }
-  
   fMemo = { client: "", veh: "", immat: "", acompte: "", paiement: "" };
   fLignes = [{d:"",q:1,p:0}]; fLignesMO = [{d:"",q:1,p:0}];
   await loadAllData();
@@ -1193,13 +1265,11 @@ function printFacture(id) { const fa = data.factures.find(x=>x.id===id); if (fa)
 
 function printDoc(type, numero, doc) {
   const p = data.params;
-  const tv = +(p.tva_taux || 18);
   const lignes = doc.lignes && doc.lignes.length ? doc.lignes : [{d: doc.activite || "Prestation", q: 1, p: doc.total_ht || 0}];
   const client = data.clients.find(c => c.id === doc.client_id) || {};
   const v = data.vehicules.find(veh => veh.immat === doc.immat) || {};
 
   const w = window.open("", "_blank");
-  
   const lignesHtml = lignes.map(l => {
     const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
     return `
@@ -1245,7 +1315,6 @@ function printDoc(type, numero, doc) {
       .bottom-line { border-top: 1px solid #000; margin-top: 40px; text-align: center; padding-top: 5px; font-size: 10px; color: #555; }
       @media print { button { display: none; } body { padding: 0; } }
     </style></head><body>
-    
     <div class="container">
       <div class="header">
         <div class="header-left">
@@ -1260,19 +1329,16 @@ function printDoc(type, numero, doc) {
           <p><b>Tel :</b> ${e(client.tel || "—")}</p>
         </div>
       </div>
-
       <div class="title-bar">${type} N° : ${e(numero)}</div>
       <div style="border: 1px solid #000; border-top: none; padding: 5px 10px; font-size: 11px; margin-bottom: 20px;">
         Date : ${e(doc.date_emission || new Date().toLocaleDateString('fr-FR'))}
       </div>
-
       <div class="vehicule-bar">
         <div><span>Marque :</span> ${e(v.marque || doc.vehicule || "—")}</div>
         <div><span>Modèle :</span> ${e(v.modele || "—")}</div>
         <div><span>Type :</span> ${e(v.carburant || "—")}</div>
         <div><span>N° Série :</span> ${e(v.vin || doc.immat || "—")}</div>
       </div>
-
       <table>
         <thead>
           <tr>
@@ -1288,24 +1354,14 @@ function printDoc(type, numero, doc) {
           ${lignesVides}
         </tbody>
       </table>
-
       <table class="totaux">
         <tr><td>Total HT</td><td style="text-align:right;">${f(doc.total_ht)}</td></tr>
         <tr><td>Total TVA</td><td style="text-align:right;">${f(doc.tva)}</td></tr>
         <tr><td>Total TTC</td><td style="text-align:right;">${f(doc.total_ttc)}</td></tr>
       </table>
-
-      <div class="footer">
-        <div class="cachet">
-          Cachet et Signature
-        </div>
-      </div>
-
-      <div class="bottom-line">
-        ${e(p.adresse || "Adresse")} · ${e(p.telephone || "Tel")}
-      </div>
+      <div class="footer"><div class="cachet">Cachet et Signature</div></div>
+      <div class="bottom-line">${e(p.adresse || "Adresse")} · ${e(p.telephone || "Tel")}</div>
     </div>
-
     <p style="text-align:center; margin-top:20px;" class="no-print">
       <button onclick="window.print()" style="padding:10px 20px; cursor:pointer; background:#000; color:#fff; border:none;">🖨️ Imprimer</button>
     </p>
@@ -1376,10 +1432,11 @@ function renderStock(A) {
       <button class="p" onclick="addStock()">Ajouter l'article</button>
     </div>
 
-    <div class="card"><input placeholder="🔍 Rechercher un article..." value="${e(q)}" oninput="q=this.value;render()"></div>
+    <div class="card"><input id="search_stock" placeholder="🔍 Rechercher un article..." value="${e(q)}" oninput="filterStock()"></div>
 
+    <div id="liste_stock_container">
     ${Object.keys(stockCategories).filter(c => !currentStockCat || c === currentStockCat).sort().map(cat => {
-      const articlesCat = filtered.filter(s => s.categorie === cat);
+      const articlesCat = filtered.filter(s => s.categorie === cat && (s.nom+s.categorie+(s.sous_categorie||"")).toLowerCase().includes(q.toLowerCase()));
       if (articlesCat.length === 0) return "";
       
       return `
@@ -1401,7 +1458,16 @@ function renderStock(A) {
         `).join("")}
       `;
     }).join("") || '<div class="card m">Aucun article trouvé.</div>'}
+    </div>
   `;
+}
+
+// ✅ CORRECTION : Filtrage ciblée pour le stock
+function filterStock() {
+  const input = $("search_stock");
+  if (!input) return;
+  q = input.value;
+  renderStock(document.getElementById('app'));
 }
 
 async function addStock() {
@@ -1611,7 +1677,6 @@ async function addEmploye() {
   });
   
   if (error) { alert("Erreur : " + error.message); return; }
-  
   await jlog("Ajout employé", nom, poste); 
   await loadAllData(); 
   alert("Employé ajouté avec succès !");
