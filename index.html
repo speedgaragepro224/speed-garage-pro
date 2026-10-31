@@ -164,11 +164,11 @@ let dateCalendrier = new Date().toISOString().slice(0, 7);
 let jourSelectionne = null;
 
 const ROLES = {
-  PDG: {label:"PDG", cls:"pdg", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","👔 Personnel","💰 Gestion de paie","💸 Dépenses","🏭 Fournisseurs","🔍 Journal d'audit","📈 Statistiques","⚙️ Paramètres","🚪 Se déconnecter"],
+  PDG: {label:"PDG", cls:"pdg", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","👔 Personnel","💰 Gestion de paie","💸 Dépenses","🏭 Fournisseurs","🔍 Journal d'audit","📈 Statistiques","️ Paramètres","🚪 Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:true,viewAudit:true,exportData:true}},
-  SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis","🧾 Factures","📦 Stock","🔧 Techniciens","💸 Dépenses","🏭 Fournisseurs","⚙️ Paramètres","🚪 Se déconnecter"],
+  SECRETAIRE: {label:"Secrétaire", cls:"sec", pages:["📊 Tableau de bord","📅 Planning","🔔 Rappels","👥 Clients","🚗 Véhicules","📝 Devis"," Factures","📦 Stock","🔧 Techniciens","💸 Dépenses","🏭 Fournisseurs","⚙️ Paramètres"," Se déconnecter"],
     can:{editClients:true,editDevis:true,editFactures:true,editStock:true,deleteAny:false,viewAudit:false,exportData:false}},
-  MARKETING: {label:"Marketing", cls:"mkt", pages:["📊 Tableau de bord","👥 Clients","🚗 Véhicules","⚙️ Paramètres","🚪 Se déconnecter"],
+  MARKETING: {label:"Marketing", cls:"mkt", pages:["📊 Tableau de bord","👥 Clients","🚗 Véhicules","⚙️ Paramètres"," Se déconnecter"],
     can:{editClients:false,editDevis:false,editFactures:false,editStock:false,deleteAny:false,viewAudit:false,exportData:true}}
 };
 
@@ -303,9 +303,9 @@ function renderDashboard(A) {
     </div>
 
     <div class="card">
-      <b>⚡ Actions Rapides</b>
+      <b> Actions Rapides</b>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; justify-content:flex-start">
-        <button class="p" style="margin:0" onclick="go('👥 Clients')">➕ Nouveau Client</button>
+        <button class="p" style="margin:0" onclick="go(' Clients')">➕ Nouveau Client</button>
         <button class="p" style="margin:0; background:#0891b2" onclick="go('🧾 Factures')">🧾 Nouvelle Facture</button>
         <button class="p" style="margin:0; background:#7c3aed" onclick="go('📅 Planning')">📅 Prendre RDV</button>
       </div>
@@ -449,7 +449,9 @@ function renderPlanning(A) {
   let titreRdv = "Tous les rendez-vous à venir";
   if (jourSelectionne) {
     rdvsAffiches = data.rdv.filter(r => r.date_rdv === jourSelectionne);
-    titreRdv = `Rendez-vous du ${new Date(jourSelectionne).toLocaleDateString('fr-FR')}`;
+    // Correction décalage date
+    const dateAffichee = new Date(jourSelectionne + "T12:00:00");
+    titreRdv = `Rendez-vous du ${dateAffichee.toLocaleDateString('fr-FR')}`;
   } else {
     rdvsAffiches = data.rdv.filter(r => r.date_rdv >= new Date().toISOString().slice(0,10));
   }
@@ -463,10 +465,12 @@ function renderPlanning(A) {
     ${rdvsAffiches.map(r => {
       const cl = data.clients.find(c => c.id === r.client_id);
       const heure = (r.heure_rdv || "--:--").slice(0,5);
+      // Correction décalage date affichage
+      const dateRdv = r.date_rdv ? new Date(r.date_rdv + "T12:00:00") : null;
       return `<div class="rdv-item">
         <div class="rdv-time-badge">
           <div class="rdv-time-hour">${e(heure)}</div>
-          <div class="rdv-time-label">${e(r.date_rdv ? new Date(r.date_rdv).toLocaleDateString('fr-FR', {day: '2-digit', month: 'short'}) : '')}</div>
+          <div class="rdv-time-label">${e(dateRdv ? dateRdv.toLocaleDateString('fr-FR', {day: '2-digit', month: 'short'}) : '')}</div>
         </div>
         <div class="rdv-content">
           <div class="rdv-client-name">${e(r.client_nom)}</div>
@@ -530,7 +534,7 @@ function renderRappels(A) {
       formHtml = `<div class="card" style="border:2px solid var(--r)">
         <b>🔔 Définir le rappel pour ${e(cl.nom)}</b>
         <div style="background:var(--bg); padding:10px; border-radius:8px; margin:10px 0; font-size:13px">
-          <b>Informations client :</b><br>📞 Téléphone : <b>${e(cl.tel || "Non renseigné")}</b>
+          <b>Informations client :</b><br> Téléphone : <b>${e(cl.tel || "Non renseigné")}</b>
         </div>
         ${v ? `
           <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px">
@@ -561,7 +565,6 @@ function renderRappels(A) {
       if (c.prochain_km > 0 && dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push("Km dépassé"); }
       else if (c.prochain_km > 0 && (c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push("Km bientôt"); }
       if (c.prochaine_date) {
-        // ✅ CORRECTION FUSEAU HORAIRE : Ajout de T12:00:00 pour éviter les décalages d'un jour
         const dateRappel = new Date(c.prochaine_date + "T12:00:00").getTime();
         const aujourdhui = new Date(); aujourdhui.setHours(12, 0, 0, 0);
         const diffJours = Math.ceil((dateRappel - aujourdhui.getTime()) / (1000 * 60 * 60 * 24));
@@ -579,7 +582,7 @@ function renderRappels(A) {
                   (estBientot ? `<span class="tag" style="background:#f59e0b; color:#fff; font-weight:bold; padding:4px 10px;">⏳ BIENTÔT</span>` : '')}
               </div>
               <div class="m" style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
-                <span>🚗 <b>${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}</b></span>
+                <span> <b>${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}</b></span>
                 <span>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')} km</b></span>
                 <span>🎯 Seuil de rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') + ' km' : '—'}</b></span>
                 ${motifAlerte.length > 0 ? `<span style="color:${estDepasse ? 'var(--r)' : '#f59e0b'};">ℹ️ Motif : ${motifAlerte.join(", ")}</span>` : ''}
@@ -872,7 +875,7 @@ function renderVehicules(A) {
         return `
           <div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px;" onclick="alert('Fiche véhicule à venir')">
             <div style="display:flex; align-items:center; gap:15px;">
-              <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;">🚗</div>
+              <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;"></div>
               <div>
                 <div style="font-size:16px; font-weight:bold; margin-bottom:4px;">
                   ${e(v.marque)} ${e(v.modele)} 
@@ -886,7 +889,7 @@ function renderVehicules(A) {
               </div>
             </div>
             <div style="width: 40px; height: 40px; background: rgba(220, 38, 38, 0.15); color: var(--r); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; transition: 0.2s;">›</div>
-          </div> <!-- ✅ CORRECTION : Balise fermée ajoutée -->
+          </div>
         `; 
       }).join("") || '<div class="card m">Aucun véhicule enregistré.</div>'}
     </div>
@@ -907,7 +910,7 @@ function filterVehicules() {
       return `
         <div class="card" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:15px;" onclick="alert('Fiche véhicule à venir')">
           <div style="display:flex; align-items:center; gap:15px;">
-            <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;">🚗</div>
+            <div style="font-size:30px; background:var(--bg); padding:10px; border-radius:10px;"></div>
             <div>
               <div style="font-size:16px; font-weight:bold; margin-bottom:4px;">
                 ${e(v.marque)} ${e(v.modele)} 
@@ -921,14 +924,14 @@ function filterVehicules() {
             </div>
           </div>
           <div style="width: 40px; height: 40px; background: rgba(220, 38, 38, 0.15); color: var(--r); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; transition: 0.2s;">›</div>
-        </div> <!-- ✅ CORRECTION : Balise fermée ajoutée -->
+        </div>
       `; 
     }).join("") || '<div class="card m">Aucun véhicule trouvé.</div>';
   }
 }
 
 /* --- DEVIS --- */
-let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
+let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "", vehicule_id: "" };
 let dLignes = [{d:"",q:1,p:0}];
 let dLignesMO = [{d:"",q:1,p:0}];
 
@@ -947,10 +950,46 @@ function updateDevisTotals() {
 
 function remplirVehiculeDevis(clientId) {
   if (!clientId) return;
-  const v = data.vehicules.find(x => x.client_id === clientId);
-  if (v) { dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; dMemo.km = v.kilometrage || ""; }
-  else { dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; }
   dMemo.client = clientId;
+  
+  const vehiculesClient = data.vehicules.filter(x => x.client_id === clientId);
+  
+  if (vehiculesClient.length === 1) {
+    const v = vehiculesClient[0];
+    dMemo.veh = v.marque + " " + v.modele;
+    dMemo.immat = v.immat;
+    dMemo.km = v.kilometrage || "";
+    dMemo.vehicule_id = v.id;
+  } else if (vehiculesClient.length > 1) {
+    dMemo.veh = "";
+    dMemo.immat = "";
+    dMemo.km = "";
+    dMemo.vehicule_id = "";
+  } else {
+    dMemo.veh = "";
+    dMemo.immat = "";
+    dMemo.km = "";
+    dMemo.vehicule_id = "";
+  }
+  
+  renderDevis(document.getElementById('app'));
+}
+
+function choisirVehiculeDevis(vehiculeId) {
+  if (!vehiculeId) {
+    dMemo.veh = "";
+    dMemo.immat = "";
+    dMemo.km = "";
+    dMemo.vehicule_id = "";
+  } else {
+    const v = data.vehicules.find(x => x.id === vehiculeId);
+    if (v) {
+      dMemo.veh = v.marque + " " + v.modele;
+      dMemo.immat = v.immat;
+      dMemo.km = v.kilometrage || "";
+      dMemo.vehicule_id = v.id;
+    }
+  }
   renderDevis(document.getElementById('app'));
 }
 
@@ -968,7 +1007,7 @@ function renderDevis(A) {
   const R = ROLES[profil.role], peutEditer = R.can.editDevis, tv = +(data.params.tva_taux||18);
   const selectedClient = data.clients.find(c => c.id === dMemo.client);
 
-  A.innerHTML = `${peutEditer?`<div class="card"><b>➕ Nouveau devis</b>
+  A.innerHTML = `${peutEditer?`<div class="card"><b> Nouveau devis</b>
       <div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:15px; border:2px solid var(--r)">
         <b>Informations Client & Véhicule</b>
         <select id="dv_client" onchange="remplirVehiculeDevis(this.value)" style="margin-top:8px; margin-bottom:8px">
@@ -977,11 +1016,35 @@ function renderDevis(A) {
         </select>
         ${selectedClient ? `<div style="font-size:13px; margin-bottom:8px">📞 Téléphone : <b>${e(selectedClient.tel)}</b></div>` : ""}
         <div style="background:var(--bg); padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid var(--b)">
-          <div style="display:flex; gap:8px">
-            <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)">🚗 <b>Véhicule :</b> ${e(dMemo.veh || "Non renseigné")}</div>
-            <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)">🔢 <b>Immatriculation :</b> ${e(dMemo.immat || "Non renseignée")}</div>
-          </div>
-          <div style="padding:8px; border-bottom:1px solid var(--b); color:var(--t)">📏 <b>Kilométrage :</b> ${e(dMemo.km || "0")} km</div>
+          ${(() => {
+            const vehiculesClient = data.vehicules.filter(x => x.client_id === dMemo.client);
+            if (vehiculesClient.length > 1) {
+              return `
+                <div style="padding:8px; border-bottom:1px solid var(--b); color:var(--t)">
+                  <label style="font-size:12px; color:var(--m); display:block; margin-bottom:4px;">🚗 Choisir un véhicule :</label>
+                  <select onchange="choisirVehiculeDevis(this.value)" style="width:100%; padding:8px; background:var(--c); border:1px solid var(--b); border-radius:6px; color:var(--t);">
+                    <option value="">Sélectionner un véhicule…</option>
+                    ${vehiculesClient.map(v => `
+                      <option value="${v.id}" ${v.id === dMemo.vehicule_id ? 'selected' : ''}>
+                        ${e(v.marque)} ${e(v.modele)} — ${e(v.immat)} (${v.kilometrage || 0} km)
+                      </option>
+                    `).join("")}
+                  </select>
+                </div>
+              `;
+            } else if (vehiculesClient.length === 1) {
+              return '';
+            } else {
+              return `<div style="padding:8px; color:var(--m); font-style:italic;">Aucun véhicule enregistré pour ce client</div>`;
+            }
+          })()}
+          ${dMemo.veh ? `
+            <div style="display:flex; gap:8px">
+              <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)">🚗 <b>Véhicule :</b> ${e(dMemo.veh)}</div>
+              <div style="flex:1; padding:8px; border-bottom:1px solid var(--b); color:var(--t)"> <b>Immatriculation :</b> ${e(dMemo.immat)}</div>
+            </div>
+            <div style="padding:8px; color:var(--t)"> <b>Kilométrage :</b> ${e(dMemo.km || "0")} km</div>
+          ` : ''}
         </div>
       </div>
 
@@ -1026,7 +1089,7 @@ function renderDevis(A) {
       </div>
 
       <div style="margin-bottom:15px">
-        <b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b>
+        <b style="font-size:14px; color:#0891b2"> Main d'œuvre</b>
         <table style="width:100%; border-collapse:collapse; margin-top:5px;">
           <thead><tr style="border-bottom:2px solid var(--b); text-align:left;">
             <th style="padding:8px; font-size:12px;">Main d'œuvre</th><th style="padding:8px; width:150px; font-size:12px;">Coût (GNF)</th>
@@ -1050,6 +1113,77 @@ function renderDevis(A) {
       <div><button class="s" onclick="printDevis('${d.id}')">🖨️</button>${peutEditer?`<button class="s" onclick="preparerFactureDepuisDevis('${d.id}')">→ Facture</button>`:""}</div></div></div>`).join("")||'<div class="card m">Aucun devis.</div>'}`;
 }
 
+// Fonction RPC pour obtenir un numéro unique de devis (à créer dans Supabase)
+async function getNextDevisNumber() {
+  // Solution 1: Utiliser une fonction RPC Supabase (recommandé)
+  // Créer cette fonction SQL dans Supabase :
+  /*
+  CREATE OR REPLACE FUNCTION get_next_devis_number()
+  RETURNS TEXT AS $$
+  DECLARE
+    next_num INTEGER;
+    current_year TEXT;
+  BEGIN
+    current_year := TO_CHAR(CURRENT_DATE, 'YYYY');
+    SELECT COALESCE(MAX(CAST(SPLIT_PART(numero, '-', 3) AS INTEGER)), 0) + 1 INTO next_num
+    FROM devis
+    WHERE numero LIKE 'DEV-' || current_year || '-%';
+    
+    -- Mettre à jour le compteur de manière atomique
+    RETURN 'DEV-' || current_year || '-' || LPAD(next_num::TEXT, 4, '0');
+  END;
+  $$ LANGUAGE plpgsql SECURITY DEFINER;
+  */
+  
+  try {
+    const { data, error } = await supa.rpc('get_next_devis_number');
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    // Fallback si la fonction RPC n'existe pas encore
+    console.warn("RPC non disponible, utilisation du fallback");
+    const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","devis").single();
+    const num = (cpt?.valeur||0)+1;
+    await supa.from("compteurs").upsert({cle:"devis", valeur: num}, {onConflict: 'cle'});
+    return "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  }
+}
+
+// Fonction RPC pour obtenir un numéro unique de facture (à créer dans Supabase)
+async function getNextFactureNumber() {
+  // Solution 1: Utiliser une fonction RPC Supabase (recommandé)
+  // Créer cette fonction SQL dans Supabase :
+  /*
+  CREATE OR REPLACE FUNCTION get_next_facture_number()
+  RETURNS TEXT AS $$
+  DECLARE
+    next_num INTEGER;
+    current_year TEXT;
+  BEGIN
+    current_year := TO_CHAR(CURRENT_DATE, 'YYYY');
+    SELECT COALESCE(MAX(CAST(SPLIT_PART(numero, '-', 3) AS INTEGER)), 0) + 1 INTO next_num
+    FROM factures
+    WHERE numero LIKE 'FAC-' || current_year || '-%';
+    
+    RETURN 'FAC-' || current_year || '-' || LPAD(next_num::TEXT, 4, '0');
+  END;
+  $$ LANGUAGE plpgsql SECURITY DEFINER;
+  */
+  
+  try {
+    const { data, error } = await supa.rpc('get_next_facture_number');
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    // Fallback si la fonction RPC n'existe pas encore
+    console.warn("RPC non disponible, utilisation du fallback");
+    const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
+    const num = (cpt?.valeur||0)+1;
+    await supa.from("compteurs").upsert({cle:"facture", valeur: num}, {onConflict: 'cle'});
+    return "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  }
+}
+
 async function saveDevis() {
   const cid = $("dv_client").value; if (!cid) { alert("Choisissez un client."); return; }
   const lignesPieces = dLignes.filter(l=>l.d.trim());
@@ -1058,8 +1192,9 @@ async function saveDevis() {
   if (!lignes.length) { alert("Ajoutez au moins une ligne."); return; }
   
   const ht = devisTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
-  const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","devis").single();
-  const num = (cpt.valeur||0)+1, numero = "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  
+  // Utilisation de la fonction RPC pour numéro unique
+  const numero = await getNextDevisNumber();
   
   const { error } = await supa.from("devis").insert({
     numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom, 
@@ -1070,10 +1205,9 @@ async function saveDevis() {
     lignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id
   });
   if (error) { alert("Erreur : "+error.message); return; }
-  await supa.from("compteurs").update({valeur: num}).eq("cle","devis"); 
   await jlog("Création devis", numero, ""); 
   dLignes = [{d:"",q:1,p:0}]; dLignesMO = [{d:"",q:1,p:0}]; 
-  dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "" };
+  dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "", vehicule_id: "" };
   await loadAllData();
 }
 
@@ -1097,9 +1231,11 @@ function factTotHT(){
   return htPieces + htMO; 
 }
 
+// Mise à jour partielle des totaux sans re-render complet
 function updateFactTotals() {
-  const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht*tv/100, ttc = ht+tva;
-  if ($("fc_tot_ttc")) $("fc_tot_ttc").textContent = f(ttc);
+  const ht = factTotHT(), tv = +(data.params.tva_taux||18), ttc = ht + (ht*tv/100);
+  const el = $("fc_tot_ttc");
+  if (el) el.textContent = f(ttc);
 }
 
 function remplirVehiculeFacture(clientId) {
@@ -1131,7 +1267,7 @@ function renderFactures(A) {
       </select>
       <div style="display:flex; gap:8px; margin-bottom:15px">
         <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🚗 <b>Véhicule :</b> ${e(fMemo.veh || "Non renseigné")}</div>
-        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}</div>
+        <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)"> <b>Immatriculation :</b> ${e(fMemo.immat || "Non renseignée")}</div>
       </div>
 
       <div style="margin-bottom:15px">
@@ -1148,8 +1284,8 @@ function renderFactures(A) {
                   ${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)} (Qté: ${s.qte})</option>`).join("")}
                 </datalist>
               </td>
-              <td style="padding:8px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
-              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; renderFactures(document.getElementById('app'))" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; updateFactTotals()" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; updateFactTotals()" style="width:100%; font-size:13px;"></td>
               <td style="padding:8px; text-align:center;"><button class="s" onclick="fLignes.splice(${i},1);if(!fLignes.length)fLignes=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td>
             </tr>`).join("")}
           </tbody>
@@ -1166,7 +1302,7 @@ function renderFactures(A) {
           <tbody>
             ${fLignesMO.map((l,i)=>`<tr style="border-bottom:1px solid var(--b);">
               <td style="padding:8px;"><input value="${e(l.d)}" oninput="fLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" style="font-size:13px;"></td>
-              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; renderFactures(document.getElementById('app'))" placeholder="0" style="width:100%; font-size:13px;"></td>
+              <td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; updateFactTotals()" placeholder="0" style="width:100%; font-size:13px;"></td>
             </tr>`).join("")}
           </tbody>
         </table>
@@ -1190,7 +1326,6 @@ function renderFactures(A) {
     </div>` : ""}
       
     <div class="card">
-      <!-- ✅ CORRECTION : Ajout d'ID et appel à filterFactures() pour éviter le re-rendu complet -->
       <input id="search_facture" placeholder="🔍 Rechercher une facture..." value="${e(q)}" oninput="filterFactures()">
     </div>
     <div id="liste_factures_container">
@@ -1202,7 +1337,6 @@ function renderFactures(A) {
     </div>`;
 }
 
-// ✅ CORRECTION : Fonction de filtrage ciblée pour les factures (évite les lenteurs)
 function filterFactures() {
   const input = $("search_facture");
   if (!input) return;
@@ -1232,8 +1366,9 @@ async function saveFactureDirecte() {
   if (!toutesLesLignes.length) { alert("Ajoutez au moins une ligne."); return; }
   
   const ht = factTotHT(), tv = +(data.params.tva_taux||18), tva = ht * tv / 100, ttc = ht + tva;
-  const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
-  const num = (cpt.valeur||0)+1, numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+  
+  // Utilisation de la fonction RPC pour numéro unique
+  const numero = await getNextFactureNumber();
   
   const { error } = await supa.from("factures").insert({
     numero, client_id: cid, client_nom: data.clients.find(c=>c.id===cid).nom, vehicule: veh, immat: immat, 
@@ -1241,7 +1376,6 @@ async function saveFactureDirecte() {
     statut: "En attente", created_by: session.user.id
   });
   if (error) { alert("Erreur : "+error.message); return; }
-  await supa.from("compteurs").update({valeur: num}).eq("cle","facture");
   
   for (const ligne of lignes) {
     if (ligne.stock_id) {
@@ -1440,7 +1574,7 @@ function renderStock(A) {
       if (articlesCat.length === 0) return "";
       
       return `
-        <div class="card" style="background:var(--bg); margin-bottom:8px; padding:10px"><b>📦 ${cat}</b></div>
+        <div class="card" style="background:var(--bg); margin-bottom:8px; padding:10px"><b> ${cat}</b></div>
         ${articlesCat.map(s => `
           <div class="card"><div class="row" style="border-top:0">
             <div style="flex:1">
@@ -1462,7 +1596,6 @@ function renderStock(A) {
   `;
 }
 
-// ✅ CORRECTION : Filtrage ciblée pour le stock
 function filterStock() {
   const input = $("search_stock");
   if (!input) return;
@@ -1708,12 +1841,12 @@ function renderPaie(A) {
       <button class="s" onclick="employePaieId=null; render()">← Retour</button>
       <h3>Fiche de paie : ${e(emp.nom)}</h3>
       <input id="paie_mois" type="month" value="${new Date().toISOString().slice(0,7)}">
-      <label class="m">Salaire de base (GNF)</label><input id="paie_base" type="number" value="${base}" oninput="renderPaie(document.getElementById('app'))">
-      <label class="m">Primes</label><input id="paie_primes" type="number" value="${primes}" oninput="renderPaie(document.getElementById('app'))">
-      <label class="m">Avances</label><input id="paie_avances" type="number" value="${avances}" oninput="renderPaie(document.getElementById('app'))">
-      <label class="m">CNSS</label><input id="paie_cnss" type="number" value="${cnss}" oninput="renderPaie(document.getElementById('app'))">
-      <label class="m">Impôt</label><input id="paie_impot" type="number" value="${impot}" oninput="renderPaie(document.getElementById('app'))">
-      <div style="background:var(--bg); padding:15px; margin-top:15px; border:1px solid var(--r)"><b>Solde à payer : ${f(solde)}</b></div>
+      <label class="m">Salaire de base (GNF)</label><input id="paie_base" type="number" value="${base}" oninput="updatePaieTotals()">
+      <label class="m">Primes</label><input id="paie_primes" type="number" value="${primes}" oninput="updatePaieTotals()">
+      <label class="m">Avances</label><input id="paie_avances" type="number" value="${avances}" oninput="updatePaieTotals()">
+      <label class="m">CNSS</label><input id="paie_cnss" type="number" value="${cnss}" oninput="updatePaieTotals()">
+      <label class="m">Impôt</label><input id="paie_impot" type="number" value="${impot}" oninput="updatePaieTotals()">
+      <div style="background:var(--bg); padding:15px; margin-top:15px; border:1px solid var(--r)"><b>Solde à payer : <span id="paie_solde">${f(solde)}</span></b></div>
       <button class="p" onclick="sauverPaie('${emp.id}')">Enregistrer</button></div>`;
     return;
   }
@@ -1725,9 +1858,21 @@ function renderPaie(A) {
     <div class="card"><table><thead><tr><th>Nom</th><th>Poste</th><th style="text-align:right">Salaire</th><th style="text-align:center">Action</th></tr></thead><tbody>
       ${data.employes.map(emp => `<tr><td><b>${e(emp.nom)}</b></td><td>${e(emp.poste)}</td><td style="text-align:right">${f(emp.salaire_base)}</td><td style="text-align:center"><button class="s" onclick="employePaieId='${emp.id}';render()">Faire la paie</button></td></tr>`).join("") || '<tr><td colspan="4" style="text-align:center">Aucun employé.</td></tr>'}
     </tbody></table></div>
-    <div class="card"><b>📜 Historique</b><table><thead><tr><th>Employé</th><th>Mois</th><th style="text-align:right">Net à payer</th><th style="text-align:center">Action</th></tr></thead><tbody>
+    <div class="card"><b> Historique</b><table><thead><tr><th>Employé</th><th>Mois</th><th style="text-align:right">Net à payer</th><th style="text-align:center">Action</th></tr></thead><tbody>
       ${(data.paie || []).sort((a,b) => b.mois.localeCompare(a.mois)).map(paie => { const emp = data.employes.find(x => x.id === paie.employe_id); return `<tr><td>${e(emp ? emp.nom : "Inconnu")}</td><td>${e(paie.mois)}</td><td style="text-align:right"><b>${f(paie.solde)}</b></td><td style="text-align:center"><button class="s" onclick="printBulletinPaie('${paie.id}')">🖨️ Bulletin</button>${profil.role === 'PDG' ? `<button class="s" style="color:var(--r)" onclick="deletePaie('${paie.id}')">🗑️</button>` : ""}</td></tr>`; }).join("") || '<tr><td colspan="4" style="text-align:center">Aucune paie.</td></tr>'}
     </tbody></table></div>`;
+}
+
+// Mise à jour partielle des totaux de paie sans re-render
+function updatePaieTotals() {
+  const base = +$("paie_base")?.value || 0;
+  const primes = +$("paie_primes")?.value || 0;
+  const avances = +$("paie_avances")?.value || 0;
+  const cnss = +$("paie_cnss")?.value || 0;
+  const impot = +$("paie_impot")?.value || 0;
+  const solde = base + primes - avances - cnss - impot;
+  const el = $("paie_solde");
+  if (el) el.textContent = f(solde);
 }
 
 async function deletePaie(id) {
@@ -1819,7 +1964,7 @@ function renderFournisseurs(A) {
   if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
   const dette = (data.commandes || []).filter(c => c.statut !== "Payé").reduce((a,c) => a + ((+c.montant||0) - (+c.montant_paye||0)), 0);
   A.innerHTML = `<div class="grid"><div class="card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
-    <div class="card"><b>🏭 Nouveau fournisseur</b>
+    <div class="card"><b> Nouveau fournisseur</b>
       <div style="display:flex; gap:8px; margin-bottom:8px"><input id="f_nom" placeholder="Nom *" style="flex:2"><input id="f_contact" placeholder="Contact" style="flex:1"><input id="f_tel" placeholder="Téléphone" style="flex:1"></div>
       <input id="f_adr" placeholder="Adresse" style="margin-bottom:8px"><button class="p" onclick="addFournisseur()">Ajouter le fournisseur</button></div>
     <div class="card"><b>📦 Nouvelle commande</b>
