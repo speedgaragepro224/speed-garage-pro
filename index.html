@@ -285,6 +285,44 @@ input.erreur, select.erreur, textarea.erreur { border: 2px solid var(--r) !impor
 /* TOASTS */
 .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
 .toast { background: var(--c); border-left: 4px solid var(--r); padding: 12px 20px; border-radius: 8px; box-shadow: var(--shadow); color: #fff; font-weight: 500; animation: slideInRight 0.3s ease-out; display: flex; align-items: center; gap: 10px; }
+/* --- AMÉLIORATIONS MOBILES --- */
+@media (max-width: 768px) {
+  /* 1. Tableaux transformés en cartes */
+  table, thead, tbody, th, td, tr { display: block; width: 100%; }
+  thead tr { position: absolute; top: -9999px; left: -9999px; }
+  tr { border: 1px solid var(--glass-border); margin-bottom: 12px; border-radius: 12px; padding: 12px; background: rgba(255,255,255,0.03); }
+  td { border: none; position: relative; padding-left: 45% !important; text-align: right !important; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 40px; padding-top: 10px; padding-bottom: 10px; }
+  td:last-child { border-bottom: none; }
+  td:before { position: absolute; top: 12px; left: 12px; width: 40%; white-space: nowrap; text-align: left; font-weight: 700; color: var(--m); font-size: 11px; text-transform: uppercase; }
+  
+  .table-depenses td:nth-of-type(1):before { content: "Date"; }
+  .table-depenses td:nth-of-type(2):before { content: "Catégorie"; }
+  .table-depenses td:nth-of-type(3):before { content: "Description"; }
+  .table-depenses td:nth-of-type(4):before { content: "Montant"; }
+  .table-depenses td:nth-of-type(5):before { content: "Action"; }
+
+  .table-fournisseurs td:nth-of-type(1):before { content: "Date"; }
+  .table-fournisseurs td:nth-of-type(2):before { content: "Fournisseur"; }
+  .table-fournisseurs td:nth-of-type(3):before { content: "Description"; }
+  .table-fournisseurs td:nth-of-type(4):before { content: "Montant"; }
+  .table-fournisseurs td:nth-of-type(5):before { content: "Statut"; }
+  .table-fournisseurs td:nth-of-type(6):before { content: "Action"; }
+
+  /* 2. Boutons plus gros et pleine largeur */
+  button.p, button.s { width: 100%; margin-bottom: 8px; padding: 14px; font-size: 14px; }
+  
+  /* 3. Ajustements de l'écran */
+  main { padding: 10px; }
+  header { padding: 10px 15px; }
+  header span { font-size: 14px; }
+  .grid { grid-template-columns: 1fr; }
+  .card { padding: 15px; margin-bottom: 12px; }
+  
+  /* 4. Formulaires empilés */
+  input, select, textarea { font-size: 16px; }
+  div[style*="display:flex"] { flex-direction: column !important; align-items: stretch !important; }
+  div[style*="display:flex"] > div, div[style*="display:flex"] > input, div[style*="display:flex"] > select { width: 100% !important; margin-bottom: 8px; }
+}
 </style>
 </head>
 <body>
@@ -441,8 +479,19 @@ async function loadAllData() {
   ];
   if (R.can.editStock) tasks.push(supa.from("stock").select("*").order("nom").then(r=>data.stock=r.data||[]));
   if (R.can.viewAudit) tasks.push(supa.from("journal").select("*").order("created_at",{ascending:false}).limit(300).then(r=>data.journal=r.data||[]));
-  await Promise.all(tasks); render();
+    await Promise.all(tasks); render();
+
+  // --- ACTIVATION DU TEMPS RÉEL (MULTI-ORDINATEURS) ---
+  if (!window.realtimeChannel) {
+    window.realtimeChannel = supa.channel('custom-all-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'factures' }, payload => { loadAllData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, payload => { loadAllData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'devis' }, payload => { loadAllData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rdv' }, payload => { loadAllData(); })
+      .subscribe();
+  }
 }
+
 
 async function jlog(action, reference, details) {
   if (!profil || !session) return;
@@ -724,42 +773,48 @@ async function definirRappel(clientId) {
   const cl = data.clients.find(c => c.id === clientId);
   if (!cl) return;
   
-  // 1. Choix du type de rappel
   let type = prompt(`Type de rappel pour ${cl.nom} ?\nTapez le chiffre :\n1 = Diagnostic général\n2 = Rappel d'entretien périodique\n3 = Changement de filtre`, "2");
   if (type === null) return;
   if (type === "1") type = "Diagnostic général";
   else if (type === "3") type = "Changement de filtre";
   else type = "Rappel d'entretien périodique";
 
-  // 2. Kilométrage
   const km = prompt(`Rappel pour ${cl.nom} : À quel kilométrage ? (ex: 65000)`, cl.prochain_km || "");
   if (km === null) return;
   
-  // 3. Date
-  const dateStr = prompt(`Date de rappel pour ${cl.nom} ? Format AAAA-MM-JJ (ex: 2027-01-15)`, cl.prochaine_date || "");
-  if (dateStr === null) return;
+  const mois = prompt(`Dans combien de mois souhaitez-vous rappeler ${cl.nom} ? (ex: 6)`, "6");
+  if (mois === null) return;
+  
+  let dateStr = null;
+  if (mois && !isNaN(mois)) {
+    let d = new Date();
+    d.setMonth(d.getMonth() + parseInt(mois));
+    dateStr = d.toISOString().slice(0, 10);
+  }
   
   const v = data.vehicules.find(x => x.client_id === clientId);
   const veh = v ? `${v.marque} ${v.modele} (${v.immat})` : "";
   
-  // Mise à jour avec le type
   const { error } = await supa.from("clients").update({ 
     prochain_km: +km || 0, 
-    prochaine_date: dateStr || null, 
+    prochaine_date: dateStr, 
     vehicule_rappel: veh,
     type_rappel: type 
   }).eq("id", clientId);
   
   if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Rappel modifié", `${cl.nom}`, `Type: ${type}, Km: ${km}, Date: ${dateStr}`);
+  await jlog("Rappel modifié", `${cl.nom}`, `Type: ${type}, Km: ${km}, Dans: ${mois} mois`);
   await loadAllData();
-  toast("Rappel mis à jour avec succès !");
+  toast(`✅ Rappel programmé dans ${mois} mois !`);
 }
-
 async function sauverRappel() {
   const km = +$("rap_km").value || 0;
-  const dateVal = $("rap_date").value || null;
-  const type = $("rap_type") ? $("rap_type").value : "Rappel d'entretien périodique"; // Récupère le menu déroulant
+  const type = $("rap_type") ? $("rap_type").value : "Rappel d'entretien périodique";
+  const mois = parseInt($("rap_mois").value) || 6;
+  
+  let d = new Date();
+  d.setMonth(d.getMonth() + mois);
+  const dateVal = d.toISOString().slice(0, 10);
   
   const cl = data.clients.find(c => c.id === clientRappelId);
   const vehicule = data.vehicules.find(v => v.client_id === clientRappelId);
@@ -772,10 +827,9 @@ async function sauverRappel() {
     type_rappel: type 
   }).eq("id", clientRappelId);
   
-  await jlog("Rappel défini", `${cl.nom}`, `Type: ${type}, Km: ${km}, Date: ${dateVal}`);
+  await jlog("Rappel défini", `${cl.nom}`, `Type: ${type}, Km: ${km}, Dans: ${mois} mois`);
   clientRappelId = null; await loadAllData();
 }
-
 function renderRappels(A) {
   const peutEditer = ROLES[profil.role].can.editClients;
   const aRappeler = data.clients.filter(c => (c.prochain_km > 0) || c.prochaine_date);
@@ -799,8 +853,11 @@ function renderRappels(A) {
 
         <label class="m">Prochain entretien km (ex: 65000)</label>
         <input id="rap_km" type="number" value="${cl.prochain_km || ''}">
-        <label class="m">Date de rappel</label>
-        <input id="rap_date" type="date" value="${cl.prochaine_date || (() => { let d = new Date(); d.setMonth(d.getMonth() + 6); return d.toISOString().slice(0,10); })()}">
+        
+        <label class="m">Rappel dans (nombre de mois)</label>
+        <input id="rap_mois" type="number" min="1" max="36" value="6">
+        <div style="font-size:11px; color:var(--m); margin-bottom:10px;">La date sera calculée automatiquement.</div>
+
         <div style="display:flex; gap:8px; margin-top:10px">
           <button class="p" onclick="sauverRappel()">Enregistrer</button>
           <button class="s" onclick="clientRappelId=null; render()">Annuler</button>
@@ -845,6 +902,9 @@ function renderRappels(A) {
       else if (type === "Rappel d'entretien périodique") { bgType = "var(--ok)"; colorType = "#fff"; }
       else if (type === "Changement de filtre") { bgType = "var(--warn)"; colorType = "#fff"; }
 
+      // Formatage de la date
+      const dateAffichage = c.prochaine_date ? new Date(c.prochaine_date + "T12:00:00").toLocaleDateString('fr-FR') : '—';
+
       return `<div class="card" style="border-left: 5px solid ${estDepasse ? 'var(--r)' : (estBientot ? '#f59e0b' : 'var(--ok)')}; padding: 16px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px">
           <div style="flex:1; min-width:200px">
@@ -854,10 +914,11 @@ function renderRappels(A) {
             </div>
             <div class="m" style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
               <span>🚗 <b>${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}</b></span>
-             <span>📞 Téléphone : <b><a href="tel:${e(c.tel)}" style="color:var(--blue); text-decoration:none;">${e(c.tel || "Non renseigné")}</a></b></span>
- <span>📋 Type : <span class="tag" style="background:${bgType}; color:${colorType}; font-weight:bold;">${e(type)}</span></span>
+              <span>📞 Téléphone : <b><a href="tel:${e(c.tel)}" style="color:var(--blue); text-decoration:none;">${e(c.tel || "Non renseigné")}</a></b></span>
+              <span>📋 Type : <span class="tag" style="background:${bgType}; color:${colorType}; font-weight:bold;">${e(type)}</span></span>
+              <span>📅 Date prévue : <b>${dateAffichage}</b></span>
               <span>📏 Dernier km connu : <b>${dernierKm.toLocaleString('fr-FR')} km</b></span>
-              <span>🎯 Seuil de rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') + ' km' : '—'}</b></span>
+              <!-- La ligne "Seuil de rappel" a été supprimée ici -->
               ${motifAlerte.length > 0 ? `<span style="color:${estDepasse ? 'var(--r)' : '#f59e0b'}; font-weight:bold; margin-top:5px;">ℹ️ Motif : ${motifAlerte.join(", ")}</span>` : ''}
             </div>
           </div>
@@ -868,7 +929,6 @@ function renderRappels(A) {
       </div>`;
     }).join("") || '<div class="card m">Aucun rappel défini.</div>'}`;
 }
-
 let clientVehiculeId = null;
 
 async function nextRef(type) {
