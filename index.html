@@ -723,27 +723,56 @@ function renderPlanning(A) {
 async function definirRappel(clientId) {
   const cl = data.clients.find(c => c.id === clientId);
   if (!cl) return;
+  
+  // 1. Choix du type de rappel
+  let type = prompt(`Type de rappel pour ${cl.nom} ?\nTapez le chiffre :\n1 = Diagnostic général\n2 = Rappel d'entretien périodique\n3 = Changement de filtre`, "2");
+  if (type === null) return;
+  if (type === "1") type = "Diagnostic général";
+  else if (type === "3") type = "Changement de filtre";
+  else type = "Rappel d'entretien périodique";
+
+  // 2. Kilométrage
   const km = prompt(`Rappel pour ${cl.nom} : À quel kilométrage ? (ex: 65000)`, cl.prochain_km || "");
   if (km === null) return;
+  
+  // 3. Date
   const dateStr = prompt(`Date de rappel pour ${cl.nom} ? Format AAAA-MM-JJ (ex: 2027-01-15)`, cl.prochaine_date || "");
   if (dateStr === null) return;
+  
   const v = data.vehicules.find(x => x.client_id === clientId);
   const veh = v ? `${v.marque} ${v.modele} (${v.immat})` : "";
-  const { error } = await supa.from("clients").update({ prochain_km: +km || 0, prochaine_date: dateStr || null, vehicule_rappel: veh }).eq("id", clientId);
+  
+  // Mise à jour avec le type
+  const { error } = await supa.from("clients").update({ 
+    prochain_km: +km || 0, 
+    prochaine_date: dateStr || null, 
+    vehicule_rappel: veh,
+    type_rappel: type 
+  }).eq("id", clientId);
+  
   if (error) { alert("Erreur : " + error.message); return; }
-  await jlog("Rappel modifié", `${cl.nom}`, `Km: ${km}, Date: ${dateStr}`);
+  await jlog("Rappel modifié", `${cl.nom}`, `Type: ${type}, Km: ${km}, Date: ${dateStr}`);
   await loadAllData();
-  alert("✅ Rappel mis à jour avec succès !");
+  toast("Rappel mis à jour avec succès !");
 }
 
 async function sauverRappel() {
   const km = +$("rap_km").value || 0;
   const dateVal = $("rap_date").value || null;
+  const type = $("rap_type") ? $("rap_type").value : "Rappel d'entretien périodique"; // Récupère le menu déroulant
+  
   const cl = data.clients.find(c => c.id === clientRappelId);
   const vehicule = data.vehicules.find(v => v.client_id === clientRappelId);
   const veh = vehicule ? `${vehicule.marque} ${vehicule.modele} (${vehicule.immat})` : "";
-  await supa.from("clients").update({ prochain_km: km, prochaine_date: dateVal, vehicule_rappel: veh }).eq("id", clientRappelId);
-  await jlog("Rappel défini", `${cl.nom}`, `Km: ${km}, Date: ${dateVal}`);
+  
+  await supa.from("clients").update({ 
+    prochain_km: km, 
+    prochaine_date: dateVal, 
+    vehicule_rappel: veh,
+    type_rappel: type 
+  }).eq("id", clientRappelId);
+  
+  await jlog("Rappel défini", `${cl.nom}`, `Type: ${type}, Km: ${km}, Date: ${dateVal}`);
   clientRappelId = null; await loadAllData();
 }
 
@@ -760,6 +789,14 @@ function renderRappels(A) {
         <b>🔔 Définir le rappel pour ${e(cl.nom)}</b>
         <div style="background:var(--bg); padding:10px; border-radius:8px; margin:10px 0; font-size:13px"><b>Informations client :</b><br>📞 Téléphone : <b>${e(cl.tel || "Non renseigné")}</b></div>
         ${v ? `<div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px"><b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)} (${e(v.immat)})<br><b>VIN :</b> ${e(v.vin || "Non renseigné")}<br><b>Dernier km :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + " km" : "Non renseigné"}</div>` : `<div class="m" style="margin-bottom:10px">Aucun véhicule enregistré.</div>`}
+        
+        <label class="m">Type de rappel</label>
+        <select id="rap_type" style="margin-bottom:10px; font-weight: bold;">
+          <option value="Diagnostic général" ${cl.type_rappel === 'Diagnostic général' ? 'selected' : ''} style="color: #3b82f6;">🔍 Diagnostic général</option>
+          <option value="Rappel d'entretien périodique" ${cl.type_rappel === 'Rappel d\'entretien périodique' ? 'selected' : ''} style="color: #10b981;">🛠️ Rappel d'entretien périodique</option>
+          <option value="Changement de filtre" ${cl.type_rappel === 'Changement de filtre' ? 'selected' : ''} style="color: #f59e0b;">🌬️ Changement de filtre</option>
+        </select>
+
         <label class="m">Prochain entretien km (ex: 65000)</label>
         <input id="rap_km" type="number" value="${cl.prochain_km || ''}">
         <label class="m">Date de rappel</label>
@@ -772,21 +809,42 @@ function renderRappels(A) {
     }
   }
   
-  A.innerHTML = `${formHtml}<div class="card"><b>🔔 Prochains entretiens</b></div>
+  A.innerHTML = `${formHtml}<div class="card"><b>🔔 Prochains entretiens & Diagnostics</b></div>
     ${aRappeler.map(c => {
       let dernierKm = 0;
       const vehiculeClient = data.vehicules.find(v => v.client_id === c.id);
       if (vehiculeClient && vehiculeClient.kilometrage) dernierKm = vehiculeClient.kilometrage;
+      
       let estDepasse = false, estBientot = false, motifAlerte = [];
-      if (c.prochain_km > 0 && dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push("Km dépassé"); }
-      else if (c.prochain_km > 0 && (c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push("Km bientôt"); }
+      
+      // Logique Kilométrage
+      if (c.prochain_km > 0) {
+        if (dernierKm >= c.prochain_km) { 
+          estDepasse = true; 
+          motifAlerte.push(`Kilométrage dépassé (${dernierKm.toLocaleString('fr-FR')} km)`); 
+        }
+        else if ((c.prochain_km - dernierKm) <= 1000) { 
+          estBientot = true; 
+          motifAlerte.push(`Bientôt dû (reste ${(c.prochain_km - dernierKm).toLocaleString('fr-FR')} km)`); 
+        }
+      }
+      
+      // Logique Date
       if (c.prochaine_date) {
         const dateRappel = new Date(c.prochaine_date + "T12:00:00").getTime();
         const aujourdhui = new Date(); aujourdhui.setHours(12, 0, 0, 0);
         const diffJours = Math.ceil((dateRappel - aujourdhui.getTime()) / (1000 * 60 * 60 * 24));
         if (diffJours < 0) { estDepasse = true; motifAlerte.push("Date dépassée"); }
-        else if (diffJours <= 30) { estBientot = true; motifAlerte.push("Date bientôt"); }
+        else if (diffJours <= 30) { estBientot = true; motifAlerte.push("Date bientôt due"); }
       }
+
+      // Couleurs des badges de Type
+      const type = c.type_rappel || "Non spécifié";
+      let bgType = "var(--b)", colorType = "var(--t)";
+      if (type === "Diagnostic général") { bgType = "var(--blue)"; colorType = "#fff"; }
+      else if (type === "Rappel d'entretien périodique") { bgType = "var(--ok)"; colorType = "#fff"; }
+      else if (type === "Changement de filtre") { bgType = "var(--warn)"; colorType = "#fff"; }
+
       return `<div class="card" style="border-left: 5px solid ${estDepasse ? 'var(--r)' : (estBientot ? '#f59e0b' : 'var(--ok)')}; padding: 16px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px">
           <div style="flex:1; min-width:200px">
@@ -796,9 +854,11 @@ function renderRappels(A) {
             </div>
             <div class="m" style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
               <span>🚗 <b>${e(vehiculeClient ? vehiculeClient.marque + ' ' + vehiculeClient.modele : (c.vehicule_rappel || 'Inconnu'))}</b></span>
-              <span>📏 Dernier km : <b>${dernierKm.toLocaleString('fr-FR')} km</b></span>
+             <span>📞 Téléphone : <b><a href="tel:${e(c.tel)}" style="color:var(--blue); text-decoration:none;">${e(c.tel || "Non renseigné")}</a></b></span>
+ <span>📋 Type : <span class="tag" style="background:${bgType}; color:${colorType}; font-weight:bold;">${e(type)}</span></span>
+              <span>📏 Dernier km connu : <b>${dernierKm.toLocaleString('fr-FR')} km</b></span>
               <span>🎯 Seuil de rappel : <b>${c.prochain_km ? c.prochain_km.toLocaleString('fr-FR') + ' km' : '—'}</b></span>
-              ${motifAlerte.length > 0 ? `<span style="color:${estDepasse ? 'var(--r)' : '#f59e0b'};">ℹ️ Motif : ${motifAlerte.join(", ")}</span>` : ''}
+              ${motifAlerte.length > 0 ? `<span style="color:${estDepasse ? 'var(--r)' : '#f59e0b'}; font-weight:bold; margin-top:5px;">ℹ️ Motif : ${motifAlerte.join(", ")}</span>` : ''}
             </div>
           </div>
           <div style="display:flex; align-items:center;">
@@ -1189,23 +1249,17 @@ function updateDevisTotals() {
 }
 
 function remplirVehiculeDevis(clientId) {
-  if (!clientId) {
-    dMemo.client = ""; dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; dMemo.vehicule_id = "";
-    setTimeout(() => renderDevis(document.getElementById('app')), 10);
-    return;
-  }
   dMemo.client = clientId;
-  const vehiculesClient = data.vehicules.filter(x => x.client_id === clientId);
-  if (vehiculesClient.length === 1) { 
-    const v = vehiculesClient[0]; 
-    dMemo.veh = v.marque + " " + v.modele; 
-    dMemo.immat = v.immat; 
-    dMemo.km = v.kilometrage || ""; 
-    dMemo.vehicule_id = v.id; 
-  } else { 
-    dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; dMemo.vehicule_id = ""; 
+  if (!clientId) {
+    dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; dMemo.vehicule_id = "";
+  } else {
+    const vehiculesClient = data.vehicules.filter(x => x.client_id === clientId);
+    if (vehiculesClient.length === 1) { 
+      const v = vehiculesClient[0]; dMemo.veh = v.marque + " " + v.modele; dMemo.immat = v.immat; dMemo.km = v.kilometrage || ""; dMemo.vehicule_id = v.id; 
+    } else { dMemo.veh = ""; dMemo.immat = ""; dMemo.km = ""; dMemo.vehicule_id = ""; }
   }
-  setTimeout(() => renderDevis(document.getElementById('app')), 10);
+  // On recharge la page pour afficher les champs du véhicule (mais on garde le focus)
+  renderDevis(document.getElementById('app'));
 }
 
 function rechercherPieceDevis(index, valeur) {
@@ -1307,10 +1361,8 @@ function renderDevis(A) {
 
 async function saveDevis() {
   const erreurs = validerDevis();
-  if (erreurs.length > 0) {
-    alert("⚠️ Champs obligatoires manquants :\n\n" + erreurs.join("\n"));
-    const formCard = document.querySelector('.card[style*="border:2px solid"]') || document.querySelector('.card');
-    if (formCard) { const existingMsg = formCard.querySelector('.msg-erreur'); if (existingMsg) existingMsg.remove(); const msgDiv = document.createElement('div'); msgDiv.className = 'msg-erreur'; msgDiv.innerHTML = `<div><b>Champs manquants :</b><br>${erreurs.join('<br>')}</div>`; formCard.insertBefore(msgDiv, formCard.firstChild); msgDiv.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  if (erreurs.length > 0) { 
+    alert("⚠️ Champs obligatoires manquants :\n\n" + erreurs.join("\n")); 
     return;
   }
   const cid = $("dv_client").value;
@@ -1321,37 +1373,29 @@ async function saveDevis() {
   const acompte = +$("dv_acompte").value || 0;
   
   if (editDevisId) {
-    const oldDevis = data.devis.find(d => d.id === editDevisId);
-    const newDevisData = { 
+    const { error } = await supa.from("devis").update({ 
       client_id: cid, client_nom: clientNom, vehicule: dMemo.veh, immat: dMemo.immat, 
       kilometrage: +dMemo.km || 0, motif: $("dv_motif").value.trim(), delai: $("dv_delai").value.trim(), 
       paiement: $("dv_paiement").value, garantie: $("dv_garantie").value.trim(), 
       acompte: acompte, lignes, total_ht: ht, tva, total_ttc: ttc 
-    };
-    const { error } = await supa.from("devis").update(newDevisData).eq("id", editDevisId);
+    }).eq("id", editDevisId);
     if (error) { alert("Erreur : "+error.message); return; }
-    
-    const details = [];
-    if (oldDevis.client_nom !== newDevisData.client_nom) details.push(`Client: ${oldDevis.client_nom} → ${newDevisData.client_nom}`);
-    if (oldDevis.vehicule !== newDevisData.vehicule) details.push(`Véhicule: ${oldDevis.vehicule} → ${newDevisData.vehicule}`);
-    if (oldDevis.immat !== newDevisData.immat) details.push(`Immat: ${oldDevis.immat} → ${newDevisData.immat}`);
-    if (oldDevis.total_ttc !== newDevisData.total_ttc) details.push(`Total TTC: ${f(oldDevis.total_ttc)} → ${f(newDevisData.total_ttc)}`);
-    if (oldDevis.paiement !== newDevisData.paiement) details.push(`Paiement: ${oldDevis.paiement} → ${newDevisData.paiement}`);
-    if (oldDevis.acompte !== newDevisData.acompte) details.push(`Acompte: ${f(oldDevis.acompte)} → ${f(newDevisData.acompte)}`);
-    if (JSON.stringify(oldDevis.lignes || []) !== JSON.stringify(newDevisData.lignes || [])) details.push("Lignes (pièces/main d'œuvre) modifiées");
-    
-    await jlog("Modification devis", oldDevis.numero, details.length > 0 ? details.join(" | ") : "Aucune modification détectée");
-    
     editDevisId = null; dLignes = [{d:"",q:1,p:0}]; dLignesMO = [{d:"",q:1,p:0}]; dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "", vehicule_id: "" };
     await loadAllData(); alert("✅ Devis modifié !"); return;
   }
   
   try {
-    const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","devis").single();
-    const num = (cpt?.valeur||0)+1; const numero = "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+    const { data: tousDevis } = await supa.from("devis").select("numero").order("numero", { ascending: false }).limit(1);
+    let num = 1;
+    if (tousDevis && tousDevis.length > 0) {
+      const dernierNumero = tousDevis[0].numero;
+      const parties = dernierNumero.split("-");
+      if (parties.length === 3) num = parseInt(parties[2]) + 1;
+    }
+    const numero = "DEV-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+    
     const { error } = await supa.from("devis").insert({ numero, client_id: cid, client_nom: clientNom, vehicule: dMemo.veh, immat: dMemo.immat, kilometrage: +dMemo.km || 0, motif: $("dv_motif").value.trim(), delai: $("dv_delai").value.trim(), paiement: $("dv_paiement").value, garantie: $("dv_garantie").value.trim(), acompte: acompte, lignes, total_ht: ht, tva, total_ttc: ttc, statut: "Brouillon", created_by: session.user.id });
     if (error) { alert("Erreur : "+error.message); return; }
-    await supa.from("compteurs").upsert({cle:"devis", valeur: num}, {onConflict: 'cle'});
     await jlog("Création devis", numero, `Client: ${clientNom}, Total TTC: ${f(ttc)}, Acompte: ${f(acompte)}`);
   } catch(err) { alert("Erreur : " + err.message); return; }
   dLignes = [{d:"",q:1,p:0}]; dLignesMO = [{d:"",q:1,p:0}]; dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "", vehicule_id: "" };
@@ -1382,20 +1426,25 @@ function updateFactTotals() {
 }
 
 function remplirVehiculeFacture(clientId) {
+  fMemo.client = clientId;
+  
   if (!clientId) {
-    fMemo.client = ""; fMemo.veh = ""; fMemo.immat = ""; fMemo.technicien = "";
-    setTimeout(() => renderFactures(document.getElementById('app')), 10);
-    return;
+    fMemo.veh = ""; fMemo.immat = ""; fMemo.technicien = "";
+  } else {
+    const v = data.vehicules.find(x => x.client_id === clientId);
+    if (v) { 
+      fMemo.veh = v.marque + " " + v.modele; 
+      fMemo.immat = v.immat; 
+    } else { 
+      fMemo.veh = "Aucun véhicule"; fMemo.immat = "—"; 
+    }
   }
-  const v = data.vehicules.find(x => x.client_id === clientId);
-  if (v) { 
-    fMemo.veh = v.marque + " " + v.modele; 
-    fMemo.immat = v.immat; 
-  } else { 
-    fMemo.veh = ""; fMemo.immat = ""; 
-  }
-  fMemo.client = clientId; 
-  setTimeout(() => renderFactures(document.getElementById('app')), 10);
+  
+  // Au lieu de recharger toute la page, on met juste à jour les textes dans la boîte
+  const spanVeh = document.getElementById("fc_display_veh");
+  const spanImmat = document.getElementById("fc_display_immat");
+  if (spanVeh) spanVeh.textContent = fMemo.veh || "—";
+  if (spanImmat) spanImmat.textContent = fMemo.immat || "—";
 }
 function rechercherPieceFacture(index, valeur) {
   fLignes[index].d = valeur;
@@ -1456,8 +1505,10 @@ function renderFactures(A) {
   A.innerHTML += `${peutEditer ? `<div class="card" style="${estEnEdition ? 'border:2px solid #f59e0b' : ''}">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px"><b>${estEnEdition ? '✏️ Modifier la facture' : '➕ Créer une facture'}</b>${estEnEdition ? `<button class="s" onclick="annulerEditionFacture()" style="color:#f59e0b">✕ Annuler</button>` : ''}</div>
       <select id="fc_client" onchange="remplirVehiculeFacture(this.value)"><option value="">Client… *</option>${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}</select>
-      <div style="display:flex; gap:8px; margin-bottom:15px"><div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🚗 <b>Véhicule :</b> ${e(fMemo.veh || "—")}</div><div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🔢 <b>Immatriculation :</b> ${e(fMemo.immat || "—")}</div></div>
-      
+      <div style="display:flex; gap:8px; margin-bottom:15px" id="fc_info_vehicule">
+  <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🚗 <b>Véhicule :</b> <span id="fc_display_veh">${e(fMemo.veh || "—")}</span></div>
+  <div style="flex:1; padding:10px; border:1px solid var(--b); border-radius:8px; background:var(--bg)">🔢 <b>Immatriculation :</b> <span id="fc_display_immat">${e(fMemo.immat || "—")}</span></div>
+</div>
       <div style="margin-bottom:15px;"><b style="font-size:14px; color:var(--r)">📦 Pièces</b><table style="width:100%; border-collapse:collapse; margin-top:5px;"><thead><tr><th style="padding:8px; font-size:12px;">Désignation *</th><th style="padding:8px; width:80px; font-size:12px;">Qté *</th><th style="padding:8px; width:120px; font-size:12px;">P.U *</th><th style="padding:8px; width:40px;"></th></tr></thead><tbody>${fLignes.map((l,i)=>`<tr><td style="padding:8px;"><input list="stock_list_fc_${i}" value="${e(l.d)}" oninput="rechercherPieceFacture(${i}, this.value)" placeholder="Taper..." style="margin:0; font-size:13px; width:100%"><datalist id="stock_list_fc_${i}">${data.stock.map(s => `<option value="${e(s.nom)}">${f(s.prix)}</option>`).join("")}</datalist></td><td style="padding:8px;"><input type="number" value="${l.q}" oninput="fLignes[${i}].q=+this.value; updateFactTotals()" style="width:100%; font-size:13px;"></td><td style="padding:8px;"><input id="fc_p_${i}" type="number" value="${l.p||""}" oninput="fLignes[${i}].p=+this.value; updateFactTotals()" style="width:100%; font-size:13px;"></td><td style="padding:8px; text-align:center;"><button class="s" onclick="fLignes.splice(${i},1);if(!fLignes.length)fLignes=[{d:'',q:1,p:0}]; renderFactures(document.getElementById('app'))">✕</button></td></tr>`).join("")}</tbody></table><button class="s" onclick="fLignes.push({d:'',q:1,p:0}); renderFactures(document.getElementById('app'))">+ Pièce</button></div>
       
       <div style="margin-bottom:15px;"><b style="font-size:14px; color:#0891b2">🔧 Main d'œuvre</b><table style="width:100%; border-collapse:collapse; margin-top:5px;"><thead><tr><th style="padding:8px; font-size:12px;">Main d'œuvre *</th><th style="padding:8px; width:150px; font-size:12px;">Coût *</th></tr></thead><tbody>${fLignesMO.map((l,i)=>`<tr><td style="padding:8px;"><input value="${e(l.d)}" oninput="fLignesMO[${i}].d=this.value" placeholder="Main d'œuvre" style="font-size:13px;"></td><td style="padding:8px;"><input type="number" value="${l.p||""}" oninput="fLignesMO[${i}].p=+this.value; updateFactTotals()" placeholder="0" style="width:100%; font-size:13px;"></td></tr>`).join("")}</tbody></table></div>
@@ -1494,7 +1545,7 @@ function renderFactures(A) {
       
       <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>
       ${(peutEditer && fa.statut !== 'Payé') ? `<button class="s" onclick="editFacture('${fa.id}')" style="color:#f59e0b">✏️</button>` : ""}
-      ${(profil.role === 'PDG' && fa.statut !== 'Payé') ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}
+      ${(profil.role === 'PDG') ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}
       </div></div></div>`;
     }).join("")||'<div class="card m">Aucune facture.</div>'}</div>`;
 }
@@ -1515,7 +1566,7 @@ function filterFactures() {
       <button class="s" onclick="printFacture('${fa.id}')">🖨️</button>
 <button class="s" onclick="envoyerWhatsAppFacture('${fa.id}')" style="color:#25D366; border-color:#25D366;">💬</button>
       ${(peutEditer && fa.statut !== 'Payé') ? `<button class="s" onclick="editFacture('${fa.id}')" style="color:#f59e0b">✏️</button>` : ""}
-      ${(profil.role === 'PDG' && fa.statut !== 'Payé') ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}
+      ${(profil.role === 'PDG') ? `<button class="s" onclick="deleteFacture('${fa.id}')" style="color:var(--r)">🗑️</button>` : ""}
       </div></div></div>`;
     }).join("") || '<div class="card m">Aucune facture trouvée.</div>'; 
   }
@@ -1556,8 +1607,15 @@ async function saveFactureDirecte() {
   }
   
   try {
-    const { data: cpt } = await supa.from("compteurs").select("valeur").eq("cle","facture").single();
-    const num = (cpt?.valeur||0)+1; const numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
+    // Récupération du dernier numéro
+    const { data: toutesFactures } = await supa.from("factures").select("numero").order("numero", { ascending: false }).limit(1);
+    let num = 1;
+    if (toutesFactures && toutesFactures.length > 0) {
+      const dernierNumero = toutesFactures[0].numero;
+      const parties = dernierNumero.split("-");
+      if (parties.length === 3) num = parseInt(parties[2]) + 1;
+    }
+    const numero = "FAC-" + new Date().getFullYear() + "-" + String(num).padStart(4,"0");
     
     const { error } = await supa.from("factures").insert({ 
       numero, client_id: cid, client_nom: clientNom, vehicule: veh, immat: immat, 
@@ -1566,7 +1624,6 @@ async function saveFactureDirecte() {
     });
     
     if (error) { alert("Erreur : "+error.message); return; }
-    await supa.from("compteurs").upsert({cle:"facture", valeur: num}, {onConflict: 'cle'});
     
     for (const ligne of lignes) { 
       if (ligne.stock_id) { 
@@ -1590,12 +1647,26 @@ async function updateStatut(id, st) {
 }
 
 async function deleteFacture(id) { 
-  if (profil.role !== "PDG") return; 
-  if (!confirm("Supprimer ?")) return; 
+  if (profil.role !== "PDG") {
+    alert("⛔ Seul le PDG peut supprimer une facture.");
+    return; 
+  }
+  
   const fa = data.factures.find(x => x.id === id);
+  if (!fa) return;
+
+  // Double confirmation si la facture est déjà payée
+  let message = `Voulez-vous vraiment supprimer la facture ${fa.numero} ?`;
+  if (fa.statut === "Payé") {
+    message = `⚠️ ATTENTION : Cette facture est marquée comme PAYÉE.\n\nÊtes-vous sûr de vouloir la supprimer définitivement de l'historique ?`;
+  }
+
+  if (!confirm(message)) return; 
+  
   await supa.from("factures").delete().eq("id", id); 
-  await jlog("Suppression facture", fa?.numero || id, `Client: ${fa?.client_nom || 'Inconnu'}, Montant: ${f(fa?.total_ttc)}`);
+  await jlog("Suppression facture", fa.numero, `Client: ${fa.client_nom}, Montant: ${f(fa.total_ttc)}, Statut: ${fa.statut}`);
   await loadAllData(); 
+  toast("Facture supprimée.");
 }
 
 async function deleteDevis(id) { 
