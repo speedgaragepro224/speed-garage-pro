@@ -138,29 +138,9 @@ div[style*="display:flex"] > div, div[style*="display:flex"] > input, div[style*
 .grid { grid-template-columns: 1fr; }
 .card { padding: 15px; margin-bottom: 12px; }
 }
-.btn-action {
-display: inline-flex;
-align-items: center;
-justify-content: center;
-gap: 8px;
-border-radius: 12px;
-padding: 12px 18px;
-font-weight: 700;
-font-size: 14px;
-cursor: pointer;
-border: none;
-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-text-decoration: none;
-color: #fff;
-box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-.btn-action:hover {
-transform: translateY(-3px) scale(1.02);
-box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-}
-.btn-action:active {
-transform: translateY(0) scale(0.98);
-}
+.btn-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; padding: 12px 18px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+.btn-action:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+.btn-action:active { transform: translateY(0) scale(0.98); }
 .btn-print { background: linear-gradient(135deg, #4b5563, #374151); }
 .btn-print:hover { box-shadow: 0 8px 25px rgba(75, 85, 99, 0.5); }
 .btn-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
@@ -171,12 +151,7 @@ transform: translateY(0) scale(0.98);
 .btn-facture:hover { box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5); }
 .btn-delete { background: linear-gradient(135deg, #ef4444, #dc2626); }
 .btn-delete:hover { box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5); }
-.btn-group {
-display: flex;
-gap: 10px;
-flex-wrap: wrap;
-margin-top: 15px;
-}
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
 </style>
 </head>
 <body>
@@ -195,7 +170,7 @@ const $ = id => document.getElementById(id);
 const e = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const f = n => (+n || 0).toLocaleString("fr-FR", {maximumFractionDigits:0}) + " GNF";
 
-// VARIABLES GLOBALES - CORRECTION DU BUG PRINCIPAL
+// VARIABLES GLOBALES
 let dLignes = [{d:"",q:1,p:0}];
 let dLignesMO = [{d:"",q:1,p:0}];
 let dMemo = { client: "", veh: "", immat: "", km: "", motif: "", delai: "", paiement: "", garantie: "", acompte: "", vehicule_id: "" };
@@ -229,6 +204,7 @@ let jourSelectionne = null;
 let editDevisId = null;
 let editFactureId = null;
 let clientVehiculeId = null;
+
 let stockCategories = { "Lubrifiants": ["Huiles", "Liquides"], "Filtres": ["Filtre à huile", "Filtre à air", "Filtre à carburant", "Filtre habitacle", "Autres"], "Freinage": ["Plaquettes", "Disques", "Mâchoires", "Liquide"], "Électricité": ["Fusibles", "Ampoules", "Cosses"], "Entretien": ["Nettoyage", "Protection", "Graisses"], "Pneumatiques": ["Valves", "Masses"], "Diesel": ["Additifs", "Nettoyants"] };
 let currentStockCat = "";
 let currentStockSubCat = "";
@@ -273,9 +249,9 @@ const rdvJour = data.rdv.filter(r => r.date_rdv === new Date().toISOString().sli
 const stockBas = data.stock.filter(s => +s.qte <= +s.seuil_alerte);
 const impayees = data.factures.filter(f => f.statut === "En attente" || f.statut === "En cours");
 let msg = "📢 Vos notifications du jour :\n";
-if (rdvJour.length > 0) msg += `📅 ${rdvJour.length} rendez-vous aujourd'hui.\n`;
-if (stockBas.length > 0) msg += `📦 ${stockBas.length} article(s) en rupture de stock.\n`;
-if (impayees.length > 0) msg += `⏳ ${impayees.length} facture(s) en attente de paiement.\n`;
+if (rdvJour.length > 0) msg += "📅 " + rdvJour.length + " rendez-vous aujourd'hui.\n";
+if (stockBas.length > 0) msg += "📦 " + stockBas.length + " article(s) en rupture de stock.\n";
+if (impayees.length > 0) msg += "⏳ " + impayees.length + " facture(s) en attente de paiement.\n";
 if (rdvJour.length === 0 && stockBas.length === 0 && impayees.length === 0) msg = "✅ Tout est à jour ! Aucune alerte.";
 alert(msg);
 }
@@ -595,14 +571,14 @@ A.innerHTML = htmlCalendrier + formHtml + listeHtml;
 async function definirRappel(clientId) {
 const cl = data.clients.find(c => c.id === clientId);
 if (!cl) return;
-let type = prompt(`Type de rappel pour ${cl.nom} ?\nTapez le chiffre :\n1 = Diagnostic général\n2 = Rappel d'entretien périodique\n3 = Changement de filtre`, "2");
+let type = prompt("Type de rappel pour " + cl.nom + " ?\n1 = Diagnostic général\n2 = Rappel d'entretien périodique\n3 = Changement de filtre", "2");
 if (type === null) return;
 if (type === "1") type = "Diagnostic général";
 else if (type === "3") type = "Changement de filtre";
 else type = "Rappel d'entretien périodique";
-const km = prompt(`Rappel pour ${cl.nom} : À quel kilométrage ? (ex: 65000)`, cl.prochain_km || "");
+const km = prompt("Rappel pour " + cl.nom + " : À quel kilométrage ? (ex: 65000)", cl.prochain_km || "");
 if (km === null) return;
-const mois = prompt(`Dans combien de mois souhaitez-vous rappeler ${cl.nom} ? (ex: 6)`, "6");
+const mois = prompt("Dans combien de mois souhaitez-vous rappeler " + cl.nom + " ? (ex: 6)", "6");
 if (mois === null) return;
 let dateStr = null;
 if (mois && !isNaN(mois)) {
@@ -616,7 +592,7 @@ const { error } = await supa.from("clients").update({ prochain_km: +km || 0, pro
 if (error) { alert("Erreur : " + error.message); return; }
 await jlog("Rappel modifié", `${cl.nom}`, `Type: ${type}, Km: ${km}, Dans: ${mois} mois`);
 await loadAllData();
-toast(`✅ Rappel programmé dans ${mois} mois !`);
+toast("✅ Rappel programmé dans " + mois + " mois !");
 }
 
 async function sauverRappel() {
@@ -648,9 +624,9 @@ formHtml = `<div class="card" style="border:2px solid var(--r)">
 ${v ? `<div style="background:var(--bg); padding:10px; border-radius:8px; margin-bottom:10px; font-size:13px"><b>Véhicule :</b> ${e(v.marque)} ${e(v.modele)} (${e(v.immat)})<br><b>VIN :</b> ${e(v.vin || "Non renseigné")}<br><b>Dernier km :</b> ${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + " km" : "Non renseigné"}</div>` : `<div class="m" style="margin-bottom:10px">Aucun véhicule enregistré.</div>`}
 <label class="m">Type de rappel</label>
 <select id="rap_type" style="margin-bottom:10px; font-weight: bold;">
-<option value="Diagnostic général" ${cl.type_rappel === 'Diagnostic général' ? 'selected' : ''} style="color: #3b82f6;">🔍 Diagnostic général</option>
-<option value="Rappel d'entretien périodique" ${cl.type_rappel === 'Rappel d\'entretien périodique' ? 'selected' : ''} style="color: #10b981;">🛠️ Rappel d'entretien périodique</option>
-<option value="Changement de filtre" ${cl.type_rappel === 'Changement de filtre' ? 'selected' : ''} style="color: #f59e0b;">🌬️ Changement de filtre</option>
+<option value="Diagnostic général" ${cl.type_rappel === 'Diagnostic général' ? 'selected' : ''}>🔍 Diagnostic général</option>
+<option value="Rappel d'entretien périodique" ${cl.type_rappel === 'Rappel d\'entretien périodique' ? 'selected' : ''}>🛠️ Rappel d'entretien périodique</option>
+<option value="Changement de filtre" ${cl.type_rappel === 'Changement de filtre' ? 'selected' : ''}>🌬️ Changement de filtre</option>
 </select>
 <label class="m">Prochain entretien km (ex: 65000)</label>
 <input id="rap_km" type="number" value="${cl.prochain_km || ''}">
@@ -671,8 +647,8 @@ const vehiculeClient = data.vehicules.find(v => v.client_id === c.id);
 if (vehiculeClient && vehiculeClient.kilometrage) dernierKm = vehiculeClient.kilometrage;
 let estDepasse = false, estBientot = false, motifAlerte = [];
 if (c.prochain_km > 0) {
-if (dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push(`Kilométrage dépassé (${dernierKm.toLocaleString('fr-FR')} km)`); }
-else if ((c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push(`Bientôt dû (reste ${(c.prochain_km - dernierKm).toLocaleString('fr-FR')} km)`); }
+if (dernierKm >= c.prochain_km) { estDepasse = true; motifAlerte.push("Kilométrage dépassé (" + dernierKm.toLocaleString('fr-FR') + " km)"); }
+else if ((c.prochain_km - dernierKm) <= 1000) { estBientot = true; motifAlerte.push("Bientôt dû (reste " + (c.prochain_km - dernierKm).toLocaleString('fr-FR') + " km)"); }
 }
 if (c.prochaine_date) {
 const dateRappel = new Date(c.prochaine_date + "T12:00:00").getTime();
@@ -884,154 +860,11 @@ const vehiculesHtml = sesVehicules.map(v => `
 </tr>
 `).join("");
 const w = window.open("", "_blank");
-w.document.write(`<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Reçu de dépôt - ${cl.nom}</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-@page { size: A4; margin: 0; }
-* { box-sizing: border-box; }
-body { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #222; margin: 0; padding: 0; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
-.header { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%); color: white; padding: 20px 35px; position: relative; overflow: hidden; }
-.header::before { content: ''; position: absolute; top: 0; right: 0; width: 40%; height: 100%; background: linear-gradient(135deg, transparent 0%, rgba(200,0,0,0.15) 100%); clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%); }
-.header-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
-.logo-area { display: flex; align-items: center; gap: 15px; }
-.logo-img { width: 130px; height: 130px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,0,0,0.3)); }
-.company-title { font-size: 28px; font-weight: 900; letter-spacing: 1px; margin: 0; }
-.company-title .red { color: #e50914; }
-.company-subtitle { font-size: 14px; font-weight: 700; letter-spacing: 3px; margin: 5px 0 0 0; color: #ddd; }
-.company-slogan { font-size: 22px; color: #e50914; margin: 8px 0 0 0; font-weight: 700; font-style: italic; }
-.services-bar { display: flex; justify-content: center; gap: 25px; margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; }
-.service-item { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; }
-.service-icon { width: 26px; height: 26px; background: rgba(229,9,20,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.red-bar { height: 4px; background: linear-gradient(90deg, #c00 0%, #e50914 50%, #c00 100%); }
-.content { padding: 25px 35px; position: relative; }
-.watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; font-weight: 900; color: rgba(200,0,0,0.04); letter-spacing: 5px; pointer-events: none; z-index: 0; white-space: nowrap; font-style: italic; }
-.recu-info-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative; z-index: 1; }
-.recu-number-block { font-size: 13px; line-height: 1.8; }
-.recu-number-block b { color: #c00; font-size: 16px; }
-.recu-title-badge { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px 45px; border-radius: 12px; font-size: 28px; font-weight: 900; letter-spacing: 3px; box-shadow: 0 4px 15px rgba(200,0,0,0.3); }
-.info-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; position: relative; z-index: 1; }
-.info-block { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; }
-.info-block-title { position: absolute; top: -12px; left: 15px; background: #c00; color: white; padding: 4px 15px; border-radius: 15px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-.info-block h3 { margin: 10px 0 5px 0; font-size: 16px; color: #111; }
-.info-block p { margin: 4px 0; font-size: 12px; line-height: 1.6; }
-.info-block .icon { display: inline-block; width: 18px; text-align: center; margin-right: 5px; }
-.info-line { display: flex; margin: 6px 0; font-size: 12px; }
-.info-line .label { width: 140px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 5px; }
-.info-line .value { flex: 1; border-bottom: 1px dotted #999; min-height: 18px; padding-left: 5px; color: #111; font-weight: 600; }
-.items-table { width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #c00; position: relative; z-index: 1; }
-.items-table thead th { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px; text-align: left; font-weight: 700; font-size: 13px; text-transform: uppercase; }
-.items-table tbody td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
-.items-table tbody tr:nth-child(even) { background: #fafafa; }
-.motif-section { background: #f9f9f9; border-left: 4px solid #c00; padding: 15px 20px; margin: 20px 0; border-radius: 4px; position: relative; z-index: 1; }
-.motif-section h4 { margin: 0 0 8px 0; color: #c00; font-size: 13px; text-transform: uppercase; }
-.motif-section p { margin: 5px 0; font-size: 12px; }
-.notice-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 15px; margin: 20px 0; font-size: 11px; color: #856404; position: relative; z-index: 1; }
-.signature-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0 20px 0; position: relative; z-index: 1; }
-.signature-box { text-align: center; }
-.signature-box h4 { background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0; }
-.signature-frame { border: 2px solid #ddd; border-radius: 8px; height: 80px; background: white; }
-.footer { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); color: white; padding: 20px 35px; display: flex; justify-content: space-between; align-items: center; position: relative; }
-.footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #c00, #e50914, #c00); }
-.footer-left { display: flex; align-items: center; gap: 15px; }
-.footer-phone { font-size: 24px; }
-.footer-phones { font-size: 12px; line-height: 1.6; font-weight: 600; }
-.footer-center { font-size: 11px; line-height: 1.5; text-align: center; }
-.footer-slogan { font-size: 22px; color: #e50914; font-weight: 700; font-style: italic; }
-@media print { body { background: white; padding: 0; } .page { box-shadow: none; margin: 0; width: 100%; } button { display: none; } }
-</style>
-</head>
-<body>
-<div class="page">
-<div class="header">
-<div class="header-top">
-<div class="logo-area">
-<img src="${LOGO_URL}" alt="Speed Garage Pro" class="logo-img" onerror="this.style.display='none'">
-<div>
-<h1 class="company-title">SPEED <span class="red">GARAGE</span> PRO SARL</h1>
-<p class="company-subtitle">MÉCANIQUE • PIÈCES DÉTACHÉES</p>
-<p class="company-slogan">Votre partenaire automobile</p>
-</div>
-</div>
-</div>
-<div class="services-bar">
-<div class="service-item"><div class="service-icon">🔧</div><div>Entretien<br>Réparation</div></div>
-<div class="service-item"><div class="service-icon">⚙️</div><div>Diagnostic<br>Auto</div></div>
-<div class="service-item"><div class="service-icon">🛞</div><div>Pneumatiques<br>& Équilibrage</div></div>
-<div class="service-item"><div class="service-icon">🔑</div><div>Décodage<br>de Clés</div></div>
-</div>
-</div>
-<div class="red-bar"></div>
-<div class="content">
-<div class="watermark">SPEED GARAGE PRO</div>
-<div class="recu-info-row">
-<div class="recu-number-block">
-<div>N° Reçu : <b>${e(numeroRecu)}</b></div>
-<div>Date de dépôt : <b>${e(dateDepot)}</b> à <b>${e(heureDepot)}</b></div>
-</div>
-<div class="recu-title-badge">REÇU DE DÉPÔT</div>
-</div>
-<div class="info-blocks">
-<div class="info-block">
-<div class="info-block-title">Société</div>
-<h3>${e(p.nom || "SPEED GARAGE PRO SARL")}</h3>
-<p><span class="icon">📍</span> ${e(p.adresse || "Transversale T8, Quartier Samatran, Commune Kagbelen, Conakry – Guinée")}</p>
-<p><span class="icon">📞</span> ${e(p.telephone || "+224 628 00 00 00 / 622 00 00 00")}</p>
-<p><span class="icon">✉️</span> ${e(p.email || "speedgaragepro3@gmail.com")}</p>
-</div>
-<div class="info-block">
-<div class="info-block-title">Informations Client</div>
-<div class="info-line"><span class="label">Nom / Société :</span><span class="value">${e(cl.nom || "")}</span></div>
-<div class="info-line"><span class="label">Téléphone :</span><span class="value">${e(cl.tel || "")}</span></div>
-<div class="info-line"><span class="label">Adresse :</span><span class="value">${e(cl.adr || "")}</span></div>
-</div>
-</div>
-<table class="items-table">
-<thead>
-<tr>
-<th style="width: 35%;">Véhicule</th>
-<th style="width: 20%;">Immatriculation</th>
-<th style="width: 25%;">Kilométrage</th>
-<th style="width: 20%;">Carburant</th>
-</tr>
-</thead>
-<tbody>${vehiculesHtml}</tbody>
-</table>
-<div class="motif-section">
-<h4>📋 Motif du dépôt</h4>
-<p><strong>Motif :</strong> ${e(motif || "Entretien")}</p>
-<p><strong>Nombre de véhicule(s) déposé(s) :</strong> ${sesVehicules.length}</p>
-<p><strong>Date de réception :</strong> ${e(dateDepot)} à ${e(heureDepot)}</p>
-</div>
-<div class="notice-box">
-<strong>⚠️ Important :</strong> Ce reçu atteste du dépôt de votre(vos) véhicule(s) dans nos locaux. Veuillez le conserver précieusement. Il vous sera demandé lors du retrait. SPEED GARAGE PRO SARL décline toute responsabilité en cas de perte de ce document.
-</div>
-<div class="signature-section">
-<div class="signature-box"><h4>Signature du Client</h4><div class="signature-frame"></div></div>
-<div class="signature-box"><h4>Cachet et Signature du Garage</h4><div class="signature-frame" style="display: flex; align-items: center; justify-content: center; color: #c00; font-weight: 900; font-size: 11px;">SPEED GARAGE PRO SARL</div></div>
-</div>
-</div>
-<div class="footer">
-<div class="footer-left">
-<div class="footer-phone">📞</div>
-<div class="footer-phones">${e(p.telephone || "+224 628 00 00 00<br>+224 622 00 00 00")}</div>
-</div>
-<div class="footer-center">📍 ${e(p.adresse || "Transversale T8, Quartier Samatran<br>Commune Kagbelen, Conakry – Guinée")}</div>
-<div class="footer-slogan">Roulez en toute confiance !</div>
-</div>
-</div>
-<div style="text-align: center; margin: 20px 0; padding-bottom: 20px;">
-<button onclick="window.print()" style="padding: 14px 50px; font-size: 15px; background: #e50914; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 800; font-family: 'Montserrat', sans-serif; box-shadow: 0 4px 15px rgba(229,9,20,0.4); letter-spacing: 1px;">🖨️ IMPRIMER LE REÇU</button>
-</div>
-</body>
-</html>`);
+w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Reçu de dépôt - ${cl.nom}</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet"><style>@page { size: A4; margin: 0; } * { box-sizing: border-box; } body { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #222; margin: 0; padding: 0; background: #f5f5f5; } .page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; } .header { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%); color: white; padding: 20px 35px; position: relative; overflow: hidden; } .header-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; } .logo-area { display: flex; align-items: center; gap: 15px; } .logo-img { width: 130px; height: 130px; object-fit: contain; } .company-title { font-size: 28px; font-weight: 900; letter-spacing: 1px; margin: 0; } .company-title .red { color: #e50914; } .company-subtitle { font-size: 14px; font-weight: 700; letter-spacing: 3px; margin: 5px 0 0 0; color: #ddd; } .company-slogan { font-size: 22px; color: #e50914; margin: 8px 0 0 0; font-weight: 700; font-style: italic; } .services-bar { display: flex; justify-content: center; gap: 25px; margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; } .service-item { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; } .service-icon { width: 26px; height: 26px; background: rgba(229,9,20,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; } .red-bar { height: 4px; background: linear-gradient(90deg, #c00 0%, #e50914 50%, #c00 100%); } .content { padding: 25px 35px; position: relative; } .recu-info-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative; z-index: 1; } .recu-number-block { font-size: 13px; line-height: 1.8; } .recu-number-block b { color: #c00; font-size: 16px; } .recu-title-badge { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px 45px; border-radius: 12px; font-size: 28px; font-weight: 900; letter-spacing: 3px; box-shadow: 0 4px 15px rgba(200,0,0,0.3); } .info-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; position: relative; z-index: 1; } .info-block { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; } .info-block-title { position: absolute; top: -12px; left: 15px; background: #c00; color: white; padding: 4px 15px; border-radius: 15px; font-size: 11px; font-weight: 700; text-transform: uppercase; } .info-block h3 { margin: 10px 0 5px 0; font-size: 16px; color: #111; } .info-block p { margin: 4px 0; font-size: 12px; line-height: 1.6; } .info-block .icon { display: inline-block; width: 18px; text-align: center; margin-right: 5px; } .info-line { display: flex; margin: 6px 0; font-size: 12px; } .info-line .label { width: 140px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 5px; } .info-line .value { flex: 1; border-bottom: 1px dotted #999; min-height: 18px; padding-left: 5px; color: #111; font-weight: 600; } .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #c00; position: relative; z-index: 1; } .items-table thead th { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px; text-align: left; font-weight: 700; font-size: 13px; text-transform: uppercase; } .items-table tbody td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; } .items-table tbody tr:nth-child(even) { background: #fafafa; } .motif-section { background: #f9f9f9; border-left: 4px solid #c00; padding: 15px 20px; margin: 20px 0; border-radius: 4px; position: relative; z-index: 1; } .motif-section h4 { margin: 0 0 8px 0; color: #c00; font-size: 13px; text-transform: uppercase; } .motif-section p { margin: 5px 0; font-size: 12px; } .notice-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 15px; margin: 20px 0; font-size: 11px; color: #856404; position: relative; z-index: 1; } .signature-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 40px 0 20px 0; position: relative; z-index: 1; } .signature-box { text-align: center; } .signature-box h4 { background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0; } .signature-frame { border: 2px solid #ddd; border-radius: 8px; height: 80px; background: white; } .footer { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); color: white; padding: 20px 35px; display: flex; justify-content: space-between; align-items: center; position: relative; } .footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #c00, #e50914, #c00); } .footer-left { display: flex; align-items: center; gap: 15px; } .footer-phone { font-size: 24px; } .footer-phones { font-size: 12px; line-height: 1.6; font-weight: 600; } .footer-center { font-size: 11px; line-height: 1.5; text-align: center; } .footer-slogan { font-size: 22px; color: #e50914; font-weight: 700; font-style: italic; } @media print { body { background: white; padding: 0; } .page { box-shadow: none; margin: 0; width: 100%; } button { display: none; } }</style></head><body><div class="page"><div class="header"><div class="header-top"><div class="logo-area"><img src="${LOGO_URL}" alt="Speed Garage Pro" class="logo-img" onerror="this.style.display='none'"><div><h1 class="company-title">SPEED <span class="red">GARAGE</span> PRO SARL</h1><p class="company-subtitle">MÉCANIQUE • PIÈCES DÉTACHÉES</p><p class="company-slogan">Votre partenaire automobile</p></div></div></div><div class="services-bar"><div class="service-item"><div class="service-icon">🔧</div><div>Entretien<br>Réparation</div></div><div class="service-item"><div class="service-icon">⚙️</div><div>Diagnostic<br>Auto</div></div><div class="service-item"><div class="service-icon">🛞</div><div>Pneumatiques<br>& Équilibrage</div></div><div class="service-item"><div class="service-icon">🔑</div><div>Décodage<br>de Clés</div></div></div></div><div class="red-bar"></div><div class="content"><div class="recu-info-row"><div class="recu-number-block"><div>N° Reçu : <b>${e(numeroRecu)}</b></div><div>Date de dépôt : <b>${e(dateDepot)}</b> à <b>${e(heureDepot)}</b></div></div><div class="recu-title-badge">REÇU DE DÉPÔT</div></div><div class="info-blocks"><div class="info-block"><div class="info-block-title">Société</div><h3>${e(p.nom || "SPEED GARAGE PRO SARL")}</h3><p><span class="icon">📍</span> ${e(p.adresse || "Transversale T8, Quartier Samatran, Commune Kagbelen, Conakry – Guinée")}</p><p><span class="icon">📞</span> ${e(p.telephone || "+224 628 00 00 00 / 622 00 00 00")}</p><p><span class="icon">✉️</span> ${e(p.email || "speedgaragepro3@gmail.com")}</p></div><div class="info-block"><div class="info-block-title">Informations Client</div><div class="info-line"><span class="label">Nom / Société :</span><span class="value">${e(cl.nom || "")}</span></div><div class="info-line"><span class="label">Téléphone :</span><span class="value">${e(cl.tel || "")}</span></div><div class="info-line"><span class="label">Adresse :</span><span class="value">${e(cl.adr || "")}</span></div></div></div><table class="items-table"><thead><tr><th style="width: 35%;">Véhicule</th><th style="width: 20%;">Immatriculation</th><th style="width: 25%;">Kilométrage</th><th style="width: 20%;">Carburant</th></tr></thead><tbody>${vehiculesHtml}</tbody></table><div class="motif-section"><h4>📋 Motif du dépôt</h4><p><strong>Motif :</strong> ${e(motif || "Entretien")}</p><p><strong>Nombre de véhicule(s) déposé(s) :</strong> ${sesVehicules.length}</p><p><strong>Date de réception :</strong> ${e(dateDepot)} à ${e(heureDepot)}</p></div><div class="notice-box"><strong>⚠️ Important :</strong> Ce reçu atteste du dépôt de votre(vos) véhicule(s) dans nos locaux. Veuillez le conserver précieusement. Il vous sera demandé lors du retrait. SPEED GARAGE PRO SARL décline toute responsabilité en cas de perte de ce document.</div><div class="signature-section"><div class="signature-box"><h4>Signature du Client</h4><div class="signature-frame"></div></div><div class="signature-box"><h4>Cachet et Signature du Garage</h4><div class="signature-frame" style="display: flex; align-items: center; justify-content: center; color: #c00; font-weight: 900; font-size: 11px;">SPEED GARAGE PRO SARL</div></div></div></div><div class="footer"><div class="footer-left"><div class="footer-phone">📞</div><div class="footer-phones">${e(p.telephone || "+224 628 00 00 00<br>+224 622 00 00 00")}</div></div><div class="footer-center">📍 ${e(p.adresse || "Transversale T8, Quartier Samatran<br>Commune Kagbelen, Conakry – Guinée")}</div><div class="footer-slogan">Roulez en toute confiance !</div></div></div><div style="text-align: center; margin: 20px 0; padding-bottom: 20px;"><button onclick="window.print()" style="padding: 14px 50px; font-size: 15px; background: #e50914; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 800; font-family: 'Montserrat', sans-serif; box-shadow: 0 4px 15px rgba(229,9,20,0.4); letter-spacing: 1px;">🖨️ IMPRIMER LE REÇU</button></div></body></html>`);
 w.document.close();
 }
 
+// FONCTION renderVehicules CORRIGÉE - Bouton Retour GARANTI VISIBLE
 function renderVehicules(A) {
 if (vehiculeDetailId) {
 const v = data.vehicules.find(x => x.id === vehiculeDetailId);
@@ -1039,39 +872,39 @@ if (!v) { vehiculeDetailId = null; render(); return; }
 const cl = data.clients.find(c => c.id === v.client_id);
 const facturesVeh = data.factures.filter(f => (f.immat||"").toUpperCase() === (v.immat||"").toUpperCase()).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
 const devisVeh = data.devis.filter(d => (d.immat||"").toUpperCase() === (v.immat||"").toUpperCase()).sort((a,b) => new Date(b.date_emission) - new Date(a.date_emission));
+const totalFactures = facturesVeh.reduce((sum, fa) => sum + (+fa.total_ttc || 0), 0);
 
 A.innerHTML = `
-<div class="card" style="background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); border: 2px solid #e50914; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(229, 9, 20, 0.3);">
-<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-<button onclick="vehiculeDetailId=null; render();" style="
-display: inline-flex;
-align-items: center;
-gap: 12px;
-background: linear-gradient(135deg, #e50914 0%, #ff2d3b 100%);
-color: #ffffff;
-border: none;
-border-radius: 12px;
-padding: 14px 28px;
-font-size: 15px;
-font-weight: 700;
-cursor: pointer;
-box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5);
-transition: all 0.3s ease;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-font-family: 'Inter', sans-serif;
+<div class="card" style="border-top:4px solid var(--r); position: relative;">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+<button type="button" onclick="vehiculeDetailId=null; render();" class="btn-action" style="
+display: inline-flex !important;
+align-items: center !important;
+justify-content: center !important;
+gap: 10px !important;
+background: linear-gradient(135deg, #e50914 0%, #ff2d3b 100%) !important;
+color: #ffffff !important;
+border: none !important;
+border-radius: 12px !important;
+padding: 14px 28px !important;
+font-size: 15px !important;
+font-weight: 800 !important;
+cursor: pointer !important;
+box-shadow: 0 4px 20px rgba(229, 9, 20, 0.5) !important;
+text-transform: uppercase !important;
+letter-spacing: 0.5px !important;
+font-family: 'Inter', sans-serif !important;
+white-space: nowrap !important;
+min-width: fit-content !important;
+flex-shrink: 0 !important;
 ">
 <i class="fa-solid fa-arrow-left" style="font-size: 16px;"></i>
-Retour à la liste des véhicules
+RETOUR À LA LISTE
 </button>
-<div style="color: #a1a1aa; font-size: 13px;">
-<i class="fa-solid fa-car" style="margin-right: 6px;"></i>
-Fiche véhicule détaillée
+<div style="font-size: 12px; color: var(--m); padding-top: 10px; display: flex; align-items: center; gap: 6px;">
+<i class="fa-solid fa-car"></i> Fiche véhicule détaillée
 </div>
 </div>
-</div>
-
-<div class="card" style="border-top:4px solid var(--r)">
 <div style="display:flex; align-items:center; gap:15px;">
 <div style="font-size:40px; background:var(--bg); padding:15px; border-radius:12px;">🚗</div>
 <div>
@@ -1082,15 +915,15 @@ Fiche véhicule détaillée
 </div>
 <div class="card">
 <h3 class="section-title">🧾 Historique des Factures</h3>
-${facturesVeh.length > 0 ? facturesVeh.map(f => `
+${facturesVeh.length > 0 ? facturesVeh.map(fa => `
 <div class="row">
 <div>
-<b>${e(f.numero)}</b> <span class="tag" style="background:${f.statut === 'Payé' ? 'var(--ok)' : 'var(--r)'}; color:#fff;">${e(f.statut)}</span><br>
-<span class="m">${new Date(f.date_emission).toLocaleDateString('fr-FR')} · Technicien: ${e(f.technicien || '—')}</span>
+<b>${e(fa.numero)}</b> <span class="tag" style="background:${fa.statut === 'Payé' ? 'var(--ok)' : 'var(--r)'}; color:#fff;">${e(fa.statut)}</span><br>
+<span class="m">${new Date(fa.date_emission).toLocaleDateString('fr-FR')} · Technicien: ${e(fa.technicien || '—')}</span>
 </div>
 <div style="text-align:right;">
-<b>${f(f.total_ttc)}</b><br>
-<button class="s" onclick="printFacture('${f.id}')">🖨️</button>
+<b>${f(fa.total_ttc)}</b><br>
+<button class="s" onclick="printFacture('${fa.id}')">🖨️</button>
 </div>
 </div>
 `).join("") : '<div class="m">Aucune facture pour ce véhicule.</div>'}
@@ -1130,6 +963,7 @@ ${liste.map(v => { const cl = data.clients.find(c => c.id === v.client_id); retu
 </div>`; }).join("") || '<div class="card m">Aucun véhicule enregistré.</div>'}
 </div>`;
 }
+
 function filterVehicules() {
 const input = $("search_vehicule"); if (!input) return;
 q = input.value;
@@ -1207,8 +1041,8 @@ const dv_garantie = $("dv_garantie"); if (!dv_garantie.value.trim()) { dv_garant
 const dv_acompte = $("dv_acompte"); if (!dv_acompte.value || +dv_acompte.value < 0) { dv_acompte.classList.add('erreur'); erreurs.push("• Acompte"); }
 const lignesPieces = dLignes.filter(l => l.d.trim()); const lignesMO = dLignesMO.filter(l => l.d.trim());
 if (lignesPieces.length === 0 && lignesMO.length === 0) erreurs.push("• Au moins une pièce OU main d'œuvre");
-dLignes.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push(`• Prix manquant : ${l.d}`); });
-dLignesMO.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push(`• Coût manquant : ${l.d}`); });
+dLignes.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push("• Prix manquant : " + l.d); });
+dLignesMO.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push("• Coût manquant : " + l.d); });
 return erreurs;
 }
 
@@ -1369,8 +1203,8 @@ const fc_acompte = $("fc_acompte"); if (!fc_acompte.value || +fc_acompte.value <
 const fc_paiement = $("fc_paiement"); if (!fc_paiement.value) { fc_paiement.classList.add('erreur'); erreurs.push("• Mode de paiement"); }
 const lignes = fLignes.filter(l => l.d.trim()); const lignesMO = fLignesMO.filter(l => l.d.trim());
 if (lignes.length === 0 && lignesMO.length === 0) erreurs.push("• Au moins une pièce OU main d'œuvre");
-fLignes.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push(`• Prix manquant : ${l.d}`); });
-fLignesMO.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push(`• Coût manquant : ${l.d}`); });
+fLignes.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push("• Prix manquant : " + l.d); });
+fLignesMO.forEach(l => { if (l.d.trim() && (!l.p || l.p <= 0)) erreurs.push("• Coût manquant : " + l.d); });
 const fc_technicien = $("fc_technicien");
 if (!fc_technicien.value.trim()) { fc_technicien.classList.add('erreur'); erreurs.push("• Technicien(s) ayant intervenu"); }
 return erreurs;
@@ -1400,7 +1234,7 @@ const ht = factTotHT(), ttc = ht + (ht*tv/100);
 const estEnEdition = editFactureId !== null;
 const acompte = +$("fc_acompte")?.value || +fMemo.acompte || 0;
 const reste = ttc - acompte;
-A.innerHTML += `${peutEditer ? `<div class="card" style="${estEnEdition ? 'border:2px solid #f59e0b' : ''}">
+A.innerHTML = `${peutEditer ? `<div class="card" style="${estEnEdition ? 'border:2px solid #f59e0b' : ''}">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px"><b>${estEnEdition ? '✏️ Modifier la facture' : '➕ Créer une facture'}</b>${estEnEdition ? `<button class="s" onclick="annulerEditionFacture()" style="color:#f59e0b">✕ Annuler</button>` : ''}</div>
 <select id="fc_client" onchange="remplirVehiculeFacture(this.value)"><option value="">Client… *</option>${data.clients.map(c=>`<option value="${c.id}" ${c.id===fMemo.client?'selected':''}>${e(c.nom)}</option>`).join("")}</select>
 <div style="display:flex; gap:8px; margin-bottom:15px" id="fc_info_vehicule">
@@ -1591,8 +1425,8 @@ await loadAllData();
 async function deleteFacture(id) {
 if (profil.role !== "PDG") { alert("⛔ Seul le PDG peut supprimer une facture."); return; }
 const fa = data.factures.find(x => x.id === id); if (!fa) return;
-let message = `Voulez-vous vraiment supprimer la facture ${fa.numero} ?`;
-if (fa.statut === "Payé") { message = `⚠️ ATTENTION : Cette facture est marquée comme PAYÉE.\nÊtes-vous sûr de vouloir la supprimer définitivement de l'historique ?`; }
+let message = "Voulez-vous vraiment supprimer la facture " + fa.numero + " ?";
+if (fa.statut === "Payé") { message = "⚠️ ATTENTION : Cette facture est marquée comme PAYÉE.\nÊtes-vous sûr de vouloir la supprimer définitivement de l'historique ?"; }
 if (!confirm(message)) return;
 await supa.from("factures").delete().eq("id", id);
 await jlog("Suppression facture", fa.numero, `Client: ${fa.client_nom}, Montant: ${f(fa.total_ttc)}, Statut: ${fa.statut}`);
@@ -1664,186 +1498,7 @@ const acompte = doc.acompte || 0;
 const reste = doc.statut === "Payé" ? 0 : ((+doc.total_ttc||0) - acompte);
 const tv = +(data.params.tva_taux||18);
 const dateEmission = doc.date_emission || new Date().toLocaleDateString('fr-FR');
-w.document.write(`<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>${type} ${numero}</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-@page { size: A4; margin: 0; }
-* { box-sizing: border-box; }
-body { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #222; margin: 0; padding: 0; background: #f5f5f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
-.header { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%); color: white; padding: 20px 35px; position: relative; overflow: hidden; }
-.header::before { content: ''; position: absolute; top: 0; right: 0; width: 40%; height: 100%; background: linear-gradient(135deg, transparent 0%, rgba(200,0,0,0.15) 100%); clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%); }
-.header-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
-.logo-area { display: flex; align-items: center; gap: 15px; }
-.logo-img { width: 130px; height: 130px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,0,0,0.3)); }
-.company-title { font-size: 28px; font-weight: 900; letter-spacing: 1px; margin: 0; }
-.company-title .red { color: #e50914; }
-.company-subtitle { font-size: 14px; font-weight: 700; letter-spacing: 3px; margin: 5px 0 0 0; color: #ddd; }
-.company-slogan { font-size: 22px; color: #e50914; margin: 8px 0 0 0; font-weight: 700; font-style: italic; }
-.services-bar { display: flex; justify-content: center; gap: 25px; margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; }
-.service-item { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; }
-.service-icon { width: 26px; height: 26px; background: rgba(229,9,20,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.red-bar { height: 4px; background: linear-gradient(90deg, #c00 0%, #e50914 50%, #c00 100%); }
-.content { padding: 25px 35px; position: relative; }
-.watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 110px; font-weight: 900; color: rgba(200,0,0,0.04); letter-spacing: 5px; pointer-events: none; z-index: 0; white-space: nowrap; font-style: italic; }
-.invoice-info-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative; z-index: 1; }
-.invoice-number-block { font-size: 13px; line-height: 1.8; }
-.invoice-number-block b { color: #c00; font-size: 16px; }
-.invoice-title-badge { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px 45px; border-radius: 12px; font-size: 32px; font-weight: 900; letter-spacing: 3px; box-shadow: 0 4px 15px rgba(200,0,0,0.3); }
-.info-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; position: relative; z-index: 1; }
-.info-block { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; }
-.info-block-title { position: absolute; top: -12px; left: 15px; background: #c00; color: white; padding: 4px 15px; border-radius: 15px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-.info-block h3 { margin: 10px 0 5px 0; font-size: 16px; color: #111; }
-.info-block p { margin: 4px 0; font-size: 12px; line-height: 1.6; }
-.info-block .icon { display: inline-block; width: 18px; text-align: center; margin-right: 5px; }
-.info-line { display: flex; margin: 6px 0; font-size: 12px; }
-.info-line .label { width: 140px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 5px; }
-.info-line .value { flex: 1; border-bottom: 1px dotted #999; min-height: 18px; padding-left: 5px; color: #111; font-weight: 600; }
-.items-table { width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #c00; position: relative; z-index: 1; }
-.items-table thead th { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px; text-align: left; font-weight: 700; font-size: 13px; text-transform: uppercase; }
-.items-table thead th:last-child { text-align: right; }
-.items-table tbody td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
-.items-table tbody tr:nth-child(even) { background: #fafafa; }
-.totals-section { display: flex; justify-content: flex-end; margin: 20px 0; position: relative; z-index: 1; }
-.totals-table { width: 320px; border-collapse: collapse; }
-.totals-table td { padding: 10px 15px; border-bottom: 1px solid #ddd; font-size: 13px; }
-.totals-table td:first-child { text-align: right; font-weight: 600; color: #555; width: 60%; }
-.totals-table td:last-child { text-align: right; font-weight: 700; font-size: 14px; }
-.totals-table tr.total-row { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; }
-.totals-table tr.total-row td { border: none; font-size: 16px; font-weight: 900; padding: 14px 15px; }
-.totals-table tr.total-row td:first-child { color: white; }
-.conditions-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; position: relative; z-index: 1; }
-.conditions-block h4 { background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0; }
-.conditions-block ul { list-style: none; padding: 0; margin: 0; }
-.conditions-block li { padding: 4px 0; font-size: 12px; }
-.conditions-block li::before { content: '✓'; color: #2ecc40; font-weight: bold; margin-right: 8px; }
-.remarks-block p { font-size: 12px; font-style: italic; margin: 5px 0; line-height: 1.6; }
-.remarks-block .brand { color: #c00; font-weight: 800; font-style: normal; }
-.signatures-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0; position: relative; z-index: 1; }
-.signature-box { text-align: center; }
-.signature-box h4 { background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0; }
-.signature-frame { border: 2px solid #ddd; border-radius: 8px; height: 100px; background: white; }
-.footer { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); color: white; padding: 20px 35px; display: flex; justify-content: center; align-items: center; position: relative; }
-.footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #c00, #e50914, #c00); }
-.footer-slogan { font-size: 24px; color: #e50914; font-weight: 700; font-style: italic; }
-@media print { body { background: white; padding: 0; } .page { box-shadow: none; margin: 0; width: 100%; } button { display: none; } }
-</style>
-</head>
-<body>
-<div class="page">
-<div class="header">
-<div class="header-top">
-<div class="logo-area">
-<img src="${LOGO_URL}" alt="Speed Garage Pro" class="logo-img" onerror="this.style.display='none'">
-<div>
-<h1 class="company-title">SPEED <span class="red">GARAGE</span> PRO SARL</h1>
-<p class="company-subtitle">MÉCANIQUE • PIÈCES DÉTACHÉES</p>
-<p class="company-slogan">Votre partenaire automobile</p>
-</div>
-</div>
-</div>
-<div class="services-bar">
-<div class="service-item"><div class="service-icon">🔧</div><div>Entretien<br>Réparation</div></div>
-<div class="service-item"><div class="service-icon">⚙️</div><div>Diagnostic<br>Auto</div></div>
-<div class="service-item"><div class="service-icon">🛞</div><div>Pneumatiques<br>& Équilibrage</div></div>
-<div class="service-item"><div class="service-icon">🔑</div><div>Décodage<br>de Clés</div></div>
-</div>
-</div>
-<div class="red-bar"></div>
-<div class="content">
-<div class="watermark">SPEED GARAGE PRO</div>
-<div class="invoice-info-row">
-<div class="invoice-number-block">
-<div>N° ${type} : <b>${e(numero)}</b></div>
-<div>Date d'émission : ${e(dateEmission)}</div>
-</div>
-<div class="invoice-title-badge">${type}</div>
-</div>
-<div class="info-blocks">
-<div class="info-block">
-<div class="info-block-title">Société</div>
-<h3>${e(p.nom || "SPEED GARAGE PRO SARL")}</h3>
-<p><span class="icon">📍</span> ${e(p.adresse || "Transversale T8, Quartier Samatran, Commune Kagbelen, Conakry – Guinée")}</p>
-<p><span class="icon">📞</span> ${e(p.telephone || "+224 628 00 00 00 / 622 00 00 00")}</p>
-<p><span class="icon">✉️</span> ${e(p.email || "speedgaragepro3@gmail.com")}</p>
-</div>
-<div class="info-block">
-<div class="info-block-title">Informations Client</div>
-<div class="info-line"><span class="label">Nom / Société :</span><span class="value">${e(doc.client_nom || "")}</span></div>
-<div class="info-line"><span class="label">Téléphone :</span><span class="value">${e(client.tel || "")}</span></div>
-<div class="info-line"><span class="label">Adresse :</span><span class="value">${e(client.adr || "")}</span></div>
-</div>
-</div>
-<div class="info-block" style="margin-bottom: 20px;">
-<div class="info-block-title">Identification du Véhicule</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-<div class="info-line"><span class="label">🚗 Marque / Modèle :</span><span class="value">${e(v.marque || doc.vehicule || "")} ${e(v.modele || "")}</span></div>
-<div class="info-line"><span class="label">🔢 Immatriculation :</span><span class="value">${e(v.immat || doc.immat || "")}</span></div>
-<div class="info-line"><span class="label">🆔 DIN / VIN :</span><span class="value">${e(v.vin || "")}</span></div>
-<div class="info-line"><span class="label">🛣️ Kilométrage :</span><span class="value">${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : ''}</span></div>
-</div>
-</div>
-<table class="items-table">
-<thead>
-<tr>
-<th style="width: 50%;">Désignation</th>
-<th style="width: 12%;">Qté</th>
-<th style="width: 19%;">PU (GNF)</th>
-<th style="width: 19%;">Total (GNF)</th>
-</tr>
-</thead>
-<tbody>${lignesHtml}</tbody>
-</table>
-<div class="totals-section">
-<table class="totals-table">
-<tr><td>Sous-total HT :</td><td>${(+doc.total_ht||0).toLocaleString("fr-FR")}</td></tr>
-<tr><td>Remise :</td><td>0</td></tr>
-${acompte > 0 ? `<tr><td>Acompte versé :</td><td style="color: #c00;">- ${acompte.toLocaleString("fr-FR")}</td></tr>` : ''}
-<tr class="total-row"><td>${doc.statut === "Payé" ? "TOTAL PAYÉ :" : "TOTAL À PAYER :"}</td><td>${(+doc.total_ttc||0).toLocaleString("fr-FR")} GNF</td></tr>
-${(reste > 0 && doc.statut !== "Payé") ? `<tr><td style="color: #c00;">Reste à payer :</td><td style="color: #c00;">${reste.toLocaleString("fr-FR")} GNF</td></tr>` : ''}
-</table>
-</div>
-<div class="conditions-section">
-<div class="conditions-block">
-<h4>Conditions de Paiement</h4>
-<ul>
-<li>Paiement à la commande ou à la réception des travaux</li>
-<li>Délai de règlement : selon accord</li>
-</ul>
-</div>
-<div class="remarks-block">
-<h4 style="background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0;">Remarques</h4>
-<p>Merci de votre confiance.</p>
-<p>À très bientôt chez <span class="brand">SPEED GARAGE PRO</span> !</p>
-</div>
-</div>
-<div class="signatures-section">
-<div class="signature-box">
-<h4>Signature du Client</h4>
-<div class="signature-frame"></div>
-</div>
-<div class="signature-box">
-<h4>Cachet et Signature</h4>
-<div class="signature-frame" style="display: flex; align-items: center; justify-content: center; color: #ccc; font-weight: 900; font-size: 12px; letter-spacing: 1px;">SPEED GARAGE PRO</div>
-<div style="margin-top: 10px; font-size: 11px; color: #666; font-style: italic;">
-Technicien(s) : ${e(doc.technicien || "Non spécifié")}
-</div>
-</div>
-</div>
-</div>
-<div class="footer">
-<div class="footer-slogan">Roulez en toute confiance !</div>
-</div>
-</div>
-<div style="text-align: center; margin: 20px 0; padding-bottom: 20px;">
-<button onclick="window.print()" style="padding: 14px 50px; font-size: 15px; background: #e50914; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 800; font-family: 'Montserrat', sans-serif; box-shadow: 0 4px 15px rgba(229,9,20,0.4); letter-spacing: 1px;">🖨️ IMPRIMER LE DOCUMENT</button>
-</div>
-</body>
-</html>`);
+w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet"><style>@page { size: A4; margin: 0; } * { box-sizing: border-box; } body { font-family: 'Montserrat', sans-serif; font-size: 12px; color: #222; margin: 0; padding: 0; background: #f5f5f5; } .page { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; } .header { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%); color: white; padding: 20px 35px; position: relative; overflow: hidden; } .header-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; } .logo-area { display: flex; align-items: center; gap: 15px; } .logo-img { width: 130px; height: 130px; object-fit: contain; } .company-title { font-size: 28px; font-weight: 900; letter-spacing: 1px; margin: 0; } .company-title .red { color: #e50914; } .company-subtitle { font-size: 14px; font-weight: 700; letter-spacing: 3px; margin: 5px 0 0 0; color: #ddd; } .company-slogan { font-size: 22px; color: #e50914; margin: 8px 0 0 0; font-weight: 700; font-style: italic; } .services-bar { display: flex; justify-content: center; gap: 25px; margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); position: relative; z-index: 2; } .service-item { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; } .service-icon { width: 26px; height: 26px; background: rgba(229,9,20,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; } .red-bar { height: 4px; background: linear-gradient(90deg, #c00 0%, #e50914 50%, #c00 100%); } .content { padding: 25px 35px; position: relative; } .invoice-info-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative; z-index: 1; } .invoice-number-block { font-size: 13px; line-height: 1.8; } .invoice-number-block b { color: #c00; font-size: 16px; } .invoice-title-badge { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px 45px; border-radius: 12px; font-size: 32px; font-weight: 900; letter-spacing: 3px; box-shadow: 0 4px 15px rgba(200,0,0,0.3); } .info-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; position: relative; z-index: 1; } .info-block { border: 1px solid #ddd; border-radius: 8px; padding: 15px; position: relative; background: white; } .info-block-title { position: absolute; top: -12px; left: 15px; background: #c00; color: white; padding: 4px 15px; border-radius: 15px; font-size: 11px; font-weight: 700; text-transform: uppercase; } .info-block h3 { margin: 10px 0 5px 0; font-size: 16px; color: #111; } .info-block p { margin: 4px 0; font-size: 12px; line-height: 1.6; } .info-block .icon { display: inline-block; width: 18px; text-align: center; margin-right: 5px; } .info-line { display: flex; margin: 6px 0; font-size: 12px; } .info-line .label { width: 140px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 5px; } .info-line .value { flex: 1; border-bottom: 1px dotted #999; min-height: 18px; padding-left: 5px; color: #111; font-weight: 600; } .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; border: 1px solid #c00; position: relative; z-index: 1; } .items-table thead th { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; padding: 12px; text-align: left; font-weight: 700; font-size: 13px; text-transform: uppercase; } .items-table thead th:last-child { text-align: right; } .items-table tbody td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 13px; } .items-table tbody tr:nth-child(even) { background: #fafafa; } .totals-section { display: flex; justify-content: flex-end; margin: 20px 0; position: relative; z-index: 1; } .totals-table { width: 320px; border-collapse: collapse; } .totals-table td { padding: 10px 15px; border-bottom: 1px solid #ddd; font-size: 13px; } .totals-table td:first-child { text-align: right; font-weight: 600; color: #555; width: 60%; } .totals-table td:last-child { text-align: right; font-weight: 700; font-size: 14px; } .totals-table tr.total-row { background: linear-gradient(135deg, #c00 0%, #e50914 100%); color: white; } .totals-table tr.total-row td { border: none; font-size: 16px; font-weight: 900; padding: 14px 15px; } .totals-table tr.total-row td:first-child { color: white; } .conditions-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; position: relative; z-index: 1; } .conditions-block h4 { background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0; } .conditions-block ul { list-style: none; padding: 0; margin: 0; } .conditions-block li { padding: 4px 0; font-size: 12px; } .conditions-block li::before { content: '✓'; color: #2ecc40; font-weight: bold; margin-right: 8px; } .remarks-block p { font-size: 12px; font-style: italic; margin: 5px 0; line-height: 1.6; } .remarks-block .brand { color: #c00; font-weight: 800; font-style: normal; } .signatures-section { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0; position: relative; z-index: 1; } .signature-box { text-align: center; } .signature-box h4 { background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0; } .signature-frame { border: 2px solid #ddd; border-radius: 8px; height: 100px; background: white; } .footer { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); color: white; padding: 20px 35px; display: flex; justify-content: center; align-items: center; position: relative; } .footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #c00, #e50914, #c00); } .footer-slogan { font-size: 24px; color: #e50914; font-weight: 700; font-style: italic; } @media print { body { background: white; padding: 0; } .page { box-shadow: none; margin: 0; width: 100%; } button { display: none; } }</style></head><body><div class="page"><div class="header"><div class="header-top"><div class="logo-area"><img src="${LOGO_URL}" alt="Speed Garage Pro" class="logo-img" onerror="this.style.display='none'"><div><h1 class="company-title">SPEED <span class="red">GARAGE</span> PRO SARL</h1><p class="company-subtitle">MÉCANIQUE • PIÈCES DÉTACHÉES</p><p class="company-slogan">Votre partenaire automobile</p></div></div></div><div class="services-bar"><div class="service-item"><div class="service-icon">🔧</div><div>Entretien<br>Réparation</div></div><div class="service-item"><div class="service-icon">⚙️</div><div>Diagnostic<br>Auto</div></div><div class="service-item"><div class="service-icon">🛞</div><div>Pneumatiques<br>& Équilibrage</div></div><div class="service-item"><div class="service-icon">🔑</div><div>Décodage<br>de Clés</div></div></div></div><div class="red-bar"></div><div class="content"><div class="invoice-info-row"><div class="invoice-number-block"><div>N° ${type} : <b>${e(numero)}</b></div><div>Date d'émission : ${e(dateEmission)}</div></div><div class="invoice-title-badge">${type}</div></div><div class="info-blocks"><div class="info-block"><div class="info-block-title">Société</div><h3>${e(p.nom || "SPEED GARAGE PRO SARL")}</h3><p><span class="icon">📍</span> ${e(p.adresse || "Transversale T8, Quartier Samatran, Commune Kagbelen, Conakry – Guinée")}</p><p><span class="icon">📞</span> ${e(p.telephone || "+224 628 00 00 00 / 622 00 00 00")}</p><p><span class="icon">✉️</span> ${e(p.email || "speedgaragepro3@gmail.com")}</p></div><div class="info-block"><div class="info-block-title">Informations Client</div><div class="info-line"><span class="label">Nom / Société :</span><span class="value">${e(doc.client_nom || "")}</span></div><div class="info-line"><span class="label">Téléphone :</span><span class="value">${e(client.tel || "")}</span></div><div class="info-line"><span class="label">Adresse :</span><span class="value">${e(client.adr || "")}</span></div></div></div><div class="info-block" style="margin-bottom: 20px;"><div class="info-block-title">Identification du Véhicule</div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;"><div class="info-line"><span class="label">🚗 Marque / Modèle :</span><span class="value">${e(v.marque || doc.vehicule || "")} ${e(v.modele || "")}</span></div><div class="info-line"><span class="label">🔢 Immatriculation :</span><span class="value">${e(v.immat || doc.immat || "")}</span></div><div class="info-line"><span class="label">🆔 DIN / VIN :</span><span class="value">${e(v.vin || "")}</span></div><div class="info-line"><span class="label">🛣️ Kilométrage :</span><span class="value">${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : ''}</span></div></div></div><table class="items-table"><thead><tr><th style="width: 50%;">Désignation</th><th style="width: 12%;">Qté</th><th style="width: 19%;">PU (GNF)</th><th style="width: 19%;">Total (GNF)</th></tr></thead><tbody>${lignesHtml}</tbody></table><div class="totals-section"><table class="totals-table"><tr><td>Sous-total HT :</td><td>${(+doc.total_ht||0).toLocaleString("fr-FR")}</td></tr><tr><td>Remise :</td><td>0</td></tr>${acompte > 0 ? `<tr><td>Acompte versé :</td><td style="color: #c00;">- ${acompte.toLocaleString("fr-FR")}</td></tr>` : ''}<tr class="total-row"><td>${doc.statut === "Payé" ? "TOTAL PAYÉ :" : "TOTAL À PAYER :"}</td><td>${(+doc.total_ttc||0).toLocaleString("fr-FR")} GNF</td></tr>${(reste > 0 && doc.statut !== "Payé") ? `<tr><td style="color: #c00;">Reste à payer :</td><td style="color: #c00;">${reste.toLocaleString("fr-FR")} GNF</td></tr>` : ''}</table></div><div class="conditions-section"><div class="conditions-block"><h4>Conditions de Paiement</h4><ul><li>Paiement à la commande ou à la réception des travaux</li><li>Délai de règlement : selon accord</li></ul></div><div class="remarks-block"><h4 style="background: #c00; color: white; padding: 6px 15px; border-radius: 15px; display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin: 0 0 10px 0;">Remarques</h4><p>Merci de votre confiance.</p><p>À très bientôt chez <span class="brand">SPEED GARAGE PRO</span> !</p></div></div><div class="signatures-section"><div class="signature-box"><h4>Signature du Client</h4><div class="signature-frame"></div></div><div class="signature-box"><h4>Cachet et Signature</h4><div class="signature-frame" style="display: flex; align-items: center; justify-content: center; color: #ccc; font-weight: 900; font-size: 12px; letter-spacing: 1px;">SPEED GARAGE PRO</div><div style="margin-top: 10px; font-size: 11px; color: #666; font-style: italic;">Technicien(s) : ${e(doc.technicien || "Non spécifié")}</div></div></div></div><div class="footer"><div class="footer-slogan">Roulez en toute confiance !</div></div></div><div style="text-align: center; margin: 20px 0; padding-bottom: 20px;"><button onclick="window.print()" style="padding: 14px 50px; font-size: 15px; background: #e50914; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 800; font-family: 'Montserrat', sans-serif; box-shadow: 0 4px 15px rgba(229,9,20,0.4); letter-spacing: 1px;">🖨️ IMPRIMER LE DOCUMENT</button></div></body></html>`);
 w.document.close();
 }
 
@@ -2041,37 +1696,27 @@ w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Bullet
 w.document.close();
 }
 
-async function addDepense() { 
-  const cat = $("dep_cat").value, desc = $("dep_desc").value.trim(), montant = +$("dep_montant").value || 0, dateVal = $("dep_date").value || new Date().toISOString().slice(0,10); 
-  const salNom = $("dep_sal_nom").value.trim(), salPrenom = $("dep_sal_prenom").value.trim(), salFonction = $("dep_sal_fonction").value.trim(); 
-  if (!desc || montant <= 0) { alert("Description et montant obligatoires."); return; } 
-  const { error } = await supa.from("depenses").insert({ categorie: cat, description: desc, montant, date_depense: dateVal, salarie_nom: salNom, salarie_prenom: salPrenom, salarie_fonction: salFonction, created_by: session.user.id }); 
-  if (error) { alert("Erreur : " + error.message); return; } 
-  await jlog("Nouvelle dépense", desc, cat); 
-  $("dep_desc").value = ""; $("dep_montant").value = ""; $("dep_sal_nom").value = ""; $("dep_sal_prenom").value = ""; $("dep_sal_fonction").value = ""; 
-  await loadAllData(); 
-  toast("Dépense enregistrée !");
-}
+async function addDepense() { const cat = $("dep_cat").value, desc = $("dep_desc").value.trim(), montant = +$("dep_montant").value || 0, dateVal = $("dep_date").value || new Date().toISOString().slice(0,10); const salNom = $("dep_sal_nom").value.trim(), salPrenom = $("dep_sal_prenom").value.trim(), salFonction = $("dep_sal_fonction").value.trim(); if (!desc || montant <= 0) { alert("Description et montant obligatoires."); return; } const { error } = await supa.from("depenses").insert({ categorie: cat, description: desc, montant, date_depense: dateVal, salarie_nom: salNom, salarie_prenom: salPrenom, salarie_fonction: salFonction, created_by: session.user.id }); if (error) { alert("Erreur : " + error.message); return; } await jlog("Nouvelle dépense", desc, cat); $("dep_desc").value = ""; $("dep_montant").value = ""; $("dep_sal_nom").value = ""; $("dep_sal_prenom").value = ""; $("dep_sal_fonction").value = ""; await loadAllData(); }
 
 async function deleteDepense(id) {
-  if (!profil || !ROLES[profil.role]?.can.deleteAny) { alert("⛔ Vous n'êtes pas autorisé à supprimer une dépense."); return; }
-  if (!id) { alert("❌ Identifiant de dépense invalide."); return; }
-  if (!confirm("⚠️ Voulez-vous vraiment supprimer cette dépense ?")) { return; }
-  try {
-    const { data: deleted, error } = await supa.from("depenses").delete().eq("id", id).select("id");
-    if (error) { throw error; }
-    if (!deleted || deleted.length === 0) { alert("Aucune dépense supprimée. Vérifiez les autorisations."); return; }
-    await jlog("Suppression dépense", id, "Dépense supprimée par " + profil.username);
-    await loadAllData();
-    toast("Dépense supprimée avec succès.");
-  } catch (error) { console.error("Erreur suppression dépense :", error); alert("❌ Erreur : " + error.message); }
+if (!profil || !ROLES[profil.role]?.can.deleteAny) { alert("⛔ Vous n'êtes pas autorisé à supprimer une dépense."); return; }
+if (!id) { alert("❌ Identifiant de dépense invalide."); return; }
+if (!confirm("⚠️ Voulez-vous vraiment supprimer cette dépense ?")) { return; }
+try {
+const { data: deleted, error } = await supa.from("depenses").delete().eq("id", id).select("id");
+if (error) { throw error; }
+if (!deleted || deleted.length === 0) { alert("Aucune dépense supprimée. Vérifiez les autorisations."); return; }
+await jlog("Suppression dépense", id, "Dépense supprimée par " + profil.username);
+await loadAllData();
+toast("Dépense supprimée avec succès.");
+} catch (error) { console.error("Erreur suppression dépense :", error); alert("❌ Erreur : " + error.message); }
 }
 
 function renderDepenses(A){
-  if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){ A.innerHTML=`<div class="card m">Réservé au PDG et à la Secrétaire.</div>`; return; }
-  const peutSupprimer = (profil.role==="PDG");
-  const total=data.depenses.reduce((a,d)=>a+(+d.montant||0),0);
-  A.innerHTML=`<div class="card"><b>➕ Enregistrer une dépense</b>
+if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){ A.innerHTML=`<div class="card m">Réservé au PDG et à la Secrétaire.</div>`; return; }
+const peutSupprimer = (profil.role==="PDG");
+const total=data.depenses.reduce((a,d)=>a+(+d.montant||0),0);
+A.innerHTML=`<div class="card"><b>➕ Enregistrer une dépense</b>
 <select id="dep_cat"><option value="Achat pièces">Achat de pièces</option><option value="Salaires">Salaires</option><option value="Loyer">Loyer</option><option value="Électricité">Électricité</option><option value="Eau">Eau</option><option value="Carburant">Carburant</option><option value="Entretien">Entretien</option><option value="Fournitures">Fournitures</option><option value="Frais de déplacement">Frais de déplacement</option><option value="Appel téléphonique">Appel téléphonique</option><option value="Connexion internet">Connexion Internet</option><option value="Divers">Divers</option></select>
 <div style="display:flex;gap:8px;margin-bottom:8px"><input id="dep_sal_nom" placeholder="Nom salarié" style="flex:1"><input id="dep_sal_prenom" placeholder="Prénom" style="flex:1"><input id="dep_sal_fonction" placeholder="Fonction" style="flex:1"></div>
 <input id="dep_desc" placeholder="Description / Motif">
@@ -2085,80 +1730,80 @@ ${data.depenses.map(d=>`<tr><td>${new Date(d.date_depense).toLocaleDateString('f
 }
 
 async function addFournisseur(){
-  if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){alert("Accès refusé.");return}
-  const nom=$("f_nom").value.trim();
-  if(!nom){alert("Nom obligatoire.");return}
-  const{error}=await supa.from("fournisseurs").insert({nom,contact:$("f_contact").value.trim(),telephone:$("f_tel").value.trim(),adresse:$("f_adr").value.trim()});
-  if(error){alert("Erreur : "+error.message);return}
-  await jlog("Ajout fournisseur",nom,"");
-  await loadAllData();
-  toast("Fournisseur ajouté !");
+if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){alert("Accès refusé.");return}
+const nom=$("f_nom").value.trim();
+if(!nom){alert("Nom obligatoire.");return}
+const{error}=await supa.from("fournisseurs").insert({nom,contact:$("f_contact").value.trim(),telephone:$("f_tel").value.trim(),adresse:$("f_adr").value.trim()});
+if(error){alert("Erreur : "+error.message);return}
+await jlog("Ajout fournisseur",nom,"");
+await loadAllData();
+toast("Fournisseur ajouté !");
 }
 
 async function deleteFournisseur(id) {
-  if (!profil || profil.role !== "PDG") { alert("⛔ Seul le PDG peut supprimer un fournisseur."); return; }
-  if (!id) { alert("❌ Identifiant du fournisseur invalide."); return; }
-  const fournisseur = data.fournisseurs.find(f => f.id === id);
-  if (!fournisseur) { alert("❌ Fournisseur introuvable."); return; }
-  const commandesLiees = (data.commandes || []).filter(c => c.fournisseur_id === id);
-  if (commandesLiees.length > 0) { alert("⚠️ Ce fournisseur possède des commandes. Suppression impossible."); return; }
-  if (!confirm(`Voulez-vous vraiment supprimer le fournisseur "${fournisseur.nom}" ?`)) return;
-  try {
-    const { data: deleted, error } = await supa.from("fournisseurs").delete().eq("id", id).select("id");
-    if (error) throw error;
-    if (!deleted || deleted.length === 0) { alert("❌ Suppression non effectuée. Vérifiez les autorisations."); return; }
-    await jlog("Suppression fournisseur", fournisseur.nom, "Fournisseur supprimé par " + profil.username);
-    await loadAllData();
-    toast("Fournisseur supprimé.");
-  } catch (error) { console.error("Erreur suppression fournisseur :", error); alert("❌ Erreur : " + error.message); }
+if (!profil || profil.role !== "PDG") { alert("⛔ Seul le PDG peut supprimer un fournisseur."); return; }
+if (!id) { alert("❌ Identifiant du fournisseur invalide."); return; }
+const fournisseur = data.fournisseurs.find(f => f.id === id);
+if (!fournisseur) { alert("❌ Fournisseur introuvable."); return; }
+const commandesLiees = (data.commandes || []).filter(c => c.fournisseur_id === id);
+if (commandesLiees.length > 0) { alert("⚠️ Ce fournisseur possède des commandes. Suppression impossible."); return; }
+if (!confirm(`Voulez-vous vraiment supprimer le fournisseur "${fournisseur.nom}" ?`)) return;
+try {
+const { data: deleted, error } = await supa.from("fournisseurs").delete().eq("id", id).select("id");
+if (error) throw error;
+if (!deleted || deleted.length === 0) { alert("❌ Suppression non effectuée. Vérifiez les autorisations."); return; }
+await jlog("Suppression fournisseur", fournisseur.nom, "Fournisseur supprimé par " + profil.username);
+await loadAllData();
+toast("Fournisseur supprimé.");
+} catch (error) { console.error("Erreur suppression fournisseur :", error); alert("❌ Erreur : " + error.message); }
 }
 
 async function addCommande(){
-  if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){alert("Accès refusé.");return}
-  const fid=$("c_fournisseur").value,desc=$("c_desc").value.trim(),montant=parseFloat($("c_montant").value)||0,montantPaye=parseFloat($("c_montant_paye").value)||0,dateVal=$("c_date").value||new Date().toISOString().slice(0,10);
-  if(!fid||!desc||montant<=0){alert("Veuillez remplir correctement.");return}
-  const fournisseur=data.fournisseurs.find(x=>x.id===fid),statut=montantPaye>=montant?"Payé":(montantPaye>0?"Partiel":"Commandé"),{error}=await supa.from("commandes").insert({fournisseur_id:fid,fournisseur_nom:fournisseur.nom,description:desc,montant,montant_paye:montantPaye,statut,date_commande:dateVal});
-  if(error){alert("Erreur : "+error.message);return}
-  await jlog("Nouvelle commande",desc,`${fournisseur.nom} - ${f(montant)}`);
-  $("c_fournisseur").value="";$("c_desc").value="";$("c_montant").value="";$("c_montant_paye").value="";
-  await loadAllData();
-  toast("Commande enregistrée !");
+if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){alert("Accès refusé.");return}
+const fid=$("c_fournisseur").value,desc=$("c_desc").value.trim(),montant=parseFloat($("c_montant").value)||0,montantPaye=parseFloat($("c_montant_paye").value)||0,dateVal=$("c_date").value||new Date().toISOString().slice(0,10);
+if(!fid||!desc||montant<=0){alert("Veuillez remplir correctement.");return}
+const fournisseur=data.fournisseurs.find(x=>x.id===fid),statut=montantPaye>=montant?"Payé":(montantPaye>0?"Partiel":"Commandé"),{error}=await supa.from("commandes").insert({fournisseur_id:fid,fournisseur_nom:fournisseur.nom,description:desc,montant,montant_paye:montantPaye,statut,date_commande:dateVal});
+if(error){alert("Erreur : "+error.message);return}
+await jlog("Nouvelle commande",desc,`${fournisseur.nom} - ${f(montant)}`);
+$("c_fournisseur").value="";$("c_desc").value="";$("c_montant").value="";$("c_montant_paye").value="";
+await loadAllData();
+toast("Commande enregistrée !");
 }
 
 async function payerSolde(id){
-  if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){alert("Accès refusé.");return}
-  const c=data.commandes.find(x=>x.id===id);
-  if(!c)return;
-  const reste=c.montant-(c.montant_paye||0);
-  if(!confirm(`Payer le solde de ${f(reste)} ?`))return;
-  await supa.from("commandes").update({montant_paye:c.montant,statut:"Payé"}).eq("id",id);
-  await jlog("Paiement fournisseur",c.fournisseur_nom,`Solde : ${f(reste)}`);
-  await loadAllData();
-  toast("Commande soldée avec succès !");
+if(profil.role!=="PDG" && profil.role!=="SECRETAIRE"){alert("Accès refusé.");return}
+const c=data.commandes.find(x=>x.id===id);
+if(!c)return;
+const reste=c.montant-(c.montant_paye||0);
+if(!confirm(`Payer le solde de ${f(reste)} ?`))return;
+await supa.from("commandes").update({montant_paye:c.montant,statut:"Payé"}).eq("id",id);
+await jlog("Paiement fournisseur",c.fournisseur_nom,`Solde : ${f(reste)}`);
+await loadAllData();
+toast("Commande soldée avec succès !");
 }
 
 async function deleteCommande(id) {
-  if (!profil || profil.role !== "PDG") { alert("⛔ Seul le PDG peut supprimer une commande."); return; }
-  if (!id) { alert("❌ Identifiant de commande invalide."); return; }
-  const commande = (data.commandes || []).find(c => c.id === id);
-  if (!commande) { alert("❌ Commande introuvable."); return; }
-  if (!confirm("⚠️ Voulez-vous vraiment supprimer cette commande ?\nMontant : " + f(commande.montant) + "\nStatut : " + commande.statut + "\nCette action est irréversible.")) return;
-  try {
-    const { data: deleted, error } = await supa.from("commandes").delete().eq("id", id).select("id");
-    if (error) throw error;
-    if (!deleted || deleted.length === 0) { alert("❌ Suppression non effectuée. Vérifiez les autorisations."); return; }
-    await jlog("Suppression commande", id, "Montant : " + f(commande.montant) + " | Statut : " + commande.statut + " | Supprimée par : " + profil.username);
-    await loadAllData();
-    toast("Commande supprimée.");
-  } catch (error) { console.error("Erreur suppression commande :", error); alert("❌ Erreur : " + error.message); }
+if (!profil || profil.role !== "PDG") { alert("⛔ Seul le PDG peut supprimer une commande."); return; }
+if (!id) { alert("❌ Identifiant de commande invalide."); return; }
+const commande = (data.commandes || []).find(c => c.id === id);
+if (!commande) { alert("❌ Commande introuvable."); return; }
+if (!confirm("⚠️ Voulez-vous vraiment supprimer cette commande ?\nMontant : " + f(commande.montant) + "\nStatut : " + commande.statut + "\nCette action est irréversible.")) return;
+try {
+const { data: deleted, error } = await supa.from("commandes").delete().eq("id", id).select("id");
+if (error) throw error;
+if (!deleted || deleted.length === 0) { alert("❌ Suppression non effectuée. Vérifiez les autorisations."); return; }
+await jlog("Suppression commande", id, "Montant : " + f(commande.montant) + " | Statut : " + commande.statut + " | Supprimée par : " + profil.username);
+await loadAllData();
+toast("Commande supprimée.");
+} catch (error) { console.error("Erreur suppression commande :", error); alert("❌ Erreur : " + error.message); }
 }
 
 function renderFournisseurs(A){
-  if(profil.role!=="PDG" && profil.role!=="SECRETAIRE" && profil.role!=="MARKETING"){ A.innerHTML=`<div class="card m">Accès refusé.</div>`; return; }
-  const peutEditer = (profil.role==="PDG" || profil.role==="SECRETAIRE");
-  const peutSupprimer = (profil.role==="PDG");
-  const dette=(data.commandes||[]).filter(c=>c.statut!=="Payé").reduce((a,c)=>a+((+c.montant||0)-(+c.montant_paye||0)),0);
-  A.innerHTML=`<div class="grid"><div class="kpi-card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
+if(profil.role!=="PDG" && profil.role!=="SECRETAIRE" && profil.role!=="MARKETING"){ A.innerHTML=`<div class="card m">Accès refusé.</div>`; return; }
+const peutEditer = (profil.role==="PDG" || profil.role==="SECRETAIRE");
+const peutSupprimer = (profil.role==="PDG");
+const dette=(data.commandes||[]).filter(c=>c.statut!=="Payé").reduce((a,c)=>a+((+c.montant||0)-(+c.montant_paye||0)),0);
+A.innerHTML=`<div class="grid"><div class="kpi-card" style="border-top:4px solid var(--r)"><div class="m">Dettes fournisseurs</div><div class="k" style="color:var(--r)">${f(dette)}</div></div></div>
 ${peutEditer?`<div class="card"><b>🏭 Nouveau fournisseur</b><div style="display:flex;gap:8px;margin-bottom:8px"><input id="f_nom" placeholder="Nom *" style="flex:2"><input id="f_contact" placeholder="Contact" style="flex:1"><input id="f_tel" placeholder="Téléphone" style="flex:1"></div><input id="f_adr" placeholder="Adresse" style="margin-bottom:8px"><button class="p" onclick="addFournisseur()">Ajouter</button></div>`:''}
 ${peutEditer?`<div class="card"><b>📦 Nouvelle commande</b><select id="c_fournisseur"><option value="">Choisir un fournisseur *</option>${data.fournisseurs.map(f=>`<option value="${f.id}">${e(f.nom)}</option>`).join("")}</select><input id="c_desc" placeholder="Description"><div style="display:flex;gap:8px;margin-bottom:8px"><input id="c_montant" type="number" placeholder="Montant total" style="flex:1"><input id="c_montant_paye" type="number" placeholder="Acompte" style="flex:1"><input id="c_date" type="date" value="${new Date().toISOString().slice(0,10)}" style="flex:1"></div><button class="p" onclick="addCommande()">Enregistrer</button></div>`:''}
 <div class="card"><b>📜 Historique</b><div style="overflow-x:auto"><table class="table-fournisseurs"><thead><tr><th>Date</th><th>Fournisseur</th><th>Description</th><th>Montant</th><th>Statut</th><th></th></tr></thead><tbody>
@@ -2168,26 +1813,26 @@ ${(data.commandes||[]).map(c=>{const reste=(+c.montant||0)-(+c.montant_paye||0);
 }
 
 async function viderJournal() {
-  if (profil.role !== "PDG") { alert("Seul le PDG peut vider le journal d'audit."); return; }
-  const nb = (data.journal || []).length;
-  if (nb === 0) { alert("Le journal est déjà vide."); return; }
-  if (!confirm(`⚠️ ATTENTION : Vous allez supprimer DÉFINITIVEMENT les ${nb} entrée(s) du journal d'audit.\nCette action est irréversible. Continuer ?`)) return;
-  if (!confirm("Dernière confirmation : supprimer TOUT le journal d'audit ?")) return;
-  const btn = document.querySelector('.btn-vider-journal');
-  if (btn) { btn.disabled = true; btn.textContent = "⏳ Purge en cours..."; }
-  try {
-    const { error } = await supa.from("journal").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    if (error) { if (btn) { btn.disabled = false; btn.textContent = "🗑️ Vider le journal"; } alert("Erreur lors de la suppression : " + error.message); return; }
-    await jlog("Vidage du journal d'audit", `${nb} entrée(s) supprimée(s)`, "Action PDG");
-    await loadAllData();
-    if (btn) { btn.disabled = false; btn.textContent = `✅ ${nb} ligne(s) supprimée(s)`; setTimeout(() => { if (btn) btn.textContent = "🗑️ Vider le journal"; }, 3000); }
-    alert("✅ Journal d'audit vidé avec succès.");
-  } catch (err) { if (btn) { btn.disabled = false; btn.textContent = "🗑️ Vider le journal"; } alert("Erreur : " + err.message); }
+if (profil.role !== "PDG") { alert("Seul le PDG peut vider le journal d'audit."); return; }
+const nb = (data.journal || []).length;
+if (nb === 0) { alert("Le journal est déjà vide."); return; }
+if (!confirm(`⚠️ ATTENTION : Vous allez supprimer DÉFINITIVEMENT les ${nb} entrée(s) du journal d'audit.\nCette action est irréversible. Continuer ?`)) return;
+if (!confirm("Dernière confirmation : supprimer TOUT le journal d'audit ?")) return;
+const btn = document.querySelector('.btn-vider-journal');
+if (btn) { btn.disabled = true; btn.textContent = "⏳ Purge en cours..."; }
+try {
+const { error } = await supa.from("journal").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+if (error) { if (btn) { btn.disabled = false; btn.textContent = "🗑️ Vider le journal"; } alert("Erreur lors de la suppression : " + error.message); return; }
+await jlog("Vidage du journal d'audit", `${nb} entrée(s) supprimée(s)`, "Action PDG");
+await loadAllData();
+if (btn) { btn.disabled = false; btn.textContent = `✅ ${nb} ligne(s) supprimée(s)`; setTimeout(() => { if (btn) btn.textContent = "🗑️ Vider le journal"; }, 3000); }
+alert("✅ Journal d'audit vidé avec succès.");
+} catch (err) { if (btn) { btn.disabled = false; btn.textContent = "🗑️ Vider le journal"; } alert("Erreur : " + err.message); }
 }
 
 function renderAudit(A) {
-  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
-  A.innerHTML = `
+if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+A.innerHTML = `
 <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
 <b style="font-size:18px;">🔍 Journal d'audit</b>
 <button class="s btn-vider-journal" onclick="viderJournal()" style="color:var(--r); border-color:var(--r);">🗑️ Vider le journal</button>
@@ -2203,30 +1848,30 @@ ${(data.journal || []).map(j => `<tr><td>${new Date(j.created_at).toLocaleString
 }
 
 function renderStats(A) {
-  if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
-  const caMois = {}; let totalCa = 0;
-  data.factures.filter(f => f.statut === "Payé").forEach(f => { const mois = (f.date_emission || "").slice(0,7); if (!mois) return; caMois[mois] = (caMois[mois] || 0) + (+f.total_ttc || 0); totalCa += (+f.total_ttc || 0); });
-  const totalSalaires = (data.paie || []).reduce((a,p) => a + (+p.solde||0), 0);
-  const totalDepenses = (data.depenses || []).reduce((a,d) => a + (+d.montant||0), 0);
-  const totalFournisseurs = (data.commandes || []).reduce((a,c) => a + (+c.montant_paye||0), 0);
-  const totalSorties = totalSalaires + totalDepenses + totalFournisseurs;
-  const beneficeNet = totalCa - totalSorties;
-  const clientStats = {}; data.factures.forEach(f => { if (f.client_nom) clientStats[f.client_nom] = (clientStats[f.client_nom] || 0) + (+f.total_ttc || 0); });
-  const topClients = Object.entries(clientStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
-  const techStats = {};
-  data.factures.forEach(f => {
-    if (f.technicien && f.technicien.trim() !== "") {
-      const noms = f.technicien.split(',').map(n => n.trim());
-      noms.forEach(nom => {
-        if (!nom) return;
-        if (!techStats[nom]) techStats[nom] = { count: 0, ca: 0 };
-        techStats[nom].count += 1;
-        techStats[nom].ca += (+f.total_ttc || 0);
-      });
-    }
-  });
-  const topTechs = Object.entries(techStats).sort((a,b) => b[1].ca - a[1].ca);
-  A.innerHTML = `
+if (profil.role !== "PDG") { A.innerHTML = `<div class="card m">Réservé au PDG.</div>`; return; }
+const caMois = {}; let totalCa = 0;
+data.factures.filter(f => f.statut === "Payé").forEach(f => { const mois = (f.date_emission || "").slice(0,7); if (!mois) return; caMois[mois] = (caMois[mois] || 0) + (+f.total_ttc || 0); totalCa += (+f.total_ttc || 0); });
+const totalSalaires = (data.paie || []).reduce((a,p) => a + (+p.solde||0), 0);
+const totalDepenses = (data.depenses || []).reduce((a,d) => a + (+d.montant||0), 0);
+const totalFournisseurs = (data.commandes || []).reduce((a,c) => a + (+c.montant_paye||0), 0);
+const totalSorties = totalSalaires + totalDepenses + totalFournisseurs;
+const beneficeNet = totalCa - totalSorties;
+const clientStats = {}; data.factures.forEach(f => { if (f.client_nom) clientStats[f.client_nom] = (clientStats[f.client_nom] || 0) + (+f.total_ttc || 0); });
+const topClients = Object.entries(clientStats).sort((a,b) => b[1] - a[1]).slice(0, 5);
+const techStats = {};
+data.factures.forEach(f => {
+if (f.technicien && f.technicien.trim() !== "") {
+const noms = f.technicien.split(',').map(n => n.trim());
+noms.forEach(nom => {
+if (!nom) return;
+if (!techStats[nom]) techStats[nom] = { count: 0, ca: 0 };
+techStats[nom].count += 1;
+techStats[nom].ca += (+f.total_ttc || 0);
+});
+}
+});
+const topTechs = Object.entries(techStats).sort((a,b) => b[1].ca - a[1].ca);
+A.innerHTML = `
 <div class="card">
 <b style="font-size:16px">💰 Tableau de bord financier</b>
 <div class="grid" style="margin-top:10px">
@@ -2245,77 +1890,32 @@ ${topTechs.length > 0 ? `<div style="overflow-x:auto;"><table><thead><tr><th>Ran
 }
 
 function renderParams(A) {
-  const p = data.params; const estPDG = (profil.role === "PDG");
-  A.innerHTML = `${estPDG ? `<div class="card"><b>Informations du garage</b><label class="m">Nom</label><input id="p_nom" value="${e(p.nom||"")}"><label class="m">NIF</label><input id="p_nif" value="${e(p.nif||"")}"><label class="m">RCCM</label><input id="p_rccm" value="${e(p.rccm||"")}"><label class="m">Adresse</label><input id="p_adr" value="${e(p.adresse||"")}"><label class="m">Téléphone</label><input id="p_tel" value="${e(p.telephone||"")}"><label class="m">TVA (%)</label><input id="p_tva" type="number" value="${e(p.tva_taux||"18")}"><button class="p" onclick="saveParams()">Enregistrer</button></div>` : ""}
+const p = data.params; const estPDG = (profil.role === "PDG");
+A.innerHTML = `${estPDG ? `<div class="card"><b>Informations du garage</b><label class="m">Nom</label><input id="p_nom" value="${e(p.nom||"")}"><label class="m">NIF</label><input id="p_nif" value="${e(p.nif||"")}"><label class="m">RCCM</label><input id="p_rccm" value="${e(p.rccm||"")}"><label class="m">Adresse</label><input id="p_adr" value="${e(p.adresse||"")}"><label class="m">Téléphone</label><input id="p_tel" value="${e(p.telephone||"")}"><label class="m">TVA (%)</label><input id="p_tva" type="number" value="${e(p.tva_taux||"18")}"><button class="p" onclick="saveParams()">Enregistrer</button></div>` : ""}
 <div class="card"><b>🔐 Changer mon mot de passe</b><p class="m">Saisissez votre ancien mot de passe.</p><input id="old_password" type="password" placeholder="Ancien mot de passe" style="margin-top:8px"><input id="new_password" type="password" placeholder="Nouveau mot de passe"><input id="confirm_password" type="password" placeholder="Confirmer"><button class="p" onclick="changerMotDePasse()">Mettre à jour</button></div>
 ${estPDG ? `<div class="card"><b>💾 Sauvegarde</b><button class="p" onclick="exportAll()">📥 Exporter</button><div style="margin-top:10px; border-top:1px solid var(--b); padding-top:10px"><input type="file" id="import_file" accept=".json" style="display:none" onchange="importAll(this)"><button class="p" onclick="document.getElementById('import_file').click()" style="background:#0891b2">📤 Importer</button></div></div>` : ""}`;
 }
 
-async function saveParams() { 
-  const updates = [{cle:"nom", valeur:$("p_nom").value.trim()},{cle:"nif", valeur:$("p_nif").value.trim()},{cle:"rccm", valeur:$("p_rccm").value.trim()},{cle:"adresse", valeur:$("p_adr").value.trim()},{cle:"telephone", valeur:$("p_tel").value.trim()},{cle:"tva_taux", valeur:$("p_tva").value.trim()}]; 
-  for (const u of updates) await supa.from("parametres").update({valeur:u.valeur}).eq("cle",u.cle); 
-  await loadAllData(); 
-  alert("Enregistré !"); 
-}
+async function saveParams() { const updates = [{cle:"nom", valeur:$("p_nom").value.trim()},{cle:"nif", valeur:$("p_nif").value.trim()},{cle:"rccm", valeur:$("p_rccm").value.trim()},{cle:"adresse", valeur:$("p_adr").value.trim()},{cle:"telephone", valeur:$("p_tel").value.trim()},{cle:"tva_taux", valeur:$("p_tva").value.trim()}]; for (const u of updates) await supa.from("parametres").update({valeur:u.valeur}).eq("cle",u.cle); await loadAllData(); alert("Enregistré !"); }
 
-async function changerMotDePasse() { 
-  const oldPass = $("old_password").value, newPass = $("new_password").value, confirmPass = $("confirm_password").value; 
-  if (!oldPass) { alert("Ancien mot de passe requis."); return; } 
-  if (newPass.length < 8) { alert("8 caractères minimum."); return; } 
-  if (newPass !== confirmPass) { alert("Les mots de passe ne correspondent pas."); return; } 
-  const { error: loginError } = await supa.auth.signInWithPassword({ email: session.user.email, password: oldPass }); 
-  if (loginError) { alert("Ancien mot de passe incorrect."); return; } 
-  const { error } = await supa.auth.updateUser({ password: newPass }); 
-  if (error) { alert("Erreur : " + error.message); } 
-  else { alert("✅ Mot de passe mis à jour !"); $("old_password").value = ""; $("new_password").value = ""; $("confirm_password").value = ""; } 
-}
+async function changerMotDePasse() { const oldPass = $("old_password").value, newPass = $("new_password").value, confirmPass = $("confirm_password").value; if (!oldPass) { alert("Ancien mot de passe requis."); return; } if (newPass.length < 8) { alert("8 caractères minimum."); return; } if (newPass !== confirmPass) { alert("Les mots de passe ne correspondent pas."); return; } const { error: loginError } = await supa.auth.signInWithPassword({ email: session.user.email, password: oldPass }); if (loginError) { alert("Ancien mot de passe incorrect."); return; } const { error } = await supa.auth.updateUser({ password: newPass }); if (error) { alert("Erreur : " + error.message); } else { alert("✅ Mot de passe mis à jour !"); $("old_password").value = ""; $("new_password").value = ""; $("confirm_password").value = ""; } }
 
-function exportAll() { 
-  const dataStr = JSON.stringify({ exporte_le: new Date().toISOString(), clients: data.clients, vehicules: data.vehicules, devis: data.devis, factures: data.factures, stock: data.stock, employes: data.employes, paie: data.paie, depenses: data.depenses, fournisseurs: data.fournisseurs, commandes: data.commandes, journal: data.journal }, null, 1); 
-  const blob = new Blob([dataStr], {type:"application/json"}); 
-  const a = document.createElement("a"); 
-  a.href = URL.createObjectURL(blob); 
-  a.download = "sauvegarde-speed-garage-" + new Date().toISOString().slice(0,10) + ".json"; 
-  a.click(); 
-}
+function exportAll() { const dataStr = JSON.stringify({ exporte_le: new Date().toISOString(), clients: data.clients, vehicules: data.vehicules, devis: data.devis, factures: data.factures, stock: data.stock, employes: data.employes, paie: data.paie, depenses: data.depenses, fournisseurs: data.fournisseurs, commandes: data.commandes, journal: data.journal }, null, 1); const blob = new Blob([dataStr], {type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "sauvegarde-speed-garage-" + new Date().toISOString().slice(0,10) + ".json"; a.click(); }
 
-function importAll(input) { 
-  const file = input.files[0]; 
-  if (!file) return; 
-  if (!confirm("⚠️ Ajouter les données du fichier ?")) { input.value = ""; return; } 
-  const reader = new FileReader(); 
-  reader.onload = async (e) => { 
-    try { 
-      const json = JSON.parse(e.target.result); 
-      if (!json.clients && !json.factures) { alert("Fichier invalide."); return; } 
-      alert("Importation..."); 
-      for (const c of (json.clients || [])) { delete c.id; await supa.from("clients").insert(c); } 
-      for (const v of (json.vehicules || [])) { delete v.id; await supa.from("vehicules").insert(v); } 
-      for (const d of (json.devis || [])) { delete d.id; await supa.from("devis").insert(d); } 
-      for (const fa of (json.factures || [])) { delete fa.id; await supa.from("factures").insert(fa); } 
-      alert("✅ Importation terminée !"); 
-      await loadAllData(); 
-    } catch(err) { alert("Erreur : " + err.message); } 
-  }; 
-  reader.readAsText(file); 
-}
+function importAll(input) { const file = input.files[0]; if (!file) return; if (!confirm("⚠️ Ajouter les données du fichier ?")) { input.value = ""; return; } const reader = new FileReader(); reader.onload = async (e) => { try { const json = JSON.parse(e.target.result); if (!json.clients && !json.factures) { alert("Fichier invalide."); return; } alert("Importation..."); for (const c of (json.clients || [])) { delete c.id; await supa.from("clients").insert(c); } for (const v of (json.vehicules || [])) { delete v.id; await supa.from("vehicules").insert(v); } for (const d of (json.devis || [])) { delete d.id; await supa.from("devis").insert(d); } for (const fa of (json.factures || [])) { delete fa.id; await supa.from("factures").insert(fa); } alert("✅ Importation terminée !"); await loadAllData(); } catch(err) { alert("Erreur : " + err.message); } }; reader.readAsText(file); }
 
-function renderLogout(A) { 
-  A.innerHTML = `<div class="card"><h3>Se déconnecter</h3><button class="p" onclick="logout()">Se déconnecter</button></div>`; 
-}
+function renderLogout(A) { A.innerHTML = `<div class="card"><h3>Se déconnecter</h3><button class="p" onclick="logout()">Se déconnecter</button></div>`; }
 
 (async () => {
-  showLock('<div class="loading">Chargement…</div>');
-  try {
-    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    supa.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") location.reload();
-    });
-    const { data: { session: s } } = await supa.auth.getSession();
-    if (s) { session = s; await loadProfil(); } else showLogin();
-  } catch(x) { 
-    showLock(`<div class="card" style="margin:40px auto;max-width:400px"><b>Erreur</b><p class="m">${e(x.message)}</p><button class="p" onclick="location.reload()">Réessayer</button></div>`); 
-  }
+showLock('<div class="loading">Chargement…</div>');
+try {
+supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+supa.auth.onAuthStateChange((event) => {
+if (event === "SIGNED_OUT") location.reload();
+});
+const { data: { session: s } } = await supa.auth.getSession();
+if (s) { session = s; await loadProfil(); } else showLogin();
+} catch(x) { showLock(`<div class="card" style="margin:40px auto;max-width:400px"><b>Erreur</b><p class="m">${e(x.message)}</p><button class="p" onclick="location.reload()">Réessayer</button></div>`); }
 })();
 </script>
 </body>
