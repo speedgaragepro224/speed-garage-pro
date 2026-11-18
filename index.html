@@ -12,14 +12,27 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-:root{
-  --bg:#050505;--c:rgba(15,15,20,.65);--t:#fff;--m:#a1a1aa;--b:rgba(255,255,255,.08);
-  --r:#e50914;--r-light:#ff2d3b;--r-dark:#b20710;--ok:#10b981;--warn:#f59e0b;
-  --blue:#3b82f6;--purple:#7c3aed;--cyan:#0891b2;--glass:rgba(15,15,20,.7);
-  --glass-border:rgba(255,255,255,.08);--shadow:0 8px 32px rgba(0,0,0,.8);
-  --shadow-hover:0 12px 40px rgba(229,9,20,.3);--nav-bg:rgba(10,10,14,.88);
-  --header-bg:rgba(8,8,10,.95);--input-bg:rgba(0,0,0,.5);--input-bg-focus:rgba(0,0,0,.8);
-  --table-hover:rgba(229,9,20,.08);
+:root {
+    --bg: #050505; 
+    --c: rgba(15, 15, 20, 0.65); 
+    --t: #ffffff; 
+    --m: #a1a1aa; 
+    --b: rgba(255, 255, 255, 0.08);
+    --r: #ff003c; /* Rouge Néon principal */
+    --r-light: #ff4d6d; 
+    --r-dark: #cc002f; 
+    --ok: #10b981; 
+    --warn: #f59e0b;
+    --blue: #3b82f6; 
+    --purple: #7c3aed; 
+    --cyan: #0891b2; 
+    --glass: rgba(15, 15, 20, 0.7); 
+    --glass-border: rgba(255, 255, 255, 0.08); 
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.8); 
+    
+    /* Effets Néon */
+    --neon-shadow: 0 0 10px rgba(255, 0, 60, 0.6), 0 0 20px rgba(255, 0, 60, 0.4), inset 0 0 10px rgba(255, 0, 60, 0.2);
+    --neon-text: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--r), 0 0 40px var(--r);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
 body{
@@ -2586,6 +2599,7 @@ input[type="date"].rappel-input::-webkit-calendar-picker-indicator {
     .rappel-header-content { flex-direction: column; gap: 15px; }
     .rappel-close-btn { position: absolute; top: 15px; right: 15px; }
 }
+
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -2660,8 +2674,7 @@ const MOTIFS_RDV = {
    ÉTAT GLOBAL
    ============================================================ */
 let supa=null, session=null, profil=null;
-let data={clients:[],techs:[],devis:[],factures:[],stock:[],journal:[],params:{},rdv:[],vehicules:[],employes:[],paie:[],depenses:[],fournisseurs:[],commandes:[],paiements:[],profils:[]};
-
+let data = {clients:[], techs:[], devis:[], factures:[], stock:[], journal:[], params:{}, rdv:[], vehicules:[], employes:[], paie:[], depenses:[], fournisseurs:[], commandes:[], paiements:[], rappels:[]};
 let tab="Tableau de bord", idleT=null, q="";
 let clientDetailId=null, clientRappelId=null, vehiculeDetailId=null;
 let dateCalendrier=new Date().toISOString().slice(0,7); let jourSelectionne=null;
@@ -2901,7 +2914,8 @@ async function loadAllData(){
     supa.from("fournisseurs").select("*").order("nom").then(r=>data.fournisseurs=r.data||[]),
     supa.from("commandes").select("*").order("date_commande",{ascending:false}).then(r=>data.commandes=r.data||[]),
     supa.from("paiements").select("*").order("date_paiement",{ascending:false}).then(r=>data.paiements=r.data||[]),
-    supa.from("parametres").select("*").then(r=>{data.params={};(r.data||[]).forEach(p=>data.params[p.cle]=p.valeur);}),
+    supa.from("rappels").select("*").order("date_echeance", {ascending:true}).then(r=>data.rappels=r.data||[]),
+supa.from("parametres").select("*").then(r=>{data.params={};(r.data||[]).forEach(p=>data.params[p.cle]=p.valeur);}),
     supa.from("journal").select("*").order("created_at",{ascending:false}).limit(1000).then(r=>{
       data.journal=Array.isArray(r.data)?r.data:[];
     }),
@@ -3472,6 +3486,11 @@ function ouvrirModalRappel(){
   modal.className='modal-overlay';
   modal.id='modal-rappel';
   
+  // On prépare la liste des véhicules
+  const optionsVehicules = data.vehicules.map(v => 
+    `<option value="${v.id}">${e(v.immat)} - ${e(v.marque)} ${e(v.modele)}</option>`
+  ).join('');
+
   modal.innerHTML=`
   <div class="modal modal-rappel-custom">
     
@@ -3497,22 +3516,40 @@ function ouvrirModalRappel(){
     <!-- CORPS -->
     <div class="rappel-body">
       
-            <!-- Section Recherche -->
-      <div class="rappel-section" style="margin-bottom: 25px;">
+      <!-- 1. Section Véhicule -->
+      <div class="rappel-section">
         <div class="rappel-section-title">
-          <i class="fa-solid fa-magnifying-glass"></i> Identifiant client * <!-- Modifié ici -->
+          <i class="fa-solid fa-car"></i> Informations Véhicule
         </div>
-        <div class="rappel-search-bar">
-            <div class="rappel-search-input-wrapper">
-                <div class="prefix"><i class="fa-solid fa-user"></i> REF</div> <!-- Changé en icône utilisateur -->
-                <input id="rap_search_immat" type="text" class="rappel-input" placeholder="Ex. : PART-0001" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter'){rechercherVehiculeRappel();}">
-            </div>
-            <button class="btn-rechercher" onclick="rechercherVehiculeRappel()"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
-            <button class="btn-reset" onclick="reinitialiserRappel()"><i class="fa-solid fa-rotate-right"></i> Réinitialiser</button>
+        <div class="rappel-grid-2">
+          <div class="rappel-field" style="grid-column: span 2;">
+            <label class="rappel-label"><i class="fa-solid fa-search"></i> Rechercher le véhicule (Tapez l'immatriculation) <span class="req">*</span></label>
+            <select id="rap_select_vehicule" class="rappel-input" onchange="remplirInfosDepuisVehicule(this.value)">
+                <option value="">-- Tapez ou sélectionnez une immatriculation --</option>
+                ${optionsVehicules}
+            </select>
+          </div>
+
+          <div class="rappel-field">
+            <label class="rappel-label"><i class="fa-solid fa-id-card"></i> Immatriculation <span class="req">*</span></label>
+            <input id="rap_immat" class="rappel-input" readonly placeholder="Saisi automatiquement...">
+          </div>
+          <div class="rappel-field">
+            <label class="rappel-label"><i class="fa-solid fa-barcode"></i> VIN (N° de châssis)</label>
+            <input id="rap_vin" class="rappel-input" readonly placeholder="Saisi automatiquement...">
+          </div>
+          <div class="rappel-field">
+            <label class="rappel-label"><i class="fa-solid fa-car"></i> Marque <span class="req">*</span></label>
+            <input id="rap_marque" class="rappel-input" readonly placeholder="Saisi automatiquement...">
+          </div>
+          <div class="rappel-field">
+            <label class="rappel-label"><i class="fa-solid fa-car-side"></i> Modèle <span class="req">*</span></label>
+            <input id="rap_modele" class="rappel-input" readonly placeholder="Saisi automatiquement...">
+          </div>
         </div>
       </div>
 
-      <!-- Section Client -->
+      <!-- 2. Section Client -->
       <div class="rappel-section">
         <div class="rappel-section-title">
           <i class="fa-solid fa-users"></i> Informations Client
@@ -3532,32 +3569,7 @@ function ouvrirModalRappel(){
           </div>
           <div class="rappel-field">
             <label class="rappel-label"><i class="fa-solid fa-location-dot"></i> Adresse</label>
-            <input id="rap_adresse" class="rappel-input" readonly placeholder="Saisi automatiquement (quartier, commune, ville)...">
-          </div>
-        </div>
-      </div>
-
-      <!-- Section Véhicule -->
-      <div class="rappel-section">
-        <div class="rappel-section-title">
-          <i class="fa-solid fa-car"></i> Informations Véhicule
-        </div>
-        <div class="rappel-grid-2">
-          <div class="rappel-field">
-            <label class="rappel-label"><i class="fa-solid fa-car"></i> Marque <span class="req">*</span></label>
-            <input id="rap_marque" class="rappel-input" readonly placeholder="Saisi automatiquement...">
-          </div>
-          <div class="rappel-field">
-            <label class="rappel-label"><i class="fa-solid fa-car-side"></i> Modèle <span class="req">*</span></label>
-            <input id="rap_modele" class="rappel-input" readonly placeholder="Saisi automatiquement...">
-          </div>
-          <div class="rappel-field">
-            <label class="rappel-label"><i class="fa-solid fa-id-card"></i> Immatriculation <span class="req">*</span></label>
-            <input id="rap_immat" class="rappel-input" readonly placeholder="Saisi automatiquement...">
-          </div>
-          <div class="rappel-field">
-            <label class="rappel-label"><i class="fa-solid fa-barcode"></i> VIN (N° de châssis)</label>
-            <input id="rap_vin" class="rappel-input" readonly placeholder="Saisi automatiquement...">
+            <input id="rap_adresse" class="rappel-input" readonly placeholder="Saisi automatiquement...">
           </div>
         </div>
       </div>
@@ -3566,7 +3578,7 @@ function ouvrirModalRappel(){
       <div class="rappel-grid-2">
         <div class="rappel-field">
           <label class="rappel-label"><i class="fa-solid fa-wrench"></i> Type d'intervention <span class="req">*</span></label>
-          <select id="rap_type" class="rappel-input">
+          <select id="rap_type" class="rappel-input" onchange="afficherChampAutreRappel(this.value)">
             <option value="Entretien (Vidange)">Entretien (Vidange)</option>
             <option value="Entretien (Freins)">Entretien (Freins)</option>
             <option value="Contrôle technique">Contrôle technique</option>
@@ -3576,7 +3588,14 @@ function ouvrirModalRappel(){
         </div>
         <div class="rappel-field">
           <label class="rappel-label"><i class="fa-solid fa-calendar-days"></i> Date d'échéance <span class="req">*</span></label>
-          <input id="rap_date" type="date" class="rappel-input" value="${new Date().toISOString().slice(0,10)}">
+          <!-- On ajoute un ID pour Flatpickr et on enlève le type="date" pour le remplacer par un champ texte -->
+          <input id="rap_date" type="text" class="rappel-input" placeholder="Sélectionnez une date..." value="${new Date().toLocaleDateString('fr-FR')}">
+        </div>
+        
+        <!-- Champ caché pour "Autres" (prend toute la largeur) -->
+        <div class="rappel-field" id="rap_autre_container" style="display:none; grid-column: span 2;">
+          <label class="rappel-label"><i class="fa-solid fa-pen"></i> Précisez le motif <span class="req">*</span></label>
+          <input id="rap_autre_motif" class="rappel-input" placeholder="Saisissez le motif du rappel...">
         </div>
       </div>
 
@@ -3596,10 +3615,85 @@ function ouvrirModalRappel(){
   
   document.body.appendChild(modal);
   
-  // Focus automatique sur le champ de recherche
-  setTimeout(() => document.getElementById('rap_search_immat').focus(), 100);
+  // Initialisation de Flatpickr pour le calendrier
+  flatpickr("#rap_date", {
+      locale: "fr",
+      dateFormat: "Y-m-d",
+      altInput: true,
+      altFormat: "d/m/Y",
+      defaultDate: "today",
+      disableMobile: true
+  });
+
+  setTimeout(() => document.getElementById('rap_select_vehicule').focus(), 100);
 }
 
+// Fonction pour afficher/masquer le champ "Autres"
+function afficherChampAutreRappel(){
+    const type = $("rap_type").value;
+    // On cible le conteneur (la div) qui a l'ID 'rap_autre_container'
+    const divAutre = $("rap_autre_container"); 
+    const inputAutre = $("rap_autre_motif");
+    
+    if (type === "Autres") {
+        if(divAutre) divAutre.style.display = "block";
+    } else {
+        if(divAutre) divAutre.style.display = "none";
+        if(inputAutre) inputAutre.value = "";
+    }
+}
+function remplirInfosDepuisVehicule(vehiculeId) {
+    // Si on désélectionne, on vide tout
+    if (!vehiculeId) {
+        document.getElementById('rap_immat').value = '';
+        document.getElementById('rap_marque').value = '';
+        document.getElementById('rap_modele').value = '';
+        document.getElementById('rap_vin').value = '';
+        document.getElementById('rap_nom').value = '';
+        document.getElementById('rap_prenom').value = '';
+        document.getElementById('rap_tel').value = '';
+        document.getElementById('rap_adresse').value = '';
+        currentRappelClientId = null;
+        return;
+    }
+
+    // 1. Trouver le véhicule sélectionné
+    const vehicule = data.vehicules.find(v => v.id === vehiculeId);
+    if (!vehicule) return;
+
+    // 2. Remplir les infos du véhicule
+    document.getElementById('rap_immat').value = vehicule.immat || '';
+    document.getElementById('rap_marque').value = vehicule.marque || '';
+    document.getElementById('rap_modele').value = vehicule.modele || '';
+    document.getElementById('rap_vin').value = vehicule.vin || '';
+
+    // 3. Trouver et remplir le client
+    if (vehicule.client_id) {
+        const client = data.clients.find(c => c.id === vehicule.client_id);
+        
+        if (client) {
+            // Sauvegarde de l'ID pour l'enregistrement
+            currentRappelClientId = client.id; 
+            
+            // Séparation Nom / Prénom
+            let nomComplet = client.nom || '';
+            let prenom = client.prenom || ''; 
+            
+            if (!prenom && nomComplet.includes(' ')) {
+                const parts = nomComplet.split(' ');
+                prenom = parts.shift();
+                nomComplet = parts.join(' ');
+            }
+
+            document.getElementById('rap_nom').value = nomComplet;
+            document.getElementById('rap_prenom').value = prenom;
+            document.getElementById('rap_tel').value = client.tel || '';
+            
+            // Remplissage de l'adresse (c'est ici que ça se joue)
+            document.getElementById('rap_adresse').value = client.adresse || 'Adresse non renseignée';
+        }
+    }
+}
 // Fonction pour chercher le véhicule et remplir les champs
 function rechercherVehiculeRappel() {
   const searchVal = document.getElementById('rap_search_immat').value.trim().toUpperCase();
@@ -3799,12 +3893,19 @@ async function sauvegarderRappelGlobal(){
     toast("Erreur : " + err.message, "error");
   }
 }
-function afficherChampAutreRappel(){
-  const type=$("rap_type").value;
-  const divAutre=$("div_autre_rappel");
-  const inputAutre=$("rap_autre_motif");
-  if(type==="Autres"){divAutre.style.display="block";inputAutre.focus();}
-  else{divAutre.style.display="none";inputAutre.value="";}
+function afficherChampAutreRappel() {
+    const type = document.getElementById("rap_type").value;
+    
+    // On cherche la div qui contient le champ
+    const divAutre = document.getElementById("rap_autre_container");
+    const inputAutre = document.getElementById("rap_autre_motif");
+    
+    if (type === "Autres") {
+        if (divAutre) divAutre.style.display = "block"; // Affiche le champ
+    } else {
+        if (divAutre) divAutre.style.display = "none";  // Cache le champ
+        if (inputAutre) inputAutre.value = "";          // Vide le champ
+    }
 }
 function remplirVehiculesRappel(clientId){
   const sel=document.getElementById("rap_vehicule");
@@ -3813,30 +3914,61 @@ function remplirVehiculesRappel(clientId){
   const mes=data.vehicules.filter(v=>v.client_id===clientId);
   sel.innerHTML=mes.length===0?'<option value="">Aucun véhicule</option>':mes.map(v=>`<option value="${v.immat}">${e(v.marque)} ${e(v.modele)} (${e(v.immat)})</option>`).join("");
 }
-async function sauvegarderRappelGlobal(){
-  const clientId=$("rap_client").value;
-  const immat=$("rap_vehicule").value;
-  let type=$("rap_type").value;
-  const dateEcheance=$("rap_date").value;
-  if(type==="Autres"){
-    const autreMotif=$("rap_autre_motif").value.trim();
-    if(!autreMotif){toast("Veuillez préciser le motif.","error");return;}
-    type=autreMotif;
-  }
-  if(!clientId||!immat||!dateEcheance){toast("Veuillez remplir tous les champs.","error");return;}
-  const client=data.clients.find(c=>c.id===clientId);
-  const vehicule=data.vehicules.find(v=>v.immat===immat);
-  const nomVehicule=vehicule?`${vehicule.marque} ${vehicule.modele}`:"";
-  const{error}=await supa.from("clients").update({
-    prochaine_date:dateEcheance,
-    vehicule_rappel:nomVehicule+" ("+immat+")",
-    type_rappel:type
-  }).eq("id",clientId);
-  if(error){toast("Erreur : "+error.message,"error");return;}
-  await jlog("Nouveau rappel",`${client.nom} - ${dateEcheance}`,type);
-  toast("Rappel enregistré !");
-  document.getElementById('modal-rappel').remove();
-  await loadAllData();
+async function sauvegarderRappelGlobal() {
+    // 1. Récupération des données
+    const clientId = currentRappelClientId;
+    const immat = document.getElementById('rap_immat').value;
+    const dateEcheance = document.getElementById('rap_date').value;
+    
+    // On récupère le type
+    let typeIntervention = document.getElementById('rap_type').value;
+    
+    // 2. Vérification du champ "Autres"
+    if (typeIntervention === 'Autres') {
+        const motifAutre = document.getElementById('rap_autre_motif').value.trim();
+        if (!motifAutre) {
+            toast("Veuillez préciser le motif pour 'Autres'.", "error");
+            return; // On bloque l'enregistrement
+        }
+        typeIntervention = motifAutre; // On remplace par la saisie
+    }
+
+    // 3. Vérifications de base
+    if (!clientId) {
+        toast("Veuillez sélectionner un véhicule valide.", "error");
+        return;
+    }
+    if (!dateEcheance) {
+        toast("Veuillez choisir une date d'échéance.", "error");
+        return;
+    }
+
+    // 4. Préparation des données
+    const payload = {
+        client_id: clientId,
+        client_nom: document.getElementById('rap_nom').value + ' ' + document.getElementById('rap_prenom').value,
+        vehicule: document.getElementById('rap_marque').value + ' ' + document.getElementById('rap_modele').value,
+        immat: immat,
+        type_intervention: typeIntervention, // Contient soit le type standard, soit le texte "Autres"
+        date_echeance: dateEcheance,
+        statut: 'En attente',
+        created_by: session.user.id
+    };
+
+    // 5. Enregistrement
+    try {
+        const { error } = await supa.from("rappels").insert(payload);
+        
+        if (error) throw error;
+        
+        toast("Rappel enregistré avec succès !");
+        document.getElementById('modal-rappel').remove(); // Ferme la fenêtre
+        await loadAllData(); // Recharge les données
+        
+    } catch (err) {
+        console.error("Erreur:", err);
+        toast("Erreur d'enregistrement : " + err.message, "error");
+    }
 }
 async function supprimerRappelClient(clientId){
   if(!confirm("Annuler ce rappel ? (Le client ne sera pas supprimé)")) return;
@@ -3846,47 +3978,120 @@ async function supprimerRappelClient(clientId){
   toast("Rappel annulé.");
   await loadAllData();
 }
+async function supprimerRappel(id) {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce rappel ?")) return;
+    
+    // On supprime de la table "rappels" grâce à l'ID du rappel
+    const { error } = await supa.from("rappels").delete().eq('id', id);
+    
+    if (error) {
+        toast("Erreur lors de la suppression : " + error.message, "error");
+    } else {
+        toast("Rappel supprimé avec succès.");
+        await jlog("Suppression rappel", id, "");
+        await loadAllData(); // Recharge les données pour mettre à jour le tableau
+    }
+}
 function renderRappels(A){
-  const clientsAvecRappel=data.clients.filter(c=>c.prochaine_date||c.type_rappel);
-  const rappels=clientsAvecRappel.map((c,i)=>{
-    const dateRappel=new Date(c.prochaine_date+"T12:00:00");
-    const aujourdhui=new Date(); aujourdhui.setHours(12,0,0,0);
-    const diffJours=Math.ceil((dateRappel-aujourdhui)/(86400000));
-    const v=data.vehicules.find(veh=>veh.client_id===c.id);
-    return{id:c.id,vehicule:v?v.marque+" "+v.modele:"Véhicule inconnu",immat:v?v.immat:"—",client:c.nom,type:c.type_rappel||"Entretien",date:c.prochaine_date,jours:diffJours};
-  });
-  const enRetard=rappels.filter(r=>r.jours<0).length;
-  const a7Jours=rappels.filter(r=>r.jours>=0&&r.jours<=7).length;
-  const a30Jours=rappels.filter(r=>r.jours>7&&r.jours<=30).length;
+  // On récupère les rappels depuis la nouvelle table (data.rappels)
+  // Si data.rappels n'existe pas encore (car pas initialisé), on met un tableau vide
+  const tousLesRappels = data.rappels || [];
 
-  A.innerHTML=`
-  <div class="page-header"><div class="page-header-actions"><div><h2><i class="fa-solid fa-bell"></i> Rappels</h2><p>Suivi des échéances véhicules</p></div></div></div>
+  // On prépare les données pour l'affichage
+  const rappels = tousLesRappels.map(r => {
+    // Calcul des jours restants
+    let diffJours = 0;
+    if (r.date_echeance) {
+        const dateRappel = new Date(r.date_echeance + "T12:00:00"); // Midi pour éviter les décalages de fuseau
+        const aujourdhui = new Date(); 
+        aujourdhui.setHours(12,0,0,0);
+        diffJours = Math.ceil((dateRappel - aujourdhui) / (86400000));
+    }
+
+    // On récupère les infos véhicule et client.
+    // Si les infos sont déjà dans le rappel (client_nom, vehicule, immat), on les utilise.
+    // Sinon, on va les chercher dans les tables correspondantes.
+    const client = data.clients.find(c => c.id === r.client_id);
+    const vehicule = data.vehicules.find(v => v.immat === r.immat || v.client_id === r.client_id);
+
+    return {
+        id: r.id,
+        vehicule: r.vehicule || (vehicule ? vehicule.marque + " " + vehicule.modele : "Véhicule inconnu"),
+        immat: r.immat || (vehicule ? vehicule.immat : "—"),
+        client: r.client_nom || (client ? client.nom : "Client inconnu"),
+        type: r.type_intervention || "Non spécifié",
+        date: r.date_echeance,
+        jours: diffJours
+    };
+  });
+
+  // Tri des rappels par date (les plus proches en premier)
+  rappels.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Calcul des KPI
+  const enRetard = rappels.filter(r => r.jours < 0).length;
+  const a7Jours = rappels.filter(r => r.jours >= 0 && r.jours <= 7).length;
+  const a30Jours = rappels.filter(r => r.jours > 7 && r.jours <= 30).length;
+
+  A.innerHTML = `
+  <div class="page-header">
+    <div class="page-header-actions">
+        <div>
+            <h2><i class="fa-solid fa-bell"></i> Rappels</h2>
+            <p>Suivi des échéances véhicules</p>
+        </div>
+    </div>
+  </div>
+  
   <div class="kpi-grid">
     <div class="kpi-card"><div class="kpi-label">En retard</div><div class="kpi-value" style="color:var(--r)">${enRetard}</div></div>
     <div class="kpi-card orange"><div class="kpi-label">À 7 jours</div><div class="kpi-value">${a7Jours}</div></div>
     <div class="kpi-card blue"><div class="kpi-label">À 30 jours</div><div class="kpi-value">${a30Jours}</div></div>
     <div class="kpi-card green"><div class="kpi-label">Total rappels</div><div class="kpi-value">${rappels.length}</div></div>
   </div>
+  
   <div style="display:flex;gap:10px;margin-bottom:20px;">
     <button class="btn btn-primary" onclick="ouvrirModalRappel()"><i class="fa-solid fa-plus"></i> Nouveau rappel</button>
   </div>
+  
   <div class="table-container" style="border:1px solid var(--r);">
     <table class="data-table">
-      <thead><tr><th>Véhicule</th><th>Immat</th><th>Client</th><th>Type</th><th>Échéance</th><th>Jours</th><th>Statut</th><th style="text-align:center">Actions</th></tr></thead>
+      <thead>
+        <tr>
+            <th>Véhicule</th>
+            <th>Immat</th>
+            <th>Client</th>
+            <th>Type</th>
+            <th>Échéance</th>
+            <th>Jours</th>
+            <th>Statut</th>
+            <th style="text-align:center">Actions</th>
+        </tr>
+      </thead>
       <tbody>
-        ${rappels.map(r=>{
-          const statutBadge=r.jours<0?`<span class="badge badge-danger">En retard</span>`:r.jours<=7?`<span class="badge badge-warning">À venir</span>`:`<span class="badge badge-info">Programmé</span>`;
+        ${rappels.map(r => {
+          let statutBadge = "";
+          if (r.jours < 0) {
+              statutBadge = `<span class="badge badge-danger">En retard</span>`;
+          } else if (r.jours <= 7) {
+              statutBadge = `<span class="badge badge-warning">À venir</span>`;
+          } else {
+              statutBadge = `<span class="badge badge-info">Programmé</span>`;
+          }
+
           return `<tr>
             <td data-label="Véhicule"><b>${e(r.vehicule)}</b></td>
             <td data-label="Immat"><span class="ref-badge">${e(r.immat)}</span></td>
             <td data-label="Client">${e(r.client)}</td>
             <td data-label="Type">${e(r.type)}</td>
-            <td data-label="Échéance">${new Date(r.date).toLocaleDateString('fr-FR')}</td>
-            <td data-label="Jours" style="color:${r.jours<0?'var(--r)':'var(--ok)'};font-weight:700;">${r.jours}j</td>
+            <td data-label="Échéance">${r.date ? new Date(r.date).toLocaleDateString('fr-FR') : '—'}</td>
+            <td data-label="Jours" style="color:${r.jours < 0 ? 'var(--r)' : 'var(--ok)'};font-weight:700;">${r.jours}j</td>
             <td data-label="Statut">${statutBadge}</td>
-            <td data-label="Actions" style="text-align:center"><button class="btn btn-icon btn-danger" onclick="supprimerRappelClient('${r.id}')"><i class="fa-solid fa-trash"></i></button></td>
+            <td data-label="Actions" style="text-align:center">
+                <button class="btn btn-icon btn-danger" onclick="supprimerRappel('${r.id}')"><i class="fa-solid fa-trash"></i></button>
+            </td>
           </tr>`;
-        }).join("")||`<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--m);">Aucun rappel enregistré.</td></tr>`}
+        }).join("") || `<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--m);">Aucun rappel enregistré.</td></tr>`}
       </tbody>
     </table>
   </div>`;
