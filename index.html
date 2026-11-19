@@ -5438,62 +5438,100 @@ function renderFormulaireFacture(container){
   switchTabFacture('pieces');
 }
 async function sauvegarderFactureDepuisModal(isBrouillon=false){
-  const cid=$("fc_client").value;
-  if(!cid){toast("Veuillez choisir un client.","error");return;}
-  const clientNom=data.clients.find(c=>c.id===cid)?.nom||"Inconnu";
-  const acompte=+($("fc_acompte")?$("fc_acompte").value.replace(/\s/g,''):"0")||0;
-  const paiement=$("fc_paiement").value||"";
-  const notes=$("fc_notes")?$("fc_notes").value:"";
-  const lignes=fLignes.filter(l=>l.d.trim()!=="");
-  const inputMO=document.getElementById('fc_mo_unique');
-  const valMO=inputMO?(+inputMO.value.replace(/\s/g,'')||0):0;
-  const lignesMO=valMO>0?[{d:"Main d'œuvre",q:1,p:valMO}]:[];
-  const toutesLesLignes=[...lignes.map(l=>({...l,t:"Pièce"})),...lignesMO.map(l=>({...l,t:"Main d'œuvre"}))];
-  const ht=factTotHT(),tv=+(data.params.tva_taux||18),tva=ht*tv/100,ttc=ht+tva;
-  const dataToSave={
-    client_id:cid,client_nom:clientNom,vehicule:fMemo.veh,immat:fMemo.immat,
-    lignes:toutesLesLignes,total_ht:ht,tva,total_ttc:ttc,acompte,paiement,
-    technicien:fMemo.technicien||"",technicien_id:fMemo.technicien_id||null,
-    motif:fMemo.motifs?fMemo.motifs.join(", "):"",motifs:fMemo.motifs||[],notes
-  };
-  try{
-    if(editFactureId){
-      const{error}=await supa.from("factures").update(dataToSave).eq("id",editFactureId);
-      if(error) throw error;
-      await jlog("Modification facture","ID: "+editFactureId,"Montant: "+f(ttc));
-      toast("Facture modifiée !");
-    }else{
-      const{data:toutes}=await supa.from("factures").select("numero").order("numero",{ascending:false}).limit(1);
-      let num=1;
-      if(toutes&&toutes.length>0){const p=toutes[0].numero.split("-");if(p.length===3) num=parseInt(p[2])+1;}
-      const numero="FAC-"+new Date().getFullYear()+"-"+String(num).padStart(4,"0");
-      dataToSave.numero=numero;
-      dataToSave.statut=isBrouillon?"Brouillon":"En attente";
-      dataToSave.created_by=session.user.id;
-      const{data:newFact,error}=await supa.from("factures").insert(dataToSave).select().single();
-      if(error) throw error;
-      if(!isBrouillon){
-        if(acompte>0){
-          await supa.from("paiements").insert({facture_id:newFact.id,montant:acompte,date_paiement:new Date().toISOString().slice(0,10),mode:paiement,created_by:session.user.id});
-          if(acompte>=ttc) await supa.from("factures").update({statut:"Payé"}).eq("id",newFact.id);
-          else await supa.from("factures").update({statut:"En cours"}).eq("id",newFact.id);
-        }
-        for(const ligne of lignes){
-          if(ligne.stock_id){
-            const art=data.stock.find(s=>s.id===ligne.stock_id);
-            if(art) await supa.from("stock").update({qte:(+art.qte||0)-(+ligne.q||0)}).eq("id",art.id);
-          }
-        }
-      }
-      await jlog("Création facture",numero,"Montant: "+f(ttc));
-      toast("Facture créée !");
+    const cid=$("fc_client").value;
+    if(!cid){toast("Veuillez choisir un client.","error");return;}
+    
+    const clientNom=data.clients.find(c=>c.id===cid)?.nom||"Inconnu";
+    const acompte=+($("fc_acompte")?$("fc_acompte").value.replace(/\s/g,''):"0")||0;
+    const paiement=$("fc_paiement").value||"";
+    const notes=$("fc_notes")?$("fc_notes").value:"";
+    
+    // Filtrer les lignes vides
+    const lignes=fLignes.filter(l=>l.d && l.d.trim()!=="");
+    const inputMO=document.getElementById('fc_mo_unique');
+    const valMO=inputMO?(+inputMO.value.replace(/\s/g,'')||0):0;
+    const lignesMO=valMO>0?[{d:"Main d'œuvre",q:1,p:valMO}]:[];
+    
+    const toutesLesLignes=[...lignes.map(l=>({...l,t:"Pièce"})),...lignesMO.map(l=>({...l,t:"Main d'œuvre"}))];
+    
+    const ht=factTotHT(), tv=+(data.params.tva_taux||18), tva=ht*tv/100, ttc=ht+tva;
+
+    // --- CORRECTION ICI : Gestion sécurisée de technicien_id ---
+    let techIdToSave = null;
+    if(fMemo.technicien_id && typeof fMemo.technicien_id === 'string'){
+        // Si c'est une liste "id1,id2", on prend le premier ID valide pour éviter l'erreur UUID
+        const ids = fMemo.technicien_id.split(',').filter(id => id.trim() !== '');
+        if(ids.length > 0) techIdToSave = ids[0].trim();
+    } else {
+        techIdToSave = fMemo.technicien_id || null;
     }
-    document.getElementById('modal-facture').remove();
-    editFactureId=null;
-    fLignes=[{d:"",q:1,p:0}];fLignesMO=[{d:"",q:1,p:0}];
-    fMemo={client:"",veh:"",immat:"",acompte:"",paiement:"",technicien:"",technicien_id:"",motifs:[],notes:""};
-    await loadAllData();
-  }catch(err){console.error("Erreur sauvegarde facture:",err);toast("Erreur : "+err.message,"error");}
+
+    const dataToSave={
+        client_id:cid,
+        client_nom:clientNom,
+        vehicule:fMemo.veh,
+        immat:fMemo.immat,
+        lignes:toutesLesLignes,
+        total_ht:ht,
+        tva:tva,
+        total_ttc:ttc,
+        acompte:acompte,
+        paiement:paiement,
+        technicien:fMemo.technicien||"",
+        technicien_id: techIdToSave, // Utilisation de la variable corrigée
+        motif:fMemo.motifs?fMemo.motifs.join(", "):"",
+        motifs:fMemo.motifs||[],
+        notes:notes
+    };
+
+    try{
+        if(editFactureId){
+            const{error}=await supa.from("factures").update(dataToSave).eq("id",editFactureId);
+            if(error) throw error;
+            await jlog("Modification facture","ID: "+editFactureId,"Montant: "+f(ttc));
+            toast("Facture modifiée !");
+        }else{
+            const{data:toutes}=await supa.from("factures").select("numero").order("numero",{ascending:false}).limit(1);
+            let num=1;
+            if(toutes&&toutes.length>0){const p=toutes[0].numero.split("-");if(p.length===3) num=parseInt(p[2])+1;}
+            const numero="FAC-"+new Date().getFullYear()+"-"+String(num).padStart(4,"0");
+            
+            dataToSave.numero=numero;
+            dataToSave.statut=isBrouillon?"Brouillon":"En attente";
+            dataToSave.created_by=session.user.id;
+            
+            const{data:newFact,error}=await supa.from("factures").insert(dataToSave).select().single();
+            if(error) {
+                console.error("Erreur Supabase:", error); // Affiche le détail dans la console
+                throw error;
+            }
+            
+            // Gestion des paiements et stock uniquement si ce n'est pas un brouillon
+            if(!isBrouillon){
+                if(acompte>0){
+                    await supa.from("paiements").insert({facture_id:newFact.id,montant:acompte,date_paiement:new Date().toISOString().slice(0,10),mode:paiement,created_by:session.user.id});
+                    if(acompte>=ttc) await supa.from("factures").update({statut:"Payé"}).eq("id",newFact.id);
+                    else await supa.from("factures").update({statut:"En cours"}).eq("id",newFact.id);
+                }
+                for(const ligne of lignes){
+                    if(ligne.stock_id){
+                        const art=data.stock.find(s=>s.id===ligne.stock_id);
+                        if(art) await supa.from("stock").update({qte:(+art.qte||0)-(+ligne.q||0)}).eq("id",art.id);
+                    }
+                }
+            }
+            await jlog("Création facture",numero,"Montant: "+f(ttc));
+            toast("Facture créée !");
+        }
+        document.getElementById('modal-facture').remove();
+        editFactureId=null;
+        fLignes=[{d:"",q:1,p:0}];fLignesMO=[{d:"",q:1,p:0}];
+        fMemo={client:"",veh:"",immat:"",acompte:"",paiement:"",technicien:"",technicien_id:"",motifs:[],notes:""};
+        await loadAllData();
+    }catch(err){
+        console.error("Erreur sauvegarde facture:",err);
+        toast("Erreur : "+err.message,"error");
+    }
 }
 function editFacture(id){
   const fa=data.factures.find(x=>x.id===id);
@@ -6575,122 +6613,142 @@ function renderPaie(A){
    DÉPENSES
    ============================================================ */
 function ouvrirModalDepense(id=null){
-  let d={categorie:"",description:"",montant:0,date_depense:"",fournisseur_id:""};
-  if(id) d=data.depenses.find(x=>x.id===id)||d;
-  
-  // Formater la date pour l'affichage (JJ/MM/AAAA)
-  let dateAffichage = "";
-  if(d.date_depense) {
-      const parts = d.date_depense.split('-');
-      dateAffichage = `${parts[2]}/${parts[1]}/${parts[0]}`;
-  } else {
-      const today = new Date();
-      dateAffichage = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
-  }
-
-  const modal=document.createElement('div');
-  modal.className='modal-overlay';
-  modal.id='modal-depense';
-  
-  modal.innerHTML=`
-  <div class="modal modal-dep-custom">
-    <!-- En-tête -->
-    <div class="dep-header">
-      <img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
-      <h3><i class="fa-solid fa-money-bill-wave"></i> ${id ? 'Modifier la dépense' : 'Nouvelle dépense'}</h3>
-      <button class="dep-close" onclick="document.getElementById('modal-depense').remove()"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+    let d={categorie:"",description:"",montant:0,date_depense:"",fournisseur_id:""};
+    if(id) d=data.depenses.find(x=>x.id===id)||d;
     
-    <!-- Corps -->
-    <div class="dep-body">
-      
-      <!-- Caté
+    // Formater la date pour l'affichage (JJ/MM/AAAA)
+    let dateAffichage = "";
+    if(d.date_depense) {
+        const parts = d.date_depense.split('-');
+        dateAffichage = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    } else {
+        const today = new Date();
+        dateAffichage = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+    }
 
-
-
-
-rie -->
-      <div class="dep-input-group">
-        <label class="dep-label"><i class="fa-solid fa-layer-group"></i> Catégorie <span class="req">*</span></label>
-        <select id="dep_cat" class="dep-input">
-          <option value="">Choisir une catégorie...</option>
-          ${['Achat pièces','Salaires','Loyer','Électricité','Eau','Carburant','Entretien','Divers'].map(c=>`<option ${d.categorie===c?'selected':''}>${c}</option>`).join("")}
-        </select>
-      </div>
-
-      <!-- Description -->
-      <div class="dep-input-group">
-        <label class="dep-label"><i class="fa-solid fa-file-lines"></i> Description <span class="req">*</span></label>
-        <textarea id="dep_desc" class="dep-input" rows="2" placeholder="Détail de la dépense (ex. : Achat pièces, carburant, loyer...)">${e(d.description||'')}</textarea>
-      </div>
-
-      <div class="dep-grid-2">
-        <!-- Montant -->
-        <div class="dep-input-group">
-          <label class="dep-label"><i class="fa-solid fa-coins"></i> Montant <span class="req">*</span></label>
-          <div class="input-gnf-wrapper">
-            <input id="dep_montant" type="number" class="dep-input" value="${d.montant||0}" placeholder="0">
-            <div class="gnf-box">GNF</div>
-          </div>
+    const modal=document.createElement('div');
+    modal.className='modal-overlay';
+    modal.id='modal-depense';
+    modal.innerHTML=`
+    <div class="modal modal-dep-custom">
+        <!-- En-tête -->
+        <div class="dep-header">
+            <img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
+            <h3><i class="fa-solid fa-money-bill-wave"></i> ${id ? 'Modifier la dépense' : 'Nouvelle dépense'}</h3>
+            <button class="dep-close" onclick="document.getElementById('modal-depense').remove()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         
-        <!-- Date -->
-        <div class="dep-input-group">
-          <label class="dep-label"><i class="fa-solid fa-calendar-days"></i> Date <span class="req">*</span></label>
-          <div class="calendar-icon-wrapper">
-            <input id="dep_date" type="text" class="dep-input" value="${dateAffichage}" placeholder="JJ/MM/AAAA">
-            <i class="fa-regular fa-calendar calendar-icon"></i>
-          </div>
+        <!-- Corps avec scroll si nécessaire -->
+        <div class="dep-body" style="max-height: calc(90vh - 180px); overflow-y: auto;">
+            <!-- Catégorie -->
+            <div class="dep-input-group">
+                <label class="dep-label"><i class="fa-solid fa-layer-group"></i> Catégorie <span class="req">*</span></label>
+                <select id="dep_cat" class="dep-input">
+                    <option value="">Choisir une catégorie...</option>
+                    ${['Achat pièces','Salaires','Loyer','Électricité','Eau','Carburant','Entretien','Divers'].map(c=>`<option ${d.categorie===c?'selected':''}>${c}</option>`).join("")}
+                </select>
+            </div>
+            
+            <!-- Description -->
+            <div class="dep-input-group">
+                <label class="dep-label"><i class="fa-solid fa-file-lines"></i> Description <span class="req">*</span></label>
+                <textarea id="dep_desc" class="dep-input" rows="2" placeholder="Détail de la dépense...">${e(d.description||'')}</textarea>
+            </div>
+            
+            <div class="dep-grid-2">
+                <!-- Montant -->
+                <div class="dep-input-group">
+                    <label class="dep-label"><i class="fa-solid fa-coins"></i> Montant <span class="req">*</span></label>
+                    <div class="input-gnf-wrapper">
+                        <input id="dep_montant" type="number" class="dep-input" value="${d.montant||0}" placeholder="0">
+                        <div class="gnf-box">GNF</div>
+                    </div>
+                </div>
+                
+                <!-- Date -->
+                <div class="dep-input-group">
+                    <label class="dep-label"><i class="fa-solid fa-calendar-days"></i> Date <span class="req">*</span></label>
+                    <div class="calendar-icon-wrapper">
+                        <input id="dep_date" type="text" class="dep-input" value="${dateAffichage}" placeholder="JJ/MM/AAAA">
+                        <i class="fa-regular fa-calendar calendar-icon"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fournisseur (MODIFIÉ) -->
+            <div class="dep-input-group" style="margin-bottom: 0;">
+                <label class="dep-label"><i class="fa-solid fa-truck"></i> Fournisseur</label>
+                <select id="dep_four" class="dep-input" onchange="toggleAutreFournisseur()">
+                    <option value="">-- Aucun / Divers --</option>
+                    <option value="AUTRE_PONCTUEL" ${d.fournisseur_id==='AUTRE_PONCTUEL'?'selected':''}>🛒 Autre / Ponctuel (Saisir le nom)</option>
+                    ${data.fournisseurs.map(fo=>`<option value="${fo.id}" ${fo.id===d.fournisseur_id?'selected':''}>${e(fo.nom)}</option>`).join("")}
+                </select>
+                
+                <!-- Champ caché pour saisir le nom du fournisseur ponctuel -->
+                <!-- CORRECTION : Ajout de margin-top et limitation de hauteur -->
+                <div id="dep_autre_four_container" style="display:${d.fournisseur_id==='AUTRE_PONCTUEL'?'block':'none'}; margin-top:10px; max-height: 60px; overflow: hidden;">
+                    <input id="dep_autre_four_nom" type="text" class="dep-input" 
+                           value="${d.fournisseur_id==='AUTRE_PONCTUEL' && d.description ? e(d.description.replace(/^\[Vendeur:\s*[^]]+\]\s*/, '')) : ''}" 
+                           placeholder="Nom du vendeur ou magasin...">
+                </div>
+            </div>
+            
+            <!-- Silhouette voiture -->
+            <svg class="dep-car-silhouette" viewBox="0 0 100 30" fill="none" stroke="white" stroke-width="1.5">
+                <path d="M10,20 L20,10 L60,10 L80,20 L90,20 M15,20 A5,5 0 1,1 15,30 A5,5 0 1,1 15,20 M75,20 A5,5 0 1,1 75,30 A5,5 0 1,1 75,20 M20,20 L70,20" stroke-linecap="round"/>
+            </svg>
         </div>
-      </div>
+        
+        <!-- Pied de page (Toujours visible grâce au flex du modal) -->
+        <div class="dep-footer">
+            <button class="dep-btn-annuler" onclick="document.getElementById('modal-depense').remove()">
+                <i class="fa-solid fa-circle-xmark"></i> Annuler
+            </button>
+            <button class="dep-btn-enregistrer" onclick="sauvegarderDepense('${id||''}')">
+                <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+            </button>
+        </div>
+    </div>`;
+    document.body.appendChild(modal);
+    
+    // Initialisation du sélecteur de Date (Flatpickr)
+    flatpickr("#dep_date", {
+        locale: "fr",
+        dateFormat: "d/m/Y",
+        defaultDate: dateAffichage,
+        disableMobile: true,
+        onChange: function(selectedDates, dateStr, instance) {
+            if(selectedDates.length > 0) {
+                const d = selectedDates[0];
+                instance.input.dataset.dbDate = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+            }
+        }
+    });
+}
 
-      <!-- Fournisseur -->
-      <div class="dep-input-group" style="margin-bottom: 0;">
-        <label class="dep-label"><i class="fa-solid fa-truck"></i> Fournisseur</label>
-        <select id="dep_four" class="dep-input">
-          <option value="">Choisir un fournisseur...</option>
-          ${data.fournisseurs.map(fo=>`<option value="${fo.id}" ${fo.id===d.fournisseur_id?'selected':''}>${e(fo.nom)}</option>`).join("")}
-        </select>
-      </div>
-      
-      <!-- Silhouette voiture -->
-      <svg class="dep-car-silhouette" viewBox="0 0 100 30" fill="none" stroke="white" stroke-width="1.5">
-        <path d="M10,20 L20,10 L60,10 L80,20 L90,20 M15,20 A5,5 0 1,1 15,30 A5,5 0 1,1 15,20 M75,20 A5,5 0 1,1 75,30 A5,5 0 1,1 75,20 M20,20 L70,20" stroke-linecap="round"/>
-      </svg>
-    </div>
-
-    <!-- Pied de page -->
-    <div class="dep-footer">
-      <button class="dep-btn-annuler" onclick="document.getElementById('modal-depense').remove()">
-        <i class="fa-solid fa-circle-xmark"></i> Annuler
-      </button>
-      <button class="dep-btn-enregistrer" onclick="sauvegarderDepense('${id||''}')">
-        <i class="fa-solid fa-floppy-disk"></i> Enregistrer
-      </button>
-    </div>
-  </div>`;
-  
-  document.body.appendChild(modal);
-
-  // Initialisation du sélecteur de Date (Flatpickr)
-  flatpickr("#dep_date", {
-    locale: "fr",
-    dateFormat: "d/m/Y", // Format affiché
-    defaultDate: dateAffichage,
-    disableMobile: true,
-    onChange: function(selectedDates, dateStr, instance) {
-      // Sauvegarde interne au format AAAA-MM-JJ pour la base de données
-      if(selectedDates.length > 0) {
-        const d = selectedDates[0];
-        instance.input.dataset.dbDate = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
-      }
+// Fonction helper pour afficher/masquer le champ "Autre"
+function toggleAutreFournisseur(){
+    const sel = document.getElementById('dep_four');
+    const container = document.getElementById('dep_autre_four_container');
+    if(sel && container) {
+        container.style.display = sel.value === 'AUTRE_PONCTUEL' ? 'block' : 'none';
     }
-  });
+}
+
+// Fonction helper pour afficher/masquer le champ "Autre"
+function toggleAutreFournisseur(){
+    const sel = document.getElementById('dep_four');
+    const container = document.getElementById('dep_autre_four_container');
+    if(sel && container) {
+        container.style.display = sel.value === 'AUTRE_PONCTUEL' ? 'block' : 'none';
+    }
 }
 async function sauvegarderDepense(id){
     const categorie=$("dep_cat").value;
-    const description=$("dep_desc").value.trim();
+    let description=$("dep_desc").value.trim();
     const montant=+$("dep_montant").value||0;
+    const fourSelect=$("dep_four");
+    const fourValue=fourSelect?fourSelect.value:"";
     
     // Récupération sécurisée de la date depuis Flatpickr
     let date_depense = $("dep_date").dataset.dbDate;
@@ -6703,10 +6761,26 @@ async function sauvegarderDepense(id){
         toast("Champs obligatoires manquants.","error");
         return;
     }
-    
-    // Payload nettoyé : on retire 'fournisseur_id' qui cause l'erreur 400
+
+    // Gestion du fournisseur ponctuel
+    let fournisseur_id_to_save = null;
+    if(fourValue === 'AUTRE_PONCTUEL'){
+        const autreNom = $("dep_autre_four_nom")?.value.trim();
+        if(autreNom){
+            // On préfixe la description avec le nom du vendeur pour garder la trace
+            // On retire d'abord un éventuel ancien préfixe pour éviter les doublons lors de la modif
+            description = description.replace(/^\[Vendeur:\s*[^]]+\]\s*/, '');
+            description = `[Vendeur: ${autreNom}] ${description}`;
+        }
+        fournisseur_id_to_save = null; 
+    } else {
+        fournisseur_id_to_save = fourValue || null;
+    }
+
+    // Payload nettoyé
     const payload={categorie, description, montant, date_depense};
-    
+    if(fournisseur_id_to_save) payload.fournisseur_id = fournisseur_id_to_save;
+
     try{
         if(id){
             const{error}=await supa.from("depenses").update(payload).eq("id",id);
@@ -6716,7 +6790,6 @@ async function sauvegarderDepense(id){
             const{error}=await supa.from("depenses").insert(payload);
             if(error) throw error;
         }
-        
         document.getElementById('modal-depense').remove();
         toast("Dépense enregistrée !");
         await loadAllData();
