@@ -2895,7 +2895,14 @@ function go(t){
   $("nav").classList.remove("open");
   render();
 }
+// Fonctions helpers pour la pagination Audit
+function auditPrev() { if(audit_page > 1) { audit_page--; renderAudit(document.getElementById('app')); } }
+function auditNext(total) { if(audit_page < total) { audit_page++; renderAudit(document.getElementById('app')); } }
+function auditFirst() { audit_page = 1; renderAudit(document.getElementById('app')); }
+function auditLast(total) { audit_page = total; renderAudit(document.getElementById('app')); }
 
+// Fonction helper pour la recherche Audit
+function searchAudit(val) { q = val; audit_page = 1; renderAudit(document.getElementById('app')); }
 /* ============================================================
    CHARGEMENT DES DONNÉES
    ============================================================ */
@@ -6597,7 +6604,12 @@ function ouvrirModalDepense(id=null){
     <!-- Corps -->
     <div class="dep-body">
       
-      <!-- Catégorie -->
+      <!-- Caté
+
+
+
+
+rie -->
       <div class="dep-input-group">
         <label class="dep-label"><i class="fa-solid fa-layer-group"></i> Catégorie <span class="req">*</span></label>
         <select id="dep_cat" class="dep-input">
@@ -6905,44 +6917,92 @@ function renderFournisseurs(A){
     </tbody>
   </table></div>`;
 }
-
+/* ============================================================
+HELPERS AUDIT (Pour éviter les erreurs de syntaxe inline)
+============================================================ */
+function auditPrev() { if(audit_page > 1) { audit_page--; renderAudit(document.getElementById('app')); } }
+function auditNext(total) { if(audit_page < total) { audit_page++; renderAudit(document.getElementById('app')); } }
+function auditFirst() { audit_page = 1; renderAudit(document.getElementById('app')); }
+function auditLast(total) { audit_page = total; renderAudit(document.getElementById('app')); }
+function searchAudit(val) { q = val; audit_page = 1; renderAudit(document.getElementById('app')); }
 /* ============================================================
    JOURNAL D'AUDIT
    ============================================================ */
+/* ============================================================
+JOURNAL D'AUDIT (CORRIGÉ)
+============================================================ */
 function renderAudit(A){
-  const liste=data.journal.filter(j=>(j.utilisateur_nom+(j.action||"")+(j.reference||"")+(j.details||"")).toLowerCase().includes(q.toLowerCase()));
-  const totalPages=Math.ceil(liste.length/audit_perPage)||1;
-  if(audit_page>totalPages) audit_page=totalPages;
-  const debut=(audit_page-1)*audit_perPage,fin=debut+audit_perPage;
-  const affichees=liste.slice(debut,fin);
-  A.innerHTML=`
-  <div class="page-header"><div class="page-header-actions"><div><h2><i class="fa-solid fa-magnifying-glass-chart"></i> Journal d'audit</h2><p>Historique des actions</p></div></div></div>
-  <div class="filters-bar">
-    <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Rechercher..." value="${e(q)}" oninput="q=this.value;audit_page=1;renderAudit(document.getElementById('app'))"></div>
-  </div>
-  <div class="table-container"><table class="data-table">
-    <thead><tr><th>Date</th><th>Utilisateur</th><th>Rôle</th><th>Action</th><th>Référence</th><th>Détails</th></tr></thead>
-    <tbody>
-    ${affichees.map(j=>`<tr>
-      <td data-label="Date" style="font-size:12px;">${j.created_at?new Date(j.created_at).toLocaleString('fr-FR'):'—'}</td>
-      <td data-label="Utilisateur">${e(j.utilisateur_nom||'—')}</td>
-      <td data-label="Rôle"><span class="badge badge-secondary">${e(j.role||'—')}</span></td>
-      <td data-label="Action">${e(j.action||'—')}</td>
-      <td data-label="Référence">${e(j.reference||'—')}</td>
-      <td data-label="Détails" style="font-size:12px;color:var(--m);">${e(j.details||'—')}</td>
-    </tr>`).join("")||`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--m);">Aucune entrée.</td></tr>`}
-    </tbody>
-  </table>
-  <div class="pagination"><div class="pagination-info">${debut+1} - ${Math.min(fin,liste.length)} sur ${liste.length}</div>
-    <div class="pagination-buttons">
-      <button class="page-btn" onclick="audit_page=1;renderAudit(document.getElementById('app'))" ${audit_page===1?'disabled':''}><i class="fa-solid fa-angles-left"></i></button>
-      <button class="page-btn" onclick="if(audit_page>1){audit_page--;renderAudit(document.getElementById('app'))}" ${audit_page===1?'disabled':''}><i class="fa-solid fa-angle-left"></i></button>
-      <button class="page-btn" onclick="if(audit_page<${totalPages}){audit_page++;renderAudit(document.getElementById('app'))}" ${audit_page===totalPages?'disabled':''}><i class="fa-solid fa-angle-right"></i></button>
-      <button class="page-btn" onclick="audit_page=${totalPages};renderAudit(document.getElementById('app'))" ${audit_page===totalPages?'disabled':''}><i class="fa-solid fa-angles-right"></i></button>
-    </div>
-  </div></div>`;
-}
+    // Sécurisation : si data.journal est undefined, on met un tableau vide
+    const liste = (data.journal || []).filter(j => 
+        (j.utilisateur_nom + (j.action || "") + (j.reference || "") + (j.details || "")).toLowerCase().includes(q.toLowerCase())
+    );
+    
+    const totalPages = Math.ceil(liste.length / audit_perPage) || 1;
+    if(audit_page > totalPages) audit_page = totalPages;
+    
+    const debut = (audit_page - 1) * audit_perPage;
+    const fin = debut + audit_perPage;
+    const affichees = liste.slice(debut, fin);
 
+    A.innerHTML = `
+    <div class="page-header">
+        <div class="page-header-actions">
+            <div>
+                <h2><i class="fa-solid fa-magnifying-glass-chart"></i> Journal d'audit</h2>
+                <p>Historique des actions</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="filters-bar">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <!-- Utilisation de la fonction helper searchAudit -->
+            <input type="text" placeholder="Rechercher..." value="${e(q)}" oninput="searchAudit(this.value)">
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Utilisateur</th>
+                    <th>Rôle</th>
+                    <th>Action</th>
+                    <th>Référence</th>
+                    <th>Détails</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${affichees.length > 0 ? affichees.map(j => `
+                <tr>
+                    <td data-label="Date" style="font-size:12px;">${j.created_at ? new Date(j.created_at).toLocaleString('fr-FR') : '—'}</td>
+                    <td data-label="Utilisateur">${e(j.utilisateur_nom || '—')}</td>
+                    <td data-label="Rôle"><span class="badge badge-secondary">${e(j.role || '—')}</span></td>
+                    <td data-label="Action">${e(j.action || '—')}</td>
+                    <td data-label="Référence">${e(j.reference || '—')}</td>
+                    <td data-label="Détails" style="font-size:12px;color:var(--m);">${e(j.details || '—')}</td>
+                </tr>`).join("") : 
+                `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--m);">
+                    <i class="fa-solid fa-inbox" style="font-size:30px;display:block;margin-bottom:10px;"></i>
+                    Aucune entrée trouvée dans le journal.
+                </td></tr>`}
+            </tbody>
+        </table>
+        
+        ${liste.length > 0 ? `
+        <div class="pagination">
+            <div class="pagination-info">${debut+1} - ${Math.min(fin, liste.length)} sur ${liste.length}</div>
+            <div class="pagination-buttons">
+                <button class="page-btn" onclick="auditFirst()" ${audit_page===1?'disabled':''}><i class="fa-solid fa-angles-left"></i></button>
+                <button class="page-btn" onclick="auditPrev()" ${audit_page===1?'disabled':''}><i class="fa-solid fa-angle-left"></i></button>
+                <button class="page-btn" onclick="auditNext(${totalPages})" ${audit_page===totalPages?'disabled':''}><i class="fa-solid fa-angle-right"></i></button>
+                <button class="page-btn" onclick="auditLast(${totalPages})" ${audit_page===totalPages?'disabled':''}><i class="fa-solid fa-angles-right"></i></button>
+            </div>
+        </div>` : ''}
+    </div>`;
+}
 /* ============================================================
    STATISTIQUES
    ============================================================ */
