@@ -909,7 +909,44 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(1);cursor:po
     .rappel-header-content { flex-direction: column; gap: 15px; }
     .rappel-close-btn { position: absolute; top: 15px; right: 15px; }
 }
+/* =========================================
+   CSS POUR LE MODAL DÉPENSE (Image de fond)
+   ========================================= */
+#modal-depense .form-control::placeholder {
+    color: #888;
+    opacity: 1;
+}
+#modal-depense select.form-control {
+    appearance: none; /* Enlève la flèche par défaut */
+}
+#modal-depense select.form-control option {
+    background: #111;
+    color: #fff;
+}
+#modal-depense input:focus, 
+#modal-depense select:focus, 
+#modal-depense textarea:focus {
+    outline: none;
+    border-color: #e50914 !important; /* La bordure devient rouge néon quand on clique dedans */
+    box-shadow: 0 0 10px rgba(229,9,20,0.5);
+}
 </style>
+<!-- Bibliothèque Flatpickr pour les calendriers -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr">
+// Formatage automatique de TOUS les champs de type montant
+document.addEventListener('input', function(e) {
+    if(e.target.tagName === 'INPUT' && (e.target.type === 'number' || e.target.classList.contains('montant-input'))) {
+        // On ne formate que si c'est un champ de saisie de texte
+        if (e.target.type === 'text') {
+            let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/g, '');
+            if(value) {
+                e.target.value = Number(value).toLocaleString('fr-FR').replace(/\u202f/g, ' ');
+            }
+        }
+    }
+});
+</script>
 </head>
 <body>
 <div id="lock"></div>
@@ -4233,124 +4270,253 @@ Affichage de ${liste.length > 0 ? debut + 1 : 0} à ${Math.min(fin, liste.length
 PAIE
 ============================================================ */
 function ouvrirModalPaie(id=null){
-let p={employe_id:"",montant:0,date_paie:"",mois:"",notes:""};
-if(id) p=data.paie.find(x=>x.id===id)||p;
-let dateAffichage = "";
-if(p.date_paie) {
-const parts = p.date_paie.split('-');
-dateAffichage = `${parts[2]}/${parts[1]}/${parts[0]}`;
-} else {
-const today = new Date();
-dateAffichage = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
-}
-let moisAffichage = p.mois || new Date().toISOString().slice(0,7);
-const modal=document.createElement('div');
-modal.className='modal-overlay';
-modal.id='modal-paie';
-modal.innerHTML=`
-<div class="modal modal-paie-custom">
-<div class="paie-header">
-<img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
-<h3><i class="fa-regular fa-credit-card"></i> ${id ? 'Modifier la paie' : 'Nouvelle paie'}</h3>
-<button class="paie-close" onclick="document.getElementById('modal-paie').remove()"><i class="fa-solid fa-xmark"></i></button>
-</div>
-<div class="paie-body">
-<div class="paie-input-group">
-<label class="paie-label"><i class="fa-solid fa-user"></i> Employé <span class="req">*</span></label>
-<select id="paie_emp" class="paie-input">
-<option value="">Choisir un employé...</option>
-${data.employes.map(emp=>`<option value="${emp.id}" ${emp.id===p.employe_id?'selected':''}>${e(emp.nom)} ${e(emp.prenom)}</option>`).join("")}
-</select>
-</div>
-<div class="paie-grid-2">
-<div class="paie-input-group">
-<label class="paie-label"><i class="fa-solid fa-coins"></i> Montant <span class="req">*</span></label>
-<div class="input-gnf-wrapper">
-<input id="paie_montant" type="number" class="paie-input" value="${p.montant||0}" placeholder="0">
-<div class="gnf-box">GNF</div>
-</div>
-</div>
-<div class="paie-input-group">
-<label class="paie-label"><i class="fa-solid fa-calendar-days"></i> Date <span class="req">*</span></label>
-<div class="calendar-icon-wrapper">
-<input id="paie_date" type="text" class="paie-input" value="${dateAffichage}" placeholder="JJ/MM/AAAA">
-<i class="fa-regular fa-calendar calendar-icon"></i>
-</div>
-</div>
-</div>
-<div class="paie-input-group">
-<label class="paie-label"><i class="fa-solid fa-calendar-check"></i> Mois de paie <span class="req">*</span> <span class="opt">(Ex : 2026-11)</span></label>
-<div class="calendar-icon-wrapper">
-<input id="paie_mois" type="text" class="paie-input" value="${moisAffichage}" placeholder="AAAA-MM">
-<i class="fa-regular fa-calendar calendar-icon"></i>
-</div>
-</div>
-<div class="paie-input-group" style="margin-bottom: 0;">
-<label class="paie-label"><i class="fa-solid fa-file-lines"></i> Notes <span class="opt">(facultatif)</span></label>
-<textarea id="paie_notes" class="paie-input" rows="3" placeholder="Ex : Salaire du mois, acompte, prime..." style="resize:none;">${e(p.notes||'')}</textarea>
-</div>
-<svg class="paie-car-silhouette" viewBox="0 0 100 30" fill="none" stroke="white" stroke-width="1.5">
-<path d="M10,20 L20,10 L60,10 L80,20 L90,20 M15,20 A5,5 0 1,1 15,30 A5,5 0 1,1 15,20 M75,20 A5,5 0 1,1 75,30 A5,5 0 1,1 75,20 M20,20 L70,20" stroke-linecap="round"/>
-</svg>
-</div>
-<div class="paie-footer">
-<button class="paie-btn-annuler" onclick="document.getElementById('modal-paie').remove()">
-<i class="fa-solid fa-circle-xmark"></i> Annuler
-</button>
-<button class="paie-btn-enregistrer" onclick="sauvegarderPaie('${id||''}')">
-<i class="fa-solid fa-floppy-disk"></i> Enregistrer
-</button>
-</div>
-</div>`;
-document.body.appendChild(modal);
-flatpickr("#paie_date", {
-locale: "fr",
-dateFormat: "d/m/Y",
-defaultDate: dateAffichage,
-disableMobile: true,
-onChange: function(selectedDates, dateStr, instance) {
-if(selectedDates.length > 0) {
-const d = selectedDates[0];
-instance.input.dataset.dbDate = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
-}
-}
-});
-flatpickr("#paie_mois", {
-locale: "fr",
-dateFormat: "Y-m",
-defaultDate: moisAffichage,
-disableMobile: true
-});
+    let p={employe_id:"",montant:0,date_paie:"",mois:"",notes:""};
+    if(id) p=data.paie.find(x=>x.id===id)||p;
+    
+    let dateAffichage = "";
+    if(p.date_paie) {
+        const parts = p.date_paie.split('-');
+        dateAffichage = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    } else {
+        const today = new Date();
+        dateAffichage = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+    }
+    let moisAffichage = p.mois || new Date().toISOString().slice(0,7);
+
+    // Fonction utilitaire pour formater l'affichage initial
+    const fmtNum = (val) => val ? Number(val).toLocaleString('fr-FR').replace(/\u202f/g, ' ') : "";
+
+    const modal=document.createElement('div');
+    modal.className='modal-overlay';
+    modal.id='modal-paie';
+    
+    modal.innerHTML=`
+    <div class="modal" style="
+        max-width: 650px; width: 95%; max-height: 90vh;
+        background: linear-gradient(135deg, #0a0a0a 0%, #150000 100%);
+        border: 1px solid #e50914; border-radius: 20px; padding: 0; overflow: hidden;
+        box-shadow: 0 0 30px rgba(229, 9, 20, 0.2); display: flex; flex-direction: column;
+    ">
+        <!-- EN-TÊTE -->
+        <div style="background: linear-gradient(90deg, #b20710, #e50914); padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <h3 style="margin: 0; color: #fff; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; text-transform: uppercase;">
+                <i class="fa-solid fa-money-bill-transfer"></i> ${id ? 'Modifier la paie' : 'Nouvelle paie'}
+            </h3>
+            <button onclick="document.getElementById('modal-paie').remove()" style="background: rgba(0,0,0,0.3); border: none; color: #fff; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 18px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- CORPS -->
+        <div style="padding: 25px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex: 1;">
+            
+            <!-- Employé & Poste -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-user" style="color: #e50914;"></i> Employé <span style="color: #e50914;">*</span>
+                    </label>
+                    <select id="paie_emp" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 12px; font-size: 14px; outline: none;">
+                        <option value="">Choisir un employé...</option>
+                        ${data.employes.map(emp=>`<option value="${emp.id}" ${emp.id===p.employe_id?'selected':''}>${e(emp.nom)} ${e(emp.prenom)}</option>`).join("")}
+                    </select>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-briefcase" style="color: #e50914;"></i> Poste
+                    </label>
+                    <input type="text" id="paie_poste" value="${p.poste||''}" placeholder="Ex : Mécanicien" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 12px; font-size: 14px; outline: none;">
+                </div>
+            </div>
+
+            <!-- Éléments de rémunération -->
+            <div style="border: 1px solid #333; border-radius: 10px; padding: 15px; position: relative; margin-top: 10px;">
+                <div style="position: absolute; top: -12px; left: 15px; background: linear-gradient(90deg, #b20710, #e50914); color: white; padding: 4px 15px; border-radius: 20px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-coins"></i> Éléments de rémunération
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-money-bill" style="color: #e50914;"></i> Salaire de base (GNF) *</label>
+                        <!-- type="text" au lieu de number -->
+                        <input type="text" id="paie_base" value="${fmtNum(p.salaire_base||0)}" placeholder="Ex : 2 500 000" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-clock" style="color: #e50914;"></i> Heures suppl. (GNF)</label>
+                        <input type="text" id="paie_hsup" value="${fmtNum(p.heures_sup||0)}" placeholder="Ex : 150 000" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-gift" style="color: #e50914;"></i> Primes (GNF)</label>
+                        <input type="text" id="paie_primes" value="${fmtNum(p.primes||0)}" placeholder="Ex : 200 000" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-plus-circle" style="color: #e50914;"></i> Autres avantages (GNF)</label>
+                        <input type="text" id="paie_avantages" value="${fmtNum(p.avantages||0)}" placeholder="Ex : 50 000" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Retenues -->
+            <div style="border: 1px solid #333; border-radius: 10px; padding: 15px; position: relative; margin-top: 10px;">
+                <div style="position: absolute; top: -12px; left: 15px; background: #111; color: #e50914; border: 1px solid #e50914; padding: 4px 15px; border-radius: 20px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-minus-circle"></i> Retenues
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-calendar-xmark" style="color: #e50914;"></i> Retenue (absence, retard) (GNF)</label>
+                        <input type="text" id="paie_retenue" value="${fmtNum(p.retenue_absence||0)}" placeholder="Ex : 100 000" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-hand-holding-dollar" style="color: #e50914;"></i> Avance sur salaire (GNF)</label>
+                        <input type="text" id="paie_avance" value="${fmtNum(p.avance||0)}" placeholder="Ex : 300 000" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Période et paiement -->
+            <div style="border: 1px solid #333; border-radius: 10px; padding: 15px; position: relative; margin-top: 10px;">
+                <div style="position: absolute; top: -12px; left: 15px; background: linear-gradient(90deg, #b20710, #e50914); color: white; padding: 4px 15px; border-radius: 20px; font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-calendar-days"></i> Période et paiement
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-calendar" style="color: #e50914;"></i> Période de paie *</label>
+                        <input id="paie_mois" type="text" value="${moisAffichage}" placeholder="AAAA-MM" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-calendar-check" style="color: #e50914;"></i> Date de paiement *</label>
+                        <input id="paie_date" type="text" value="${dateAffichage}" placeholder="JJ/MM/AAAA" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-credit-card" style="color: #e50914;"></i> Mode de paiement *</label>
+                        <select id="paie_mode" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none;">
+                            <option value="Espèces" ${p.mode_paiement==='Espèces'?'selected':''}>Espèces</option>
+                            <option value="Virement" ${p.mode_paiement==='Virement'?'selected':''}>Virement</option>
+                            <option value="Chèque" ${p.mode_paiement==='Chèque'?'selected':''}>Chèque</option>
+                            <option value="Mobile Money" ${p.mode_paiement==='Mobile Money'?'selected':''}>Mobile Money</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes / Commentaire -->
+            <div>
+                <label style="display: flex; align-items: center; gap: 6px; color: #ccc; font-size: 12px; font-weight: 600; margin-bottom: 6px;"><i class="fa-solid fa-comment" style="color: #e50914;"></i> Notes (optionnel)</label>
+                <textarea id="paie_notes" rows="2" placeholder="Ex : Salaire du mois, acompte..." style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; padding: 10px; font-size: 14px; outline: none; resize: none;">${e(p.notes||'')}</textarea>
+            </div>
+
+        </div>
+
+        <!-- PIED -->
+        <div style="padding: 20px 25px; border-top: 1px solid #333; display: flex; gap: 15px; background: #050505; flex-shrink: 0;">
+            <button type="button" onclick="document.getElementById('modal-paie').remove()" style="flex: 1; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-xmark"></i> Annuler
+            </button>
+            <button type="button" onclick="sauvegarderPaie('${id||''}')" style="flex: 2; background: linear-gradient(90deg, #e50914, #b20710); color: #fff; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(229,9,20,0.4); display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+            </button>
+        </div>
+    </div>`;
+    
+    document.body.appendChild(modal);
+
+    // --- GESTION DU FORMATAGE EN DIRECT ---
+    const montantInputs = ['paie_base', 'paie_hsup', 'paie_primes', 'paie_avantages', 'paie_retenue', 'paie_avance'];
+    montantInputs.forEach(idInput => {
+        const el = document.getElementById(idInput);
+        if(!el) return;
+        
+        // Effet Néon au clic
+        el.addEventListener('focus', function() { this.style.borderColor = '#e50914'; this.style.boxShadow = '0 0 10px rgba(229,9,20,0.5)'; });
+        el.addEventListener('blur', function() { this.style.borderColor = '#333'; this.style.boxShadow = 'none'; });
+        
+        // Formatage quand on tape
+        el.addEventListener('input', function(e) {
+            let value = this.value.replace(/\s/g, '').replace(/[^0-9]/g, ''); // Garde uniquement les chiffres
+            if(value) {
+                this.value = Number(value).toLocaleString('fr-FR').replace(/\u202f/g, ' '); // Ajoute les espaces
+            } else {
+                this.value = "";
+            }
+        });
+    });
+
+    // Effet néon pour les autres champs
+    modal.querySelectorAll('input:not([id^="paie_"]), select, textarea').forEach(input => {
+        input.addEventListener('focus', function() { this.style.borderColor = '#e50914'; this.style.boxShadow = '0 0 10px rgba(229,9,20,0.5)'; });
+        input.addEventListener('blur', function() { this.style.borderColor = '#333'; this.style.boxShadow = 'none'; });
+    });
+
+    flatpickr("#paie_date", {
+        locale: "fr", dateFormat: "d/m/Y", defaultDate: dateAffichage, disableMobile: true,
+        onChange: function(selectedDates, dateStr, instance) {
+            if(selectedDates.length > 0) {
+                const d = selectedDates[0];
+                instance.input.dataset.dbDate = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+            }
+        }
+    });
+    flatpickr("#paie_mois", { locale: "fr", dateFormat: "Y-m", defaultDate: moisAffichage, disableMobile: true });
 }
 async function sauvegarderPaie(id){
-const employe_id=$("paie_emp").value;
-const montant=+$("paie_montant").value||0;
-const notes=$("paie_notes").value.trim();
-let date_paie = $("paie_date").dataset.dbDate;
-if(!date_paie) {
-const parts = $("paie_date").value.split('/');
-if(parts.length === 3) date_paie = `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
-const mois = $("paie_mois").value;
-if(!employe_id || !montant || !date_paie || !mois){
-toast("Veuillez remplir correctement tous les champs obligatoires.","error");
-return;
-}
-const payload={employe_id, montant, date_paie, mois, notes};
-try{
-if(id){
-const{error}=await supa.from("paie").update(payload).eq("id",id);
-if(error) throw error;
-}else{
-const{error}=await supa.from("paie").insert(payload);
-if(error) throw error;
-}
-document.getElementById('modal-paie').remove();
-toast("Paie enregistrée !");
-await loadAllData();
-}catch(err){
-toast("Erreur : "+err.message,"error");
-}
+    try {
+        const employe_id = document.getElementById("paie_emp").value;
+        const poste = document.getElementById("paie_poste").value;
+        
+        // Fonction pour nettoyer les espaces et récupérer le vrai nombre
+        const parseNum = (id) => {
+            const el = document.getElementById(id);
+            if(!el) return 0;
+            return +el.value.replace(/\s/g, '').replace(/[^0-9]/g, '') || 0;
+        };
+
+        const base = parseNum("paie_base");
+        const hsup = parseNum("paie_hsup");
+        const primes = parseNum("paie_primes");
+        const avantages = parseNum("paie_avantages");
+        const retenue = parseNum("paie_retenue");
+        const avance = parseNum("paie_avance");
+        
+        const notes = document.getElementById("paie_notes").value.trim();
+        const mode_paiement = document.getElementById("paie_mode").value;
+        const mois = document.getElementById("paie_mois").value;
+        
+        let date_paie = document.getElementById("paie_date").dataset.dbDate;
+        if(!date_paie) {
+            const parts = document.getElementById("paie_date").value.split('/');
+            if(parts.length === 3) date_paie = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        if(!employe_id || !base || !date_paie || !mois){
+            toast("Veuillez remplir l'employé, le salaire de base, la date et la période.","error");
+            return;
+        }
+
+        // Calcul du montant net
+        const brut = base + hsup + primes + avantages;
+        const total_retenues = retenue + avance;
+        const montant_net = brut - total_retenues;
+
+        const payload = { 
+            employe_id, montant: montant_net, date_paie, mois, notes, 
+            poste, salaire_base: base, heures_sup: hsup, primes, avantages, 
+            retenue_absence: retenue, avance, mode_paiement 
+        };
+
+        if(id){
+            const { error } = await supa.from("paie").update(payload).eq("id", id);
+            if(error) throw error;
+        } else {
+            const { error } = await supa.from("paie").insert(payload);
+            if(error) throw error;
+        }
+        
+        document.getElementById('modal-paie').remove();
+        toast("Paie enregistrée !", "success");
+        await loadAllData();
+    } catch(err) {
+        console.error("[sauvegarderPaie]", err);
+        toast("Erreur : " + err.message, "error");
+    }
 }
 function renderPaie(A){
 const total=data.paie.reduce((a,p)=>a+(+p.montant||0),0);
@@ -4384,94 +4550,136 @@ return `<tr>
 /* ============================================================
 DÉPENSES
 ============================================================ */
+
 function ouvrirModalDepense(id=null){
-let d={categorie:"",description:"",montant:0,date_depense:"",fournisseur_id:""};
-if(id) d=data.depenses.find(x=>x.id===id)||d;
-let dateAffichage = "";
-if(d.date_depense) {
-const parts = d.date_depense.split('-');
-dateAffichage = `${parts[2]}/${parts[1]}/${parts[0]}`;
-} else {
-const today = new Date();
-dateAffichage = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
-}
-const modal=document.createElement('div');
-modal.className='modal-overlay';
-modal.id='modal-depense';
-modal.innerHTML=`
-<div class="modal modal-dep-custom">
-<div class="dep-header">
-<img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
-<h3><i class="fa-solid fa-money-bill-wave"></i> ${id ? 'Modifier la dépense' : 'Nouvelle dépense'}</h3>
-<button class="dep-close" onclick="document.getElementById('modal-depense').remove()"><i class="fa-solid fa-xmark"></i></button>
-</div>
-<div class="dep-body" style="max-height: calc(90vh - 180px); overflow-y: auto;">
-<div class="dep-input-group">
-<label class="dep-label"><i class="fa-solid fa-layer-group"></i> Catégorie <span class="req">*</span></label>
-<select id="dep_cat" class="dep-input">
-<option value="">Choisir une catégorie...</option>
-${['Achat pièces','Salaires','Loyer','Électricité','Eau','Carburant','Entretien','Divers'].map(c=>`<option ${d.categorie===c?'selected':''}>${c}</option>`).join("")}
-</select>
-</div>
-<div class="dep-input-group">
-<label class="dep-label"><i class="fa-solid fa-file-lines"></i> Description <span class="req">*</span></label>
-<textarea id="dep_desc" class="dep-input" rows="2" placeholder="Détail de la dépense...">${e(d.description||'')}</textarea>
-</div>
-<div class="dep-grid-2">
-<div class="dep-input-group">
-<label class="dep-label"><i class="fa-solid fa-coins"></i> Montant <span class="req">*</span></label>
-<div class="input-gnf-wrapper">
-<input id="dep_montant" type="number" class="dep-input" value="${d.montant||0}" placeholder="0">
-<div class="gnf-box">GNF</div>
-</div>
-</div>
-<div class="dep-input-group">
-<label class="dep-label"><i class="fa-solid fa-calendar-days"></i> Date <span class="req">*</span></label>
-<div class="calendar-icon-wrapper">
-<input id="dep_date" type="text" class="dep-input" value="${dateAffichage}" placeholder="JJ/MM/AAAA">
-<i class="fa-regular fa-calendar calendar-icon"></i>
-</div>
-</div>
-</div>
-<div class="dep-input-group" style="margin-bottom: 0;">
-<label class="dep-label"><i class="fa-solid fa-truck"></i> Fournisseur</label>
-<select id="dep_four" class="dep-input" onchange="toggleAutreFournisseur()">
-<option value="">-- Aucun / Divers --</option>
-<option value="AUTRE_PONCTUEL" ${d.fournisseur_id==='AUTRE_PONCTUEL'?'selected':''}>🛒 Autre / Ponctuel (Saisir le nom)</option>
-${data.fournisseurs.map(fo=>`<option value="${fo.id}" ${fo.id===d.fournisseur_id?'selected':''}>${e(fo.nom)}</option>`).join("")}
-</select>
-<div id="dep_autre_four_container" style="display:${d.fournisseur_id==='AUTRE_PONCTUEL'?'block':'none'}; margin-top:10px; max-height: 60px; overflow: hidden;">
-<input id="dep_autre_four_nom" type="text" class="dep-input"
-value="${d.fournisseur_id==='AUTRE_PONCTUEL' && d.description ? e(d.description.replace(/^\[Vendeur:\s*[^]]+\]\s*/, '')) : ''}"
-placeholder="Nom du vendeur ou magasin...">
-</div>
-</div>
-<svg class="dep-car-silhouette" viewBox="0 0 100 30" fill="none" stroke="white" stroke-width="1.5">
-<path d="M10,20 L20,10 L60,10 L80,20 L90,20 M15,20 A5,5 0 1,1 15,30 A5,5 0 1,1 15,20 M75,20 A5,5 0 1,1 75,30 A5,5 0 1,1 75,20 M20,20 L70,20" stroke-linecap="round"/>
-</svg>
-</div>
-<div class="dep-footer">
-<button class="dep-btn-annuler" onclick="document.getElementById('modal-depense').remove()">
-<i class="fa-solid fa-circle-xmark"></i> Annuler
-</button>
-<button class="dep-btn-enregistrer" onclick="sauvegarderDepense('${id||''}')">
-<i class="fa-solid fa-floppy-disk"></i> Enregistrer
-</button>
-</div>
-</div>`;
-document.body.appendChild(modal);
-flatpickr("#dep_date", {
-locale: "fr",
-dateFormat: "d/m/Y",
-defaultDate: dateAffichage,
-disableMobile: true,
-onChange: function(selectedDates, dateStr, instance) {
-if(selectedDates.length > 0) {
-const d = selectedDates[0];
-instance.input.dataset.dbDate = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
-}
-}
-});
+    let d={categorie:"",description:"",montant:0,date_depense:"",fournisseur_id:""};
+    if(id) d=data.depenses.find(x=>x.id===id)||d;
+    
+    let dateAffichage = "";
+    if(d.date_depense) {
+        const parts = d.date_depense.split('-');
+        dateAffichage = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    } else {
+        const today = new Date();
+        dateAffichage = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+    }
+
+    const modal=document.createElement('div');
+    modal.className='modal-overlay';
+    modal.id='modal-depense';
+    
+    modal.innerHTML=`
+    <div class="modal" style="
+        max-width: 600px; 
+        width: 95%; 
+        max-height: 90vh; /* Empêche de dépasser l'écran */
+        background: linear-gradient(135deg, #0a0a0a 0%, #150000 100%);
+        border: 1px solid #e50914; 
+        border-radius: 20px; 
+        padding: 0; 
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 0 30px rgba(229, 9, 20, 0.2);
+        display: flex;
+        flex-direction: column; /* Organise en haut/milieu/bas */
+    ">
+        
+        <!-- EN-TÊTE (Fixe) -->
+        <div style="background: linear-gradient(90deg, #b20710, #e50914); padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <h3 style="margin: 0; color: #fff; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; text-transform: uppercase;">
+                <i class="fa-solid fa-money-bill-wave"></i> ${id ? 'Modifier la dépense' : 'Nouvelle dépense'}
+            </h3>
+            <button onclick="document.getElementById('modal-depense').remove()" style="background: rgba(0,0,0,0.3); border: none; color: #fff; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 18px;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- CORPS (Défilant) -->
+        <div style="padding: 25px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; flex: 1;">
+            
+            <div>
+                <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fa-solid fa-layer-group" style="color: #e50914;"></i> Catégorie <span style="color: #e50914;">*</span>
+                </label>
+                <select id="dep_cat" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 14px; font-size: 15px; outline: none;">
+                    <option value="">Choisir une catégorie...</option>
+                    ${['Achat pièces','Salaires','Loyer','Électricité','Eau','Carburant','Entretien','Divers'].map(c=>`<option ${d.categorie===c?'selected':''}>${c}</option>`).join("")}
+                </select>
+            </div>
+
+            <div>
+                <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fa-solid fa-file-lines" style="color: #e50914;"></i> Description
+                </label>
+                <textarea id="dep_desc" rows="2" placeholder="Détail de la dépense..." style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 14px; font-size: 15px; resize: none; outline: none;">${e(d.description||'')}</textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-coins" style="color: #e50914;"></i> Montant <span style="color: #e50914;">*</span>
+                    </label>
+                    <div style="position: relative;">
+                        <input id="dep_montant" type="number" value="${d.montant||0}" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 14px 45px 14px 15px; font-size: 15px; font-weight: bold; box-sizing: border-box; outline: none;">
+                        <span style="position: absolute; right: 15px; top: 15px; color: #e50914; font-weight: bold; font-size: 13px;">GNF</span>
+                    </div>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-calendar-days" style="color: #e50914;"></i> Date <span style="color: #e50914;">*</span>
+                    </label>
+                    <input id="dep_date" type="text" value="${dateAffichage}" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 14px; font-size: 15px; box-sizing: border-box; outline: none;">
+                </div>
+            </div>
+
+            <div>
+                <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fa-solid fa-truck" style="color: #e50914;"></i> Fournisseur
+                </label>
+                <select id="dep_four" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 14px; font-size: 15px; outline: none;" onchange="toggleAutreFournisseur()">
+                    <option value="">Choisir un fournisseur...</option>
+                    <option value="AUTRE_PONCTUEL" ${d.fournisseur_id==='AUTRE_PONCTUEL'?'selected':''}>Autre / Ponctuel</option>
+                    ${data.fournisseurs.map(fo=>`<option value="${fo.id}" ${fo.id===d.fournisseur_id?'selected':''}>${e(fo.nom)}</option>`).join("")}
+                </select>
+            </div>
+            
+            <div id="dep_autre_four_container" style="display:${d.fournisseur_id==='AUTRE_PONCTUEL'?'block':'none'};">
+                <input id="dep_autre_four_nom" type="text" value="${d.fournisseur_id==='AUTRE_PONCTUEL' && d.description ? e(d.description.replace(/^\[Vendeur:\s*[^]]+\]\s*/, '')) : ''}" style="width: 100%; background: #000; color: #fff; border: 2px solid #333; border-radius: 10px; padding: 14px; font-size: 15px; box-sizing: border-box; outline: none;" placeholder="Nom du vendeur ou magasin...">
+            </div>
+        </div>
+
+        <!-- PIED DE PAGE (Boutons Fixes) -->
+        <div style="padding: 20px 25px; border-top: 1px solid #333; display: flex; gap: 15px; background: #050505; flex-shrink: 0;">
+            <button type="button" onclick="document.getElementById('modal-depense').remove()" style="flex: 1; background: #222; color: #fff; border: 1px solid #444; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer;">
+                Retour
+            </button>
+            <!-- Bouton d'enregistrement avec type="button" pour éviter les conflits -->
+            <button type="button" onclick="sauvegarderDepense('${id||''}')" style="flex: 2; background: linear-gradient(90deg, #e50914, #b20710); color: #fff; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(229,9,20,0.4);">
+                <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+            </button>
+        </div>
+    </div>`;
+    
+    document.body.appendChild(modal);
+
+    // Effet néon au clic
+    modal.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('focus', function() { this.style.borderColor = '#e50914'; this.style.boxShadow = '0 0 10px rgba(229,9,20,0.5)'; });
+        input.addEventListener('blur', function() { this.style.borderColor = '#333'; this.style.boxShadow = 'none'; });
+    });
+
+    flatpickr("#dep_date", {
+        locale: "fr",
+        dateFormat: "d/m/Y",
+        defaultDate: dateAffichage,
+        disableMobile: true,
+        onChange: function(selectedDates, dateStr, instance) {
+            if(selectedDates.length > 0) {
+                const d = selectedDates[0];
+                instance.input.dataset.dbDate = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+            }
+        }
+    });
 }
 function toggleAutreFournisseur(){
 const sel = document.getElementById('dep_four');
@@ -4481,49 +4689,62 @@ container.style.display = sel.value === 'AUTRE_PONCTUEL' ? 'block' : 'none';
 }
 }
 async function sauvegarderDepense(id){
-const categorie=$("dep_cat").value;
-let description=$("dep_desc").value.trim();
-const montant=+$("dep_montant").value||0;
-const fourSelect=$("dep_four");
-const fourValue=fourSelect?fourSelect.value:"";
-let date_depense = $("dep_date").dataset.dbDate;
-if(!date_depense) {
-const parts = $("dep_date").value.split('/');
-if(parts.length === 3) date_depense = `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
-if(!categorie || !description || !montant || !date_depense){
-toast("Champs obligatoires manquants.","error");
-return;
-}
-let fournisseur_id_to_save = null;
-if(fourValue === 'AUTRE_PONCTUEL'){
-const autreNom = $("dep_autre_four_nom")?.value.trim();
-if(autreNom){
-description = description.replace(/^\[Vendeur:\s*[^]]+\]\s*/, '');
-description = `[Vendeur: ${autreNom}] ${description}`;
-}
-fournisseur_id_to_save = null;
-} else {
-fournisseur_id_to_save = fourValue || null;
-}
-const payload={categorie, description, montant, date_depense};
-if(fournisseur_id_to_save) payload.fournisseur_id = fournisseur_id_to_save;
-try{
-if(id){
-const{error}=await supa.from("depenses").update(payload).eq("id",id);
-if(error) throw error;
-}
-else{
-const{error}=await supa.from("depenses").insert(payload);
-if(error) throw error;
-}
-document.getElementById('modal-depense').remove();
-toast("Dépense enregistrée !");
-await loadAllData();
-}catch(err){
-console.error(err);
-toast("Erreur : "+err.message,"error");
-}
+    try {
+        const categorie = document.getElementById("dep_cat").value;
+        const montant = +document.getElementById("dep_montant").value || 0;
+        const fourSelect = document.getElementById("dep_four");
+        const fourValue = fourSelect ? fourSelect.value : "";
+        
+        let date_depense = document.getElementById("dep_date").dataset.dbDate;
+        if(!date_depense) {
+            const parts = document.getElementById("dep_date").value.split('/');
+            if(parts.length === 3) date_depense = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        let autreNom = "";
+        if(fourValue === 'AUTRE_PONCTUEL') {
+            const inputAutre = document.getElementById("dep_autre_four_nom");
+            if(inputAutre) autreNom = inputAutre.value.trim();
+        }
+
+        let description = document.getElementById("dep_desc").value.trim();
+        if(!description) description = autreNom ? "Achat chez " + autreNom : "Dépense diverse";
+
+        if(!categorie || !montant || !date_depense){
+            toast("Veuillez remplir la catégorie, le montant et la date.","error");
+            return;
+        }
+
+        let fournisseur_id_to_save = null;
+        if(fourValue === 'AUTRE_PONCTUEL'){
+            if(autreNom){
+                description = description.replace(/^\[Vendeur:\s*[^]]+\]\s*/, '');
+                description = `[Vendeur: ${autreNom}] ${description}`;
+            }
+            fournisseur_id_to_save = null;
+        } else {
+            fournisseur_id_to_save = fourValue || null;
+        }
+
+        const payload = { categorie, description, montant, date_depense };
+        if(fournisseur_id_to_save) payload.fournisseur_id = fournisseur_id_to_save;
+
+        if(id){
+            const { error } = await supa.from("depenses").update(payload).eq("id", id);
+            if(error) throw error;
+        } else {
+            const { error } = await supa.from("depenses").insert(payload);
+            if(error) throw error;
+        }
+        
+        document.getElementById('modal-depense').remove();
+        toast("Dépense enregistrée !", "success");
+        await loadAllData();
+        
+    } catch(err) {
+        console.error("[sauvegarderDepense]", err);
+        toast("Erreur : " + err.message, "error");
+    }
 }
 async function deleteDepense(id){
 if(!ROLES[profil.role].can.deleteAny){toast("Non autorisé.","error");return;}
@@ -4568,65 +4789,136 @@ ${ROLES[profil.role].can.deleteAny?`<button class="btn btn-icon btn-danger" oncl
 FOURNISSEURS
 ============================================================ */
 function ouvrirModalFournisseur(id=null){
-let fo={nom:"",prenom:"",contact:"",telephone:"",adresse:""};
-if(id) {
-const existing = data.fournisseurs.find(x=>x.id===id);
-if(existing) {
-fo = { ...existing };
-if(fo.nom && fo.nom.includes(' ') && !fo.prenom) {
-const parts = fo.nom.split(' ');
-fo.prenom = parts.pop();
-fo.nom = parts.join(' ');
-}
-}
-}
-const modal=document.createElement('div');
-modal.className='modal-overlay';
-modal.id='modal-fournisseur';
-modal.innerHTML=`
-<div class="modal modal-four-custom">
-<div class="four-header">
-<img src="${LOGO_URL}" alt="Logo" onerror="this.style.display='none'">
-<h3><i class="fa-solid fa-industry"></i> ${id ? 'Modifier le fournisseur' : 'Nouveau fournisseur'}</h3>
-<button class="four-close" onclick="document.getElementById('modal-fournisseur').remove()"><i class="fa-solid fa-xmark"></i></button>
-</div>
-<div class="four-body">
-<div class="four-grid-2">
-<div class="four-input-group">
-<label class="four-label"><i class="fa-solid fa-user"></i> Nom <span class="req">*</span></label>
-<input id="four_nom" type="text" class="four-input" value="${e(fo.nom||'')}" placeholder="Saisir le nom...">
-</div>
-<div class="four-input-group">
-<label class="four-label"><i class="fa-solid fa-user"></i> Prénom <span class="req">*</span></label>
-<input id="four_prenom" type="text" class="four-input" value="${e(fo.prenom||'')}" placeholder="Saisir le prénom...">
-</div>
-</div>
-<div class="four-input-group">
-<label class="four-label"><i class="fa-solid fa-address-card"></i> Contact</label>
-<input id="four_contact" type="text" class="four-input" value="${e(fo.contact||'')}" placeholder="Nom du contact (ex. Responsable commercial)...">
-</div>
-<div class="four-input-group">
-<label class="four-label"><i class="fa-solid fa-phone"></i> Téléphone <span class="req">*</span></label>
-<input id="four_tel" type="text" class="four-input" value="${e(fo.telephone||'')}" placeholder="Saisir le numéro de téléphone...">
-</div>
-<div class="four-input-group" style="margin-bottom: 0;">
-<label class="four-label"><i class="fa-solid fa-location-dot"></i> Adresse</label>
-<input id="four_adr" type="text" class="four-input" value="${e(fo.adresse||'')}" placeholder="Saisir l'adresse (ville, quartier, etc.)...">
-</div>
-<svg class="four-car-silhouette" viewBox="0 0 100 30" fill="none" stroke="white" stroke-width="1.5">
-<path d="M10,20 L20,10 L60,10 L80,20 L90,20 M15,20 A5,5 0 1,1 15,30 A5,5 0 1,1 15,20 M75,20 A5,5 0 1,1 75,30 A5,5 0 1,1 75,20 M20,20 L70,20" stroke-linecap="round"/>
-</svg>
-</div>
-<div class="four-footer">
-<button class="four-btn-annuler" onclick="document.getElementById('modal-fournisseur').remove()">
-<i class="fa-solid fa-circle-xmark"></i> Annuler
-</button>
-<button class="four-btn-enregistrer" onclick="sauvegarderFournisseur('${id||''}')">
-<i class="fa-solid fa-floppy-disk"></i> Enregistrer
-</button>
-</div>
-</div>`;
-document.body.appendChild(modal);
+    let fo={nom:"",prenom:"",contact:"",telephone:"",adresse:""};
+    if(id) {
+        const existing = data.fournisseurs.find(x=>x.id===id);
+        if(existing) {
+            fo = { ...existing };
+            if(fo.nom && fo.nom.includes(' ') && !fo.prenom) {
+                const parts = fo.nom.split(' ');
+                fo.prenom = parts.pop();
+                fo.nom = parts.join(' ');
+            }
+        }
+    }
+    
+    const modal=document.createElement('div');
+    modal.className='modal-overlay';
+    modal.id='modal-fournisseur';
+    
+    modal.innerHTML=`
+    <div class="modal" style="
+        max-width: 650px; 
+        width: 95%; 
+        max-height: 90vh; 
+        background: linear-gradient(135deg, #0a0a0a 0%, #150000 100%);
+        border: 1px solid #e50914; 
+        border-radius: 20px; 
+        padding: 0; 
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 0 30px rgba(229, 9, 20, 0.2);
+        display: flex;
+        flex-direction: column;
+    ">
+        
+        <!-- EN-TÊTE -->
+        <div style="background: linear-gradient(90deg, #b20710, #e50914); padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <h3 style="margin: 0; color: #fff; font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; text-transform: uppercase;">
+                <i class="fa-solid fa-industry"></i> ${id ? 'Modifier le fournisseur' : 'Nouveau fournisseur'}
+            </h3>
+            <button onclick="document.getElementById('modal-fournisseur').remove()" style="
+                background: rgba(0,0,0,0.3); border: none; color: #fff; 
+                width: 36px; height: 36px; border-radius: 8px; cursor: pointer; 
+                font-size: 18px; transition: 0.2s;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- CORPS DU MODAL (Défilant) -->
+        <div style="padding: 25px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; flex: 1;">
+            
+            <!-- Nom & Prénom -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-user" style="color: #e50914;"></i> Nom <span style="color: #e50914;">*</span>
+                    </label>
+                    <input id="four_nom" type="text" value="${e(fo.nom||'')}" placeholder="Saisir le nom..." style="
+                        width: 100%; background: #000; color: #fff; border: 2px solid #333; 
+                        border-radius: 10px; padding: 14px; font-size: 15px; outline: none; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-user" style="color: #e50914;"></i> Prénom <span style="color: #e50914;">*</span>
+                    </label>
+                    <input id="four_prenom" type="text" value="${e(fo.prenom||'')}" placeholder="Saisir le prénom..." style="
+                        width: 100%; background: #000; color: #fff; border: 2px solid #333; 
+                        border-radius: 10px; padding: 14px; font-size: 15px; outline: none; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <!-- Contact & Téléphone (ALIGNÉS) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-address-card" style="color: #e50914;"></i> Contact
+                    </label>
+                    <input id="four_contact" type="text" value="${e(fo.contact||'')}" placeholder="Ex: Responsable..." style="
+                        width: 100%; background: #000; color: #fff; border: 2px solid #333; 
+                        border-radius: 10px; padding: 14px; font-size: 15px; outline: none; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                        <i class="fa-solid fa-phone" style="color: #e50914;"></i> Téléphone <span style="color: #e50914;">*</span>
+                    </label>
+                    <input id="four_tel" type="text" value="${e(fo.telephone||'')}" placeholder="Saisir le numéro..." style="
+                        width: 100%; background: #000; color: #fff; border: 2px solid #333; 
+                        border-radius: 10px; padding: 14px; font-size: 15px; outline: none; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <!-- Adresse -->
+            <div>
+                <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fa-solid fa-location-dot" style="color: #e50914;"></i> Adresse
+                </label>
+                <input id="four_adr" type="text" value="${e(fo.adresse||'')}" placeholder="Saisir l'adresse (ville, quartier...)" style="
+                    width: 100%; background: #000; color: #fff; border: 2px solid #333; 
+                    border-radius: 10px; padding: 14px; font-size: 15px; outline: none; box-sizing: border-box;">
+            </div>
+
+        </div>
+
+        <!-- PIED DU MODAL (Boutons) -->
+        <div style="padding: 20px 25px; border-top: 1px solid #333; display: flex; gap: 15px; background: #050505; flex-shrink: 0;">
+            <button type="button" onclick="document.getElementById('modal-fournisseur').remove()" style="
+                flex: 1; background: #222; color: #fff; border: 1px solid #444; 
+                border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-arrow-left"></i> Annuler
+            </button>
+            <button type="button" onclick="sauvegarderFournisseur('${id||''}')" style="
+                flex: 2; background: linear-gradient(90deg, #e50914, #b20710); color: #fff; border: none; 
+                border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 800; cursor: pointer;
+                box-shadow: 0 4px 15px rgba(229,9,20,0.4); transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+            </button>
+        </div>
+    </div>`;
+    
+    document.body.appendChild(modal);
+
+    // Effet Néon Rouge au focus
+    modal.querySelectorAll('input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#e50914';
+            this.style.boxShadow = '0 0 10px rgba(229,9,20,0.5)';
+        });
+        input.addEventListener('blur', function() {
+            this.style.borderColor = '#333';
+            this.style.boxShadow = 'none';
+        });
+    });
 }
 async function sauvegarderFournisseur(id){
 const nom=$("four_nom").value.trim();
@@ -5078,7 +5370,8 @@ function printDoc(type, numero, doc) {
     const client = data.clients.find(c => c.id === doc.client_id) || {};
     const v = data.vehicules.find(veh => (veh.immat || "").toUpperCase() === (doc.immat || "").toUpperCase()) || {};
     
-    const lignesHtml = lignes.map(l => {
+    // Génération du tableau des lignes
+    const lignesHtml = lignes.map((l, index) => {
         const montant = l.t === "Main d'œuvre" ? (+l.p || 0) : ((+l.q || 0) * (+l.p || 0));
         let badgeClass = 'badge-piece';
         let badgeText = 'Pièce';
@@ -5091,256 +5384,240 @@ function printDoc(type, numero, doc) {
         }
         
         return `<tr>
-            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; font-size:11px; font-weight:600; color:#111;">${e(l.d)}</td>
-            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:center; font-size:11px; font-weight:700; color:#333;">${e(l.q || 1)}</td>
-            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:center;"><span class="${badgeClass}">${badgeText}</span></td>
-            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:right; font-size:11px; font-weight:600; color:#333;">${(+l.p||0).toLocaleString("fr-FR")}</td>
-            <td style="padding:8px 12px; border-bottom:1px solid #e5e7eb; text-align:right; font-size:12px; font-weight:800; color:#111;">${montant.toLocaleString("fr-FR")}</td>
+            <td style="text-align:center; font-weight:700;">${index + 1}</td>
+            <td style="font-weight:600; color:#111;">${e(l.d)}</td>
+            <td style="text-align:center;"><span class="${badgeClass}">${badgeText}</span></td>
+            <td style="text-align:center; font-weight:700;">${e(l.q || 1)}</td>
+            <td style="text-align:right; font-weight:600;">${(+l.p||0).toLocaleString("fr-FR")}</td>
+            <td style="text-align:right; font-weight:800; color:#111;">${montant.toLocaleString("fr-FR")}</td>
         </tr>`;
     }).join("");
     
     const acompte = doc.acompte || 0;
     const reste = doc.statut === "Payé" ? 0 : ((+doc.total_ttc||0) - acompte);
-    const tv = +(data.params.tva_taux||18);
     const dateEmission = doc.date_emission || new Date().toLocaleDateString('fr-FR');
     
+    // Ouverture de la fenêtre d'impression
     const w = window.open("", "_blank");
     w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${type} ${numero}</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    @page { size: A4; margin: 10mm; } 
+    @page { size: A4; margin: 0; } 
     * { box-sizing: border-box; margin: 0; padding: 0; } 
-    body { 
-        font-family: 'Inter', sans-serif; 
-        font-size: 11px; 
-        color: #222; 
-        background: #fff; 
-        line-height: 1.4;
-    } 
+    body { font-family: 'Inter', sans-serif; background: #e5e7eb; padding: 20px; display: flex; justify-content: center; }
     
-    /* Conteneur principal - PAS DE HAUTEUR FIXE */
-    .page { 
-        width: 100%; 
-        max-width: 210mm; 
-        margin: 0 auto; 
-        background: white; 
-        position: relative; 
-        overflow: visible !important; /* CORRECTION CLÉ */
-        display: flex; 
-        flex-direction: column; 
-        page-break-inside: avoid; 
-        min-height: auto !important; /* CORRECTION CLÉ */
-        height: auto !important; /* CORRECTION CLÉ */
-    } 
-    
-    .header { 
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%); 
-        color: white; 
-        padding: 15px 25px; 
+    .facture-container { 
+        width: 210mm; 
+        min-height: 297mm; 
+        background: #ffffff; 
         position: relative; 
         overflow: hidden; 
-        flex-shrink: 0; 
-        border-bottom: 3px solid #c00; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
     } 
     
-    .header-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; } 
-    .logo-area { display: flex; align-items: center; gap: 12px; } 
-    .logo-img { width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); } 
-    
-    .company-title { font-size: 20px; font-weight: 900; letter-spacing: 1px; margin: 0; text-transform: uppercase; } 
-    .company-title .red { color: #e50914; } 
-    .company-subtitle { font-size: 10px; font-weight: 700; letter-spacing: 2px; margin: 4px 0 0 0; color: #ccc; } 
-    .company-slogan { font-size: 14px; color: #e50914; margin: 4px 0 0 0; font-weight: 800; font-style: italic; } 
-    
-    .content { padding: 20px 25px; position: relative; flex: 1; display: flex; flex-direction: column; } 
-    
-    .invoice-info-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; } 
-    .invoice-number-block { font-size: 11px; line-height: 1.8; font-weight: 600; } 
-    .invoice-number-block b { color: #c00; font-size: 14px; font-weight: 900; } 
-    
-    .invoice-title-badge {
-        background: linear-gradient(135deg, #c00 0%, #e50914 100%);
-        color: white;
-        padding: 5px 16px;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: 900;
-        box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+    /* En-tête avec image de fond */
+    .header {
+        background: url('https://i.postimg.cc/RZvf8z11/Garage-moderne-Speed-Garage-Pro.png') center/cover no-repeat;
+        height: 110px; /* Réduit */
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 30px;
     }
-    
-    .info-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; } 
-    .pro-card { border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden; background: white; } 
-    .pro-card-header { background: #1f2937; color: #ffffff; padding: 5px 10px; font-size: 9px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; } 
-    .pro-card-header i { color: #e50914; } 
-    .pro-card-body { padding: 8px 10px; } 
-    .pro-company-name { margin: 0 0 6px 0; font-size: 12px; color: #111827; font-weight: 800; border-bottom: 2px solid #e50914; padding-bottom: 3px; display: inline-block; } 
-    .pro-row { display: flex; align-items: flex-start; margin-bottom: 4px; font-size: 10px; line-height: 1.3; } 
-    .pro-label { width: 80px; flex-shrink: 0; color: #6b7280; font-weight: 600; display: flex; align-items: center; gap: 4px; font-size: 9px; text-transform: uppercase; } 
-    .pro-label i { color: #e50914; width: 10px; text-align: center; } 
-    .pro-value { flex: 1; color: #374151; font-weight: 500; word-break: break-word; } 
-    .font-bold { font-weight: 800 !important; color: #111827 !important; }
-
-    .vehicle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 15px; margin-top: 8px; } 
-    .vehicle-item { display: flex; flex-direction: column; background: #f8f9fa; padding: 5px 8px; border: 1px solid #e5e7eb; border-left: 3px solid #e50914; border-radius: 4px; } 
-    .vehicle-label { font-size: 8px; text-transform: uppercase; color: #666; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 2px; } 
-    .vehicle-value { font-size: 11px; font-weight: 800; color: #111; word-break: break-all; }
-
-    .items-table { width: 100%; border-collapse: collapse; border: 2px solid #1f2937; margin-top: 8px; } 
-    .items-table th, .items-table td { padding: 6px 10px; font-size: 10px; border: 1px solid #e5e7eb; } 
-    .items-table thead th { background: #1f2937; color: #ffffff; border-bottom: 2px solid #e50914; } 
-    .items-table td:nth-child(3) span { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: 800; text-transform: uppercase; background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-
-    .totals-section { display: flex; justify-content: flex-end; margin: 12px 0; width: 100%; } 
-    .totals-table { width: 280px; border: 1px solid #ddd; } 
-    .totals-table td { padding: 5px 10px; font-size: 10px; border-bottom: 1px solid #eee; background: #f9fafb; } 
-    .total-row { font-weight: 900 !important; }
-
-    .signatures-section { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 12px 0; padding-top: 8px; width: 100%; } 
-    .signature-box { text-align: center; width: 100%; } 
-    .signature-box h4 { font-size: 10px; font-weight: 800; color: #333; margin-bottom: 5px; text-transform: uppercase; } 
-    .signature-frame { height: 50px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #777; margin-top: 4px; }
-
-    .footer { margin-top: auto; width: 100%; padding: 8px 25px; font-size: 9px; flex-shrink: 0; border-top: 2px solid #e50914; background: #fafafa; } 
-    .footer-slogan { font-size: 10px; margin-bottom: 3px; font-weight: 700; color: #333; } 
-    .footer-legal { color: #666; line-height: 1.5; } 
-
-    /* Badges */
-    .badge-piece { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-    .badge-mo { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-    .badge-prestation { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
-
-    /* Motif intervention */
-    .motif-block { margin-bottom: 12px; border-left: 4px solid #e50914; background: #f8f9fa; padding: 6px 10px; border-radius: 0 4px 4px 0; }
-    .motif-label { font-size: 8px; text-transform: uppercase; color: #666; font-weight: 800; margin-bottom: 2px; }
-    .motif-text { font-size: 10px; color: #111; font-weight: 600; line-height: 1.3; }
-
-    /* Merci message */
-    .merci-msg { text-align: center; margin: 8px 0; font-size: 10px; font-style: italic; color: #555; font-weight: 600; }
-
-    /* Print styles */
-    @media print {
-        body { background: white; }
-        .page { border: none; box-shadow: none; margin: 0; }
+    .header::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(to right, rgba(255,255,255,0) 40%, rgba(0,0,0,0.9) 70%);
     }
+    .header-contact { position: relative; z-index: 2; color: white; text-align: right; font-size: 11px; line-height: 1.5; font-weight: 500; }
+    .header-contact i { color: #e50914; margin-right: 6px; width: 12px; text-align: center; }
+
+    /* Barre Titre */
+    .title-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; border-bottom: 1px solid #e5e7eb; }
+    .title-badge { background: linear-gradient(90deg, #800000, #b20710); color: white; padding: 8px 30px; font-size: 26px; font-weight: 900; font-style: italic; letter-spacing: 1px; text-transform: uppercase; border-radius: 4px; }
+    .title-info { display: flex; align-items: center; gap: 15px; }
+    .info-box { background: #f3f4f6; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #333; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 6px; }
+    .info-box i { color: #800000; font-size: 14px; }
+
+    /* Cartes Infos (Client & Véhicule) - RÉDUITES */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px 30px; }
+    .card { border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden; }
+    /* En-tête Noir avec texte Blanc et icône Rouge */
+    .card-header { background: #111; padding: 8px 12px; font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #e50914; text-transform: uppercase; }
+    .card-header i { color: #e50914; font-size: 13px; }
+    .card-body { padding: 10px 12px; font-size: 11px; line-height: 1.5; color: #333; }
+    .info-line { display: flex; margin-bottom: 2px; }
+    .info-line .lbl { width: 100px; font-weight: 600; color: #6b7280; font-size: 10px; text-transform: uppercase;}
+    .info-line .val { font-weight: 700; color: #111; font-size: 11px; }
+    .card-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px; }
+    .card-body-grid .info-line { flex-direction: column; margin-bottom: 0; }
+    .card-body-grid .info-line .lbl { width: 100%; font-size: 9px; margin-bottom: 1px;}
+    .card-body-grid .info-line .val { font-size: 11px; }
+
+    /* Tableau - En-tête Noir */
+    .items-table-wrapper { padding: 0 30px; flex: 1; }
+    .items-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .items-table th { background: #111; color: white; padding: 10px; text-align: left; font-weight: 700; border-bottom: 2px solid #e50914; }
+    .items-table td { padding: 8px 10px; border: 1px solid #e5e7eb; color: #333; }
+    .items-table tbody tr:nth-child(even) { background: #f9fafb; }
+    
+    .badge-piece { background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+    .badge-mo { background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+    .badge-prestation { background: #fce7f3; color: #9d174d; padding: 3px 8px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+
+    /* Bas de facture (Travaux & Totaux) */
+    .bottom-section { display: flex; gap: 15px; padding: 15px 30px; }
+    /* Bloc Travaux - En-tête Noir */
+    .travaux-box { flex: 1; border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden; background: #fff; }
+    .travaux-header { background: #111; color: white; padding: 8px 12px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; border-bottom: 2px solid #e50914; text-transform: uppercase; }
+    .travaux-header i { color: #e50914; }
+    .travaux-body { padding: 10px; font-size: 11px; }
+    .travaux-item { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 6px; font-weight: 600; }
+    .travaux-item i { color: #e50914; margin-top: 2px; font-size: 10px; }
+    
+    .totaux-box { width: 320px; border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden; background: #fff; }
+    .totaux-row { display: flex; justify-content: space-between; padding: 8px 12px; font-size: 11px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; font-weight: 600; color: #555; }
+    .totaux-row span:last-child { font-weight: 800; color: #111; }
+    .totaux-row.total-final { background: linear-gradient(90deg, #800000, #b20710); color: white; padding: 12px; border: none; }
+    .totaux-row.total-final span { color: white !important; font-size: 14px; font-weight: 900; }
+    .totaux-row.neon-red { background: rgba(229, 9, 20, 0.05); border: 1px solid #e50914; margin-top: 8px; border-radius: 4px; }
+    .totaux-row.neon-red span { color: #e50914 !important; font-weight: 900; }
+
+    /* Signatures */
+    .signatures { display: flex; justify-content: space-between; padding: 10px 30px 20px 30px; }
+    .signature-box { width: 45%; text-align: center; }
+    .signature-box h4 { font-size: 11px; color: #333; font-weight: 800; margin-bottom: 8px; }
+    .signature-area { border: 1px dashed #9ca3af; height: 60px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #f9fafb; }
+    .signature-area img { max-height: 50px; opacity: 0.8; }
+
+    /* Footer */
+    .footer { background: #111; color: white; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; margin-top: auto; }
+    .footer-icons { display: flex; gap: 15px; font-weight: 600; color: #ccc; }
+    .footer-icons i { color: #e50914; margin-right: 4px; }
+    .footer-bottom { text-align: center; background: #800000; color: white; padding: 8px; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    
+    @media print { body { background: white; padding: 0; } .facture-container { box-shadow: none; width: 100%; min-height: auto; } }
 </style>
+</head>
+<body>
 
-<div class="page">
-<div class="header">
-    <div class="header-top">
-        <div class="logo-area">
-            <img src="${LOGO_URL}" alt="Speed Garage Pro" class="logo-img" onerror="this.style.display='none'">
-            <div>
-                <h1 class="company-title">SPEED <span class="red">GARAGE</span> PRO SARL</h1>
-                <p class="company-subtitle">MÉCANIQUE • PIÈCES DÉTACHÉES • DIAGNOSTIC</p>
-                <p class="company-slogan">Votre partenaire automobile de confiance</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="content">
-    <div class="invoice-info-row">
-        <div class="invoice-number-block">
-            <div>N° ${type} : <b>${e(numero)}</b></div>
-            <div>Date d'émission : ${e(dateEmission)}</div>
-        </div>
-        <div class="invoice-title-badge">${type}</div>
-    </div>
-
-    <div class="info-blocks">
-        <div class="pro-card">
-            <div class="pro-card-header"><i class="fa-solid fa-building"></i> SOCIÉTÉ</div>
-            <div class="pro-card-body">
-                <h3 class="pro-company-name">${e(p.nom || "SPEED GARAGE PRO SARL")}</h3>
-                <div class="pro-row"><span class="pro-label"><i class="fa-solid fa-location-dot"></i> Adresse</span><span class="pro-value">${e(p.adresse || "Transversale T8, Commune Kagbelen")}</span></div>
-                <div class="pro-row"><span class="pro-label"><i class="fa-solid fa-phone"></i> Téléphone</span><span class="pro-value">${e(p.telephone || "+224 628 00 00 00")}</span></div>
-                <div class="pro-row"><span class="pro-label"><i class="fa-solid fa-envelope"></i> Email</span><span class="pro-value">${e(p.email || "speedgaragepro3@gmail.com")}</span></div>
-            </div>
-        </div>
-        <div class="pro-card">
-            <div class="pro-card-header"><i class="fa-solid fa-user"></i> INFORMATIONS CLIENT</div>
-            <div class="pro-card-body">
-                <div class="pro-row"><span class="pro-label">Nom / Société</span><span class="pro-value font-bold">${e(doc.client_nom || "")}</span></div>
-                <div class="pro-row"><span class="pro-label">Téléphone</span><span class="pro-value">${e(client.tel || "")}</span></div>
-                <div class="pro-row"><span class="pro-label">Adresse</span><span class="pro-value">${e(client.adr || "")}</span></div>
-            </div>
+<div class="facture-container">
+    <!-- HEADER avec Logo et Contacts -->
+    <div class="header">
+        <div class="header-contact">
+            <div style="font-size: 16px; font-weight: 900; margin-bottom: 4px; letter-spacing: 1px;">SPEED <span style="color:#e50914">GARAGE</span> PRO</div>
+            <div><i class="fa-solid fa-location-dot"></i> Samatran, Kagbelen – Conakry, Guinée</div>
+            <div><i class="fa-solid fa-envelope"></i> speedgaragepro3@gmail.com</div>
+            <!-- NUMÉROS AJOUTÉS ICI -->
+            <div><i class="fa-solid fa-phone"></i> +224 613 81 63 81 / 624 01 74 50</div>
+            <div style="margin-top: 4px; font-size: 9px; color: #aaa;">RCM : à compléter | NIF : à compléter</div>
         </div>
     </div>
 
-    <div class="pro-card" style="margin-bottom: 12px;">
-        <div class="pro-card-header"><i class="fa-solid fa-car"></i> IDENTIFICATION DU VÉHICULE</div>
-        <div class="pro-card-body">
-            <div class="vehicle-grid">
-                <div class="vehicle-item"><span class="vehicle-label">🚗 Marque / Modèle</span><span class="vehicle-value">${e(v.marque || doc.vehicule || "")} ${e(v.modele || "")}</span></div>
-                <div class="vehicle-item"><span class="vehicle-label">🔢 Immatriculation</span><span class="vehicle-value">${e(v.immat || doc.immat || "")}</span></div>
-                <div class="vehicle-item"><span class="vehicle-label">🆔 DIN / VIN</span><span class="vehicle-value">${e(v.vin || "")}</span></div>
-                <div class="vehicle-item"><span class="vehicle-label">🛣️ Kilométrage</span><span class="vehicle-value">${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : ''}</span></div>
+    <!-- TITRE FACTURE & INFOS -->
+    <div class="title-bar">
+        <div class="title-badge">${type}</div>
+        <div class="title-info">
+            <div class="info-box"><i class="fa-solid fa-file-invoice"></i> N° : ${e(numero)}</div>
+            <div class="info-box"><i class="fa-solid fa-calendar-days"></i> Date : ${e(dateEmission)}</div>
+        </div>
+    </div>
+
+    <!-- INFOS CLIENT & VEHICULE -->
+    <div class="info-grid">
+        <div class="card">
+            <div class="card-header"><i class="fa-solid fa-user"></i> INFORMATIONS CLIENT</div>
+            <div class="card-body">
+                <div class="info-line"><div class="lbl">Nom / Raison sociale</div><div class="val">: ${e(doc.client_nom || "")}</div></div>
+                <div class="info-line"><div class="lbl">Téléphone</div><div class="val">: ${e(client.tel || "")}</div></div>
+                <div class="info-line"><div class="lbl">Adresse</div><div class="val">: ${e(client.adr || "")}</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="fa-solid fa-car"></i> INFORMATIONS VÉHICULE</div>
+            <div class="card-body card-body-grid">
+                <div class="info-line"><div class="lbl">Immatriculation</div><div class="val">${e(v.immat || doc.immat || "")}</div></div>
+                <div class="info-line"><div class="lbl">VIN</div><div class="val">${e(v.vin || "")}</div></div>
+                <div class="info-line"><div class="lbl">Marque</div><div class="val">${e(v.marque || doc.vehicule || "")}</div></div>
+                <div class="info-line"><div class="lbl">Kilométrage</div><div class="val">${v.kilometrage ? v.kilometrage.toLocaleString('fr-FR') + ' km' : ''}</div></div>
+                <div class="info-line"><div class="lbl">Modèle</div><div class="val">${e(v.modele || "")}</div></div>
+                <div class="info-line"><div class="lbl">Année</div><div class="val">${e(v.annee || "")}</div></div>
             </div>
         </div>
     </div>
 
-    ${doc.motif ? `
-    <div class="motif-block">
-        <div class="motif-label"><i class="fa-solid fa-screwdriver-wrench" style="color: #e50914;"></i> Motif de l'intervention</div>
-        <div class="motif-text">${e(doc.motif)}</div>
-    </div>` : ''}
-
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th style="width: 42%;">Désignation</th>
-                <th style="width: 10%; text-align: center;">Qté</th>
-                <th style="width: 16%; text-align: center;">Type</th>
-                <th style="width: 16%; text-align: right;">PU (GNF)</th>
-                <th style="width: 16%; text-align: right;">Total (GNF)</th>
-            </tr>
-        </thead>
-        <tbody>${lignesHtml}</tbody>
-    </table>
-
-    <div class="totals-section">
-        <table class="totals-table">
-            <tr><td>Sous-total HT :</td><td style="text-align:right; font-weight:700;">${(+doc.total_ht||0).toLocaleString("fr-FR")} GNF</td></tr>
-            <tr><td>TVA (${tv}%) :</td><td style="text-align:right; font-weight:700;">${((+doc.total_ht||0)*tv/100).toLocaleString("fr-FR")} GNF</td></tr>
-            ${acompte > 0 ? `<tr><td>Acompte versé :</td><td style="text-align:right; color: #c00; font-weight:900;">- ${acompte.toLocaleString("fr-FR")} GNF</td></tr>` : ''}
-            <tr class="total-row" style="background: ${doc.statut === 'Payé' ? '#059669' : '#c00'}; color: white;">
-                <td>${doc.statut === "Payé" ? "TOTAL PAYÉ :" : "TOTAL À PAYER :"}</td>
-                <td style="text-align:right;">${(+doc.total_ttc||0).toLocaleString("fr-FR")} GNF</td>
-            </tr>
-            ${(reste > 0 && doc.statut !== "Payé") ? `<tr><td style="color: #c00; font-weight:900;">Reste à payer :</td><td style="text-align:right; color: #c00; font-weight:900;">${reste.toLocaleString("fr-FR")} GNF</td></tr>` : ''}
+    <!-- TABLEAU DES ARTICLES -->
+    <div class="items-table-wrapper">
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 5%; text-align:center;">N°</th>
+                    <th style="width: 45%;">DÉSIGNATION</th>
+                    <th style="width: 15%; text-align:center;">TYPE</th>
+                    <th style="width: 10%; text-align:center;">QTÉ</th>
+                    <th style="width: 12%; text-align:right;">P.U. (GNF)</th>
+                    <th style="width: 13%; text-align:right;">TOTAL (GNF)</th>
+                </tr>
+            </thead>
+            <tbody>${lignesHtml}</tbody>
         </table>
     </div>
 
-    <div class="merci-msg">
-        <p>Merci de votre confiance. À très bientôt chez <b>SPEED GARAGE PRO</b> !</p>
+    <!-- BAS DE FACTURE (TRAVAUX & TOTAUX) -->
+    <div class="bottom-section">
+        <div class="travaux-box">
+            <div class="travaux-header"><i class="fa-solid fa-clipboard-check"></i> TRAVAUX RÉALISÉS</div>
+            <div class="travaux-body">
+                ${doc.motif ? `<div class="travaux-item"><i class="fa-solid fa-check"></i> ${e(doc.motif)}</div>` : ''}
+                <div class="travaux-item"><i class="fa-solid fa-check"></i> Contrôle général (niveaux, fuites, points de sécurité)</div>
+            </div>
+        </div>
+
+        <div class="totaux-box">
+            <div class="totaux-row"><span>Sous-total</span><span>${(+doc.total_ht||0).toLocaleString("fr-FR")} GNF</span></div>
+            <div class="totaux-row"><span>Remise</span><span>0 GNF</span></div>
+            <div class="totaux-row total-final"><span>TOTAL À PAYER</span><span>${(+doc.total_ttc||0).toLocaleString("fr-FR")} GNF</span></div>
+            <div class="totaux-row"><span>Montant réglé</span><span>${acompte.toLocaleString("fr-FR")} GNF</span></div>
+            
+            <!-- LIGNE NEON ROUGE POUR LE RESTE -->
+            <div class="totaux-row neon-red"><span>Reste à payer</span><span>${reste.toLocaleString("fr-FR")} GNF</span></div>
+        </div>
     </div>
 
-    <div class="signatures-section">
+    <!-- SIGNATURES -->
+    <div class="signatures">
         <div class="signature-box">
-            <h4>Signature du Client</h4>
-            <div class="signature-frame">Signé par voie électronique</div>
+            <h4>Signature du client</h4>
+            <div class="signature-area"></div>
         </div>
         <div class="signature-box">
-            <h4>Cachet et Signature</h4>
-            <div class="signature-frame">SPEED GARAGE PRO SARL</div>
-            <div style="margin-top: 6px; font-size: 9px; color: #555; font-weight: 700; font-style: italic;">Technicien(s) : ${e(doc.technicien || "Non spécifié")}</div>
+            <h4>Cachet et signature du garage</h4>
+            <div class="signature-area">
+                <img src="${LOGO_URL}" alt="Cachet Garage">
+            </div>
         </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-icons">
+            <span><i class="fa-solid fa-wrench"></i> Mécanique</span>
+            <span><i class="fa-solid fa-laptop-medical"></i> Diagnostic</span>
+            <span><i class="fa-solid fa-oil-can"></i> Entretien</span>
+        </div>
+        <div>SPEED GARAGE PRO — Votre véhicule, notre expertise.</div>
+    </div>
+    <div class="footer-bottom">
+        MERCI DE VOTRE CONFIANCE !
     </div>
 </div>
 
-<div class="footer">
-    <div class="footer-slogan">Roulez en toute confiance !</div>
-    <div class="footer-legal">
-        <b>NIF :</b> 931828172 &nbsp;|&nbsp; <b>RCCM :</b> GN.TCC.2026.B.13913<br>
-        <small style="opacity:0.7">Document généré électroniquement - Speed Garage Pro © 2026</small>
-    </div>
-</div>
-
-</div></body></html>`);
+</body></html>`);
     w.document.close();
 }
-
-
 function printDevis(id){
     const d = data.devis.find(x => x.id === id);
     if(d) printDoc("DEVIS", d.numero, d);
@@ -5438,6 +5715,194 @@ editFactureId = id;
 toast("Modification de la facture : à lier à votre modal.", "info");
 }
 }
+/* ============================================================
+   BLOC AJOUTÉ — ENCAISSEMENT FACTURE + FILTRES
+   ============================================================ */
+
+
+function chercherFacture(val) {
+    q = val;
+    f_page = 1;
+    renderFactures(document.getElementById("app"));
+}
+function reinitialiserFiltresFactures() {
+    q = ""; f_filtreStatut = "";
+    window.filtreImpayees = false;
+    window.filtreMoisActuel = false;
+    f_page = 1;
+    renderFactures(document.getElementById("app"));
+}
+function filtrerFacturesDepuisFactures(mode) {
+    window.filtreImpayees = false;
+    window.filtreMoisActuel = false;
+    f_filtreStatut = "";
+    if (mode === "payees")        f_filtreStatut = "Payé";
+    else if (mode === "attente")  f_filtreStatut = "En attente";
+    else if (mode === "impayees") window.filtreImpayees = true;
+    else if (mode === "mois")     window.filtreMoisActuel = true;
+    f_page = 1;
+    renderFactures(document.getElementById("app"));
+}
+function sauvegarderFocus(id) {
+    const el = document.getElementById(id);
+    if (el) sessionStorage.setItem("lastFocusId", id);
+}
+function restaurerFocus() {
+    const id = sessionStorage.getItem("lastFocusId");
+    if (id) {
+        const el = document.getElementById(id);
+        if (el && el.focus) {
+            el.focus();
+            if (el.setSelectionRange && typeof el.value === "string") {
+                el.setSelectionRange(el.value.length, el.value.length);
+            }
+        }
+    }
+}
+
+/* --- MODAL PAIEMENT --- */
+function ouvrirModalPaiement(factureId) {
+    try {
+        if (!factureId || factureId === "undefined") {
+            toast("ID facture invalide.", "error");
+            return;
+        }
+        const fa = (data.factures || []).find(x => String(x.id) === String(factureId));
+        if (!fa) {
+            toast("Facture introuvable (ID: " + factureId + ")", "error");
+            return;
+        }
+
+        const total   = +fa.total_ttc || 0;
+        const acompte = +fa.acompte   || 0;
+        const reste   = Math.max(0, total - acompte);
+
+        if (reste <= 0 || fa.statut === "Payé") {
+            toast("Cette facture est déjà soldée.", "info");
+            return;
+        }
+
+        const ancien = document.getElementById("modal-paiement");
+        if (ancien) ancien.remove();
+
+        const modal = document.createElement("div");
+        modal.className = "modal-overlay";
+        modal.id = "modal-paiement";
+        modal.innerHTML = `
+        <div class="modal" style="max-width:520px;background:#0f0f11;border:2px solid #e50914;border-radius:16px;padding:0;overflow:hidden;">
+            <div style="background:linear-gradient(90deg,#b20710,#e50914);padding:18px 24px;display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="margin:0;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px;">
+                    <i class="fa-solid fa-money-bill-wave"></i> Encaisser ${e(fa.numero || "")}
+                </h3>
+                <button onclick="document.getElementById('modal-paiement').remove()"
+                    style="background:rgba(0,0,0,.3);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div style="padding:22px 24px;">
+                <div style="background:rgba(255,255,255,.03);border:1px solid #333;border-radius:10px;padding:14px;margin-bottom:18px;font-size:13px;">
+                    <div style="display:flex;justify-content:space-between;color:#a1a1aa;margin-bottom:6px;"><span>Client</span><span style="color:#fff;font-weight:700;">${e(fa.client_nom || "—")}</span></div>
+                    <div style="display:flex;justify-content:space-between;color:#a1a1aa;margin-bottom:6px;"><span>Total TTC</span><span style="color:#fff;font-weight:700;">${f(total)}</span></div>
+                    <div style="display:flex;justify-content:space-between;color:#a1a1aa;margin-bottom:6px;"><span>Déjà payé</span><span style="color:#10b981;font-weight:700;">${f(acompte)}</span></div>
+                    <div style="display:flex;justify-content:space-between;color:#a1a1aa;border-top:1px dashed #333;padding-top:8px;margin-top:6px;">
+                        <span>Reste à payer</span><span style="color:#e50914;font-weight:900;font-size:16px;">${f(reste)}</span>
+                    </div>
+                </div>
+
+                <label style="display:block;font-size:12px;font-weight:700;color:#a1a1aa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">
+                    Montant encaissé (GNF) *
+                </label>
+                <input id="pay_montant" type="number" min="0" max="${reste}" value="${reste}"
+                    style="width:100%;padding:12px 14px;background:#fff;color:#111;font-weight:700;font-size:16px;border:2px solid #e50914;border-radius:8px;margin-bottom:14px;">
+
+                <label style="display:block;font-size:12px;font-weight:700;color:#a1a1aa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">
+                    Mode de paiement
+                </label>
+                <select id="pay_mode" style="width:100%;padding:12px 14px;background:#fff;color:#111;font-weight:600;border:2px solid #e50914;border-radius:8px;margin-bottom:14px;">
+                    <option value="Espèces">Espèces</option>
+                    <option value="Orange Money">Orange Money</option>
+                    <option value="MTN MoMo">MTN MoMo</option>
+                    <option value="Virement bancaire">Virement bancaire</option>
+                    <option value="Chèque">Chèque</option>
+                </select>
+
+                <label style="display:block;font-size:12px;font-weight:700;color:#a1a1aa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">
+                    Note (optionnel)
+                </label>
+                <input id="pay_note" type="text" placeholder="Référence, remarque..."
+                    style="width:100%;padding:12px 14px;background:#fff;color:#111;border:2px solid #333;border-radius:8px;">
+            </div>
+
+            <div style="background:#0a0a0a;padding:16px 24px;display:flex;gap:12px;border-top:1px solid #222;">
+                <button onclick="document.getElementById('modal-paiement').remove()"
+                    style="flex:1;padding:12px;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;background:#333;color:#fff;border:none;">
+                    <i class="fa-solid fa-xmark"></i> Annuler
+                </button>
+                <button onclick="sauvegarderPaiement('${e(fa.id)}', ${reste})"
+                    style="flex:1;padding:12px;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;box-shadow:0 4px 15px rgba(16,185,129,.4);">
+                    <i class="fa-solid fa-check"></i> Valider
+                </button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+
+        setTimeout(() => {
+            const inp = document.getElementById("pay_montant");
+            if (inp) { inp.focus(); inp.select(); }
+        }, 50);
+
+    } catch (err) {
+        console.error("[ouvrirModalPaiement]", err);
+        toast("Erreur : " + err.message, "error");
+    }
+}
+
+async function sauvegarderPaiement(factureId, resteMax) {
+    try {
+        const montant = +document.getElementById("pay_montant").value || 0;
+        const mode    = document.getElementById("pay_mode").value;
+        const note    = (document.getElementById("pay_note").value || "").trim();
+
+        if (montant <= 0)       { toast("Montant invalide.", "error"); return; }
+        if (montant > resteMax) { toast(`Le montant dépasse le reste (${f(resteMax)}).`, "error"); return; }
+
+        const fa = (data.factures || []).find(x => String(x.id) === String(factureId));
+        if (!fa) { toast("Facture introuvable.", "error"); return; }
+
+        const nouveauPaye   = (+fa.acompte || 0) + montant;
+        const nouveauReste  = Math.max(0, (+fa.total_ttc || 0) - nouveauPaye);
+        const nouveauStatut = nouveauReste <= 0 ? "Payé" : "En cours";
+
+        const { error: errFa } = await supa
+            .from("factures")
+            .update({ acompte: nouveauPaye, statut: nouveauStatut })
+            .eq("id", factureId);
+        if (errFa) throw errFa;
+
+        try {
+            const { error: errPay } = await supa.from("paiements").insert({
+                facture_id: factureId, montant, mode, note,
+                date_paiement: new Date().toISOString(),
+                utilisateur: profil?.nom || profil?.email || "inconnu"
+            });
+            if (errPay) console.warn("[paiements]", errPay.message);
+        } catch (e) { console.warn("[paiements] table absente ?", e); }
+
+        try { await jlog("Encaissement facture", fa.numero || factureId, `${f(montant)} — ${mode}`); }
+        catch (e) { }
+
+        document.getElementById("modal-paiement").remove();
+        toast(`Encaissement de ${f(montant)} enregistré ✔`);
+        await loadAllData();
+        renderFactures(document.getElementById("app"));
+
+    } catch (err) {
+        console.error("[sauvegarderPaiement]", err);
+        toast("Erreur : " + err.message, "error");
+    }
+}
+/* === FIN DU BLOC AJOUTÉ === */
 </script>
 </body>
 </html>
